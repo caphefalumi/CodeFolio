@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-
+import vue3GoogleLogin from 'vue3-google-login'
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -35,4 +35,9 @@ const vuetify = createVuetify({
 const app = createApp(App)
 app.use(router)
 app.use(vuetify)
+app.use(vue3GoogleLogin, {
+  clientId: '425392999066-t63hbs6l05n1qjgf568sd0886tqv66cf.apps.googleusercontent.com',
+  prompt: true,
+  autoLogin: true
+})
 app.mount('#app')

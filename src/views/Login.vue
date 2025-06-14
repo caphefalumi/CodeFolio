@@ -16,6 +16,7 @@
                   prepend-icon="mdi-email"
                   type="email"
                   required
+                  :rules="[rules.required, rules.email]"
                 ></v-text-field>
                 <v-text-field
                   v-model="password"
@@ -24,6 +25,7 @@
                   prepend-icon="mdi-lock"
                   type="password"
                   required
+                  :rules="[rules.required]"
                 ></v-text-field>
               </v-form>
             </v-card-text>
@@ -37,6 +39,10 @@
                 Login
               </v-btn>
             </v-card-actions>
+            <v-card-text class="text-center">
+              <p class="mb-0">Or login with</p>
+              <GoogleLogin :callback="handleGoogleLogin" prompt auto-login/>
+            </v-card-text>
             <v-card-text class="text-center">
               <p class="mb-0">Don't have an account?</p>
               <v-btn
@@ -101,8 +107,13 @@
 </template>
 
 <script>
+import { GoogleLogin, decodeCredential } from 'vue3-google-login'
+
 export default {
   name: 'LoginView',
+  components: {
+    GoogleLogin
+  },
   data() {
     return {
       email: '',
@@ -114,6 +125,10 @@ export default {
         email: '',
         password: '',
         confirmPassword: ''
+      },
+      rules: {
+        required: v => !!v || 'This field is required',
+        email: v => /.+@.+\..+/.test(v) || 'Email must be valid'
       }
     }
   },
@@ -145,6 +160,12 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    handleGoogleLogin(response) {
+      const userData = decodeCredential(response.credential)
+      console.log("Google user data:", userData)
+      // TODO: Implement your Google login logic here
+      this.$router.push('/')
     }
   }
 }
