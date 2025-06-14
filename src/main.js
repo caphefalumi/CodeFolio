@@ -36,7 +36,7 @@ const app = createApp(App)
 app.use(router)
 app.use(vuetify)
 app.use(vue3GoogleLogin, {
-  clientId: '425392999066-t63hbs6l05n1qjgf568sd0886tqv66cf.apps.googleusercontent.com',
+  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
   prompt: true,
   autoLogin: true
 })

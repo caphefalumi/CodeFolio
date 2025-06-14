@@ -86,10 +86,24 @@ const rules = {
 const handleRegister = async () => {
   loading.value = true
   try {
-    // TODO: Implement your registration logic here
-    console.log('Registering with:', form)
-    // After successful registration
-    router.push('/login')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.password
+      })
+    })
+    
+    if (!response.ok) {
+      throw new Error('Registration failed')
+    }
+
+    const data = await response.json()
+    localStorage.setItem('user', JSON.stringify(data))
+    router.push('/')
   } catch (error) {
     console.error('Registration error:', error)
   } finally {
@@ -97,10 +111,28 @@ const handleRegister = async () => {
   }
 }
 
-const handleGoogleLogin = (response) => {
+const handleGoogleLogin = async (response) => {
   const userData = decodeCredential(response.credential)
   console.log("Google user data:", userData)
-  // TODO: Implement your Google registration logic here
-  router.push('/login')
+  
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    })
+    
+    if (!response.ok) {
+      throw new Error('Google registration failed')
+    }
+
+    const data = await response.json()
+    localStorage.setItem('user', JSON.stringify(data))
+    router.push('/')
+  } catch (error) {
+    console.error('Google registration error:', error)
+  }
 }
 </script> 

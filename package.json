@@ -4,16 +4,22 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "app": "concurrently \"bun run dev\" \"bun run server\"",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "server": "json-server --watch db.json --port 3001",
+    "server": "nodemon src/database/index.js",
     "generate-data": "node src/scripts/generateFakeData.js"
   },
   "dependencies": {
+    "bson": "^6.10.4",
+    "concurrently": "^9.1.2",
     "core-js": "^3.8.3",
+    "dotenv": "^16.5.0",
     "json-server": "^1.0.0-beta.3",
+    "mongoose": "^8.15.2",
+    "nodemon": "^3.1.10",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
     "vue3-google-login": "^2.0.33",
