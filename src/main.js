@@ -8,6 +8,7 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+
 const vuetify = createVuetify({
   components,
   directives,
@@ -40,4 +41,5 @@ app.use(vue3GoogleLogin, {
   prompt: true,
   autoLogin: true
 })
+
 app.mount('#app')

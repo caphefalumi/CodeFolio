@@ -54,71 +54,56 @@
   </v-container>
 </template>
 
-<script setup>
+<script>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { GoogleLogin, decodeCredential } from 'vue3-google-login'
+import { GoogleLogin } from 'vue3-google-login'
+import axios from 'axios'
 
-const router = useRouter()
-const loading = ref(false)
+export default {
+  components: {
+    GoogleLogin
+  },
+  setup() {
+    const loading = ref(false)
 
-const form = reactive({
-  email: '',
-  password: ''
-})
-
-const rules = {
-  required: v => !!v || 'This field is required',
-  email: v => /.+@.+\..+/.test(v) || 'Email must be valid'
-}
-
-const handleLogin = async () => {
-  loading.value = true
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(form)
+    const form = reactive({
+      email: '',
+      password: ''
     })
-    
-    if (!response.ok) {
-      throw new Error('Login failed')
+
+    const rules = {
+      required: v => !!v || 'This field is required',
+      email: v => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || 'Email must be valid'
     }
 
-    const data = await response.json()
-    localStorage.setItem('user', JSON.stringify(data))
-    router.push('/')
-  } catch (error) {
-    console.error('Login error:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleGoogleLogin = async (response) => {
-  const userData = decodeCredential(response.credential)
-  console.log("Google user data:", userData)
-  
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userData)
-    })
-    
-    if (!response.ok) {
-      throw new Error('Google login failed')
+    const handleLogin = async () => {
+      try {
+        loading.value = true
+        const response = await axios.get('http://localhost:3001/api/login', {
+          params: {
+            email: form.email,
+            password: form.password
+          }
+        })
+        console.log(response.data)
+      } catch (error) {
+        console.error('Login error:', error)
+      } finally {
+        loading.value = false
+      }
     }
 
-    const data = await response.json()
-    localStorage.setItem('user', JSON.stringify(data))
-    router.push('/')
-  } catch (error) {
-    console.error('Google login error:', error)
+    const handleGoogleLogin = async (response) => {
+      
+    }
+
+    return {
+      form,
+      rules,
+      loading,
+      handleLogin,
+      handleGoogleLogin
+    }
   }
 }
-</script> 
+</script>
