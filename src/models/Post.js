@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+import mongoose from 'mongoose';
 
 const postSchema = new mongoose.Schema({
     author: {
@@ -22,6 +22,14 @@ const postSchema = new mongoose.Schema({
     githubUrl: {
         type: String,
         required: true
+    },
+    upvotes: {
+        type: Number,
+        default: 0
+    },
+    downvotes: {
+        type: Number,
+        default: 0
     },
     views: {
         type: Number,
@@ -50,7 +58,7 @@ const postSchema = new mongoose.Schema({
             default: Date.now
         }
     }]
+});
 
-})
-
-module.exports = mongoose.model("Post", postSchema)
+const Post = mongoose.model("Post", postSchema);
+export default Post;
