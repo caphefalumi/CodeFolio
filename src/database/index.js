@@ -1,12 +1,11 @@
 
 import mongoose from 'mongoose';
+import 'dotenv/config'
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/admin');
-
-    console.log("OK");
+    console.log(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB Connected...');
-
   } catch (err) {
     console.error('Database connection error:', err);
     process.exit(1);
