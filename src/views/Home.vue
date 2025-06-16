@@ -37,11 +37,6 @@
           md="4"
         >
           <v-card>
-            <v-img
-              :src="project.image || 'https://via.placeholder.com/400x200'"
-              height="200"
-              cover
-            ></v-img>
             <v-card-title>{{ project.title }}</v-card-title>
             <v-card-text>
               <p>{{ project.description || 'No description provided.' }}</p>

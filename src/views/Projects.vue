@@ -41,11 +41,6 @@
           md="4"
         >
           <v-card>
-            <v-img
-              :src="project.image"
-              height="200"
-              cover
-            ></v-img>
             <v-card-title>{{ project.title }}</v-card-title>
             <v-card-text>
               <p>{{ project.description }}</p>
@@ -95,36 +90,12 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'ProjectsView',
   data() {
     return {
-      projects: [
-        {
-          id: 1,
-          title: 'Sample Project 1',
-          description: 'A brief description of the project',
-          image: 'https://via.placeholder.com/400x200',
-          tags: ['Vue.js', 'Vuetify'],
-          liked: false
-        },
-        {
-          id: 2,
-          title: 'Sample Project 2',
-          description: 'Another project description',
-          image: 'https://via.placeholder.com/400x200',
-          tags: ['React', 'Node.js'],
-          liked: false
-        },
-        {
-          id: 3,
-          title: 'Sample Project 3',
-          description: 'Yet another project description',
-          image: 'https://via.placeholder.com/400x200',
-          tags: ['Python', 'Django'],
-          liked: false
-        }
-      ],
+      projects: [],
       search: '',
       selectedType: 'all',
       sortBy: 'newest',
@@ -156,8 +127,14 @@ export default {
     }
   },
   mounted() {
-    // Add API call here to fetch projects
-    console.log('Fetching projects...')
-  }
+    axios.get('/api/posts/')
+      .then(response => {
+        this.featuredProjects = response.data
+        console.log("Projects:", this.featuredProjects)
+      })
+      .catch(error => {
+        console.error('Error fetching featured projects:', error)
+      })
+  },
 }
-</script> 
+</script>

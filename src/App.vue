@@ -9,7 +9,8 @@
       <v-spacer></v-spacer>
       <v-btn to="/" text>Home</v-btn>
       <v-btn to="/projects" text>Projects</v-btn>
-      <v-btn to="/login" text>Login</v-btn>
+      <v-btn v-if="isAuthenticated" to="/profile" text>Profile</v-btn>
+      <v-btn v-else to="/login" text>Login</v-btn>
     </v-app-bar>
 
     <v-main>
@@ -33,3 +34,42 @@
   font-family: 'Roboto', sans-serif
 }
 </style>
+<script>
+import axios from 'axios'
+export default {
+  name: 'App',
+  data() {
+    return {
+      isAuthenticated: false,
+    }
+  },
+  mounted() {
+    this.fetchToken();
+  },
+  methods: {
+    fetchToken() {
+      const token = sessionStorage.getItem('accessToken');
+      if (token) {
+        this.isAuthenticated = true;
+        console.log('Access token found in sessionStorage:', token);
+        return;
+      }
+      axios.post('/api/users/token', {}, { withCredentials: true })
+        .then(response => {
+          console.log('Access token fetched:', response.data.accessToken)
+          sessionStorage.setItem('accessToken', response.data.accessToken)
+          this.isAuthenticated = true
+        })
+        .catch(error => {
+          console.error('Error fetching token:', error)
+        });
+    }
+  },
+  watch: {
+    '$route'() {
+      this.fetchToken();
+    }
+  }
+
+}
+</script>

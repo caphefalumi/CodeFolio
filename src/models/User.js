@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    githubUrl: {
+    githubUrl: {    
         type: String,
         default: ""
     },

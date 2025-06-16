@@ -48,7 +48,7 @@ const router = createRouter({
 
 // Navigation guard for protected routes
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('user') // Simple auth check
+  const isAuthenticated = localStorage.getItem('accessToken')
 
   // If route requires auth and user is not authenticated
   if (to.meta.requiresAuth && !isAuthenticated) {

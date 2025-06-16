@@ -7,30 +7,36 @@ const router = express.Router()
 
 
 router.post('/token', async (req, res) => {
-  const { refreshToken } = req.body
-  if (!refreshToken) {
-    return res.sendStatus(401)
-  }
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    const refreshToken = req.headers.cookie
+    if (!refreshToken) {
+        return res.sendStatus(401)
+    }
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err) => {
     if (err) {
-      return res.sendStatus(403)
+        return res.sendStatus(403)
     }
     const user = User.findOne({ refreshToken: refreshToken })
     if (!user) {
-      return res.sendStatus(403)
+        return res.sendStatus(403)
     }
-    const accessToken = jwt.sign({ email: user.email, username: user.username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+
+    const newRefreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    user.refreshToken = newRefreshToken
+    user.save()
+    res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        origin: 'http://localhost:3000',
+    })
+
+    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
     res.json({ accessToken })
-  })
+    })
 })
 
 
 
 router.post('/login/jwt', async (req, res) => {
   const { email, password } = req.body
-  const username = req.body.username
-  const accessToken = jwt.sign({ email: email, username: username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
-  const refreshToken = jwt.sign({ email: email, username: username }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
   try {
     const user = await User.findOne({ email })
     if (!user) {
@@ -41,13 +47,14 @@ router.post('/login/jwt', async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
+    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '12h' })
+    const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+
     user.refreshToken = refreshToken
     await user.save()
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      origin: 'http://localhost:3000',
     })
     res.status(200).json({ accessToken, refreshToken })
 
@@ -75,5 +82,18 @@ router.post('/logout', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err })
   }
 })
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' })
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid token' })
+    req.user = user
+    next()
+  })
+  next()
+}
 
 export default router

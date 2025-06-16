@@ -23,6 +23,21 @@
                 required
                 :rules="[rules.required]"
               ></v-text-field>
+              <v-alert
+              v-if="errorMessage"
+              type="error"
+              class="mb-4"
+              border="start"
+              colored-border
+              elevation="0"
+              density="comfortable"
+              style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+            >
+              <template #prepend>
+                <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+              </template>
+              {{ errorMessage }}
+            </v-alert>
 
               <v-btn
                 type="submit"
@@ -30,9 +45,7 @@
                 block
                 class="mt-4"
                 :loading="loading"
-              >
-                Login
-              </v-btn>
+              >Login</v-btn>
             </v-form>
 
             <v-divider class="my-4"></v-divider>
@@ -55,7 +68,6 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
 import { GoogleLogin } from 'vue3-google-login'
 import axios from 'axios'
 
@@ -63,43 +75,48 @@ export default {
   components: {
     GoogleLogin
   },
-  setup() {
-    const loading = ref(false)
-
-    const form = reactive({
-      email: '',
-      password: ''
-    })
-
-    const rules = {
-      required: v => !!v || 'This field is required',
-      email: v => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || 'Email must be valid'
-    }
-
-    const handleLogin = async () => {
-      try {
-        loading.value = true
-        const response = await axios.post('http://localhost:3001/api/login/jwt', {
-          email: form.email,
-          password: form.password
-        })
-        console.log(response.data)
-      } catch (error) {
-        console.error('Login error:', error)
-      } finally {
-        loading.value = false
+  data() {
+    return {
+      loading: false,
+      errorMessage: '',
+      form: {
+        email: '',
+        password: ''
+      },
+      rules: {
+        required: v => !!v || 'This field is required',
+        email: v => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || 'Email must be valid'
       }
     }
+  },
+  methods: {
+    async handleLogin() {
+      this.loading = true
+      this.errorMessage = ''
+      try {
+        const response = await axios.post('/api/users/login/jwt', {
+          email: this.form.email,
+          password: this.form.password
+        }, {
+          withCredentials: true
+        })
+        console.log(response.data)
+        sessionStorage.setItem('accessToken', response.data.accessToken)
 
-    const handleGoogleLogin = async (response) => {
+        this.$router.push('/')
+      } catch (error) {
+        console.error('Login error:', error)
+        if (error.response && error.response.status === 401) {
+          this.errorMessage = 'Invalid email or password'
+        } else {
+          this.errorMessage = 'Something went wrong. Please try again'
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+    async handleGoogleLogin(response) {
       
-    }
-    return {
-      form,
-      rules,
-      loading,
-      handleLogin,
-      handleGoogleLogin
     }
   }
 }
