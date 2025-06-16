@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const replySchema = new mongoose.Schema({
     user: {
@@ -14,7 +14,7 @@ const replySchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     }
-}, { _id: false });
+}, { _id: false })
 
 const commentSchema = new mongoose.Schema({
     user: {
@@ -31,7 +31,7 @@ const commentSchema = new mongoose.Schema({
         default: Date.now
     },
     replies: [replySchema]
-}, { _id: false });
+}, { _id: false })
 
 const postSchema = new mongoose.Schema({
     author: {
@@ -77,7 +77,7 @@ const postSchema = new mongoose.Schema({
         default: Date.now
     },
     comments: [commentSchema]
-});
+})
 
-const Post = mongoose.model("Post", postSchema);
-export default Post;
+const Post = mongoose.model("Post", postSchema)
+export default Post

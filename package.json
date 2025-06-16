@@ -4,12 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "app": "concurrently \"bun run dev\" \"bun run server\"",
+    "app": "concurrently \"npm run dev\" \"npm run server\"",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "server": "nodemon src/server/index.js",
+    "server": "nodemon src/server/server.js",
     "generate-data": "node src/scripts/generateFakeData.js"
   },
   "dependencies": {

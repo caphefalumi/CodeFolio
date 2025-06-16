@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    refreshToken: {
+        type: String,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -31,14 +35,14 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-});
+})
 
 userSchema.set('toJSON', {
   transform: (_, ret) => {
-    delete ret.password;
-    return ret;
+    delete ret.password
+    return ret
   }
-});
+})
 
-const User = mongoose.model("User", userSchema);
-export default User;
+const User = mongoose.model("User", userSchema)
+export default User

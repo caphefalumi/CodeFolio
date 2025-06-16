@@ -1,4 +1,6 @@
 import express from 'express'
+import bcrypt from 'bcrypt'
+import 'dotenv/config'
 import User from '../../models/User.js'
 const router = express.Router()
 
@@ -51,34 +53,15 @@ router.post('/register', async (req, res) => {
   res.status(201).json({ message: 'User created successfully', user: user })
 })
 
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
 
-  try {
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-    res.json(user);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error', error: err });
-  }
-});
 
 router.patch('/', async (req, res) => {
   const updatedUser = req.body
   // Here you would typically update the user in the database
   res.json({ message: 'User updated successfully', user: updatedUser })
 })
+
+
 router.delete('/:id', async (req, res) => {
   const userId = req.params.id
   try {
@@ -89,4 +72,4 @@ router.delete('/:id', async (req, res) => {
   }
 })
 
-export default router;
+export default router

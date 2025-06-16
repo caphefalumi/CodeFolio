@@ -35,10 +35,24 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// 🔸 Update a post
-router.patch('/:id', async (req, res) => {
+router.get('/:username/', async (req, res) => {
   try {
-    const updatedPost = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    const posts = await Post.find({ username: req.params.username })
+    if (!posts) return res.status(404).json({ message: 'No posts found' })
+    res.json(posts)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching post', error })
+  }
+})
+
+// 🔸 Update a post
+router.patch('/:username/:id', async (req, res) => {
+  try {
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: req.params.id, username: req.params.username },
+      req.body,
+      { new: true }
+    )
     if (!updatedPost) return res.status(404).json({ message: 'Post not found' })
     res.json({ message: 'Post updated successfully', post: updatedPost })
   } catch (error) {
@@ -71,5 +85,18 @@ router.post('/:id/comments', async (req, res) => {
     res.status(400).json({ message: 'Error adding comment', error })
   }
 })
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' })
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid token' })
+    req.user = user
+    next()
+  })
+  next() // For simplicity, skipping actual token verification in this example
+}
 
 export default router

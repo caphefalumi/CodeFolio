@@ -79,11 +79,9 @@ export default {
     const handleLogin = async () => {
       try {
         loading.value = true
-        const response = await axios.get('http://localhost:3001/api/login', {
-          params: {
-            email: form.email,
-            password: form.password
-          }
+        const response = await axios.post('http://localhost:3001/api/login/jwt', {
+          email: form.email,
+          password: form.password
         })
         console.log(response.data)
       } catch (error) {
@@ -96,7 +94,6 @@ export default {
     const handleGoogleLogin = async (response) => {
       
     }
-
     return {
       form,
       rules,
