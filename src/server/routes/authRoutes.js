@@ -1,8 +1,10 @@
 import express from 'express'
+import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import 'dotenv/config'
 import User from '../../models/User.js'
+import axios from 'axios'
 const router = express.Router()
 
 
@@ -64,6 +66,62 @@ router.post('/login/jwt', async (req, res) => {
   }
 })
 
+
+
+router.post('/login/google', async (req, res) => {
+  const googleAccessToken = req.body.token
+
+  if (!googleAccessToken) {
+    return res.status(400).json({ message: 'No access token provided' })
+  }
+
+  try {
+    // 1. Get user info from Google
+    const { data: googleUser } = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: {
+        Authorization: `Bearer ${googleAccessToken}`,
+      },
+    })
+
+    const { email, picture, name } = googleUser
+
+    // 2. Check if user already exists
+    let user = await User.findOne({ email })
+
+    // 3. If not, create a new user
+    if (!user) {
+      user = new User({
+        username: email.split('@')[0] + crypto.randomBytes(5).toString('hex'),
+        email,
+        password: crypto.randomBytes(128).toString('hex'), // Dummy password
+        oAuthProvider: 'google',
+        profilePicture: picture,
+        name,
+      })
+    }
+
+    // 4. Generate refresh and access tokens
+    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+
+    // 5. Save refresh token to DB and send in cookie
+    user.refreshToken = refreshToken
+    await user.save()
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      origin: 'http://localhost:3000',
+    })
+
+    // 6. Send access token to client
+    res.json({ accessToken })
+
+  } catch (err) {
+    console.error('Google login failed:', err)
+    res.status(500).json({ message: 'Google login failed', error: err.message || err })
+  }
+})
+
 router.post('/logout', async (req, res) => {
   const { refreshToken } = req.body
   if (!refreshToken) {
@@ -83,17 +141,6 @@ router.post('/logout', async (req, res) => {
   }
 })
 
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' })
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' })
-    req.user = user
-    next()
-  })
-  next()
-}
 
 export default router

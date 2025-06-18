@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // 🔸 Update a post
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const updatedPost = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true })
     if (!updatedPost) return res.status(404).json({ message: 'Post not found' })
@@ -47,9 +47,15 @@ router.patch('/:id', async (req, res) => {
 })
 
 // 🔸 Delete a post
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const deletedPost = await Post.findByIdAndDelete(req.params.id)
+    // Check if the user is authorized to delete the post
+    const post = await Post.findById(req.params.id)
+    if (!post) return res.status(404).json({ message: 'Post not found' })
+    if (post.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this post' })
+    }
+    const deletedPost = await Post.deleteOne({ _id: req.params.id })
     if (!deletedPost) return res.status(404).json({ message: 'Post not found' })
     res.json({ message: 'Post deleted successfully' })
   } catch (error) {
@@ -58,20 +64,31 @@ router.delete('/:id', async (req, res) => {
 })
 
 // 🔸 Add a comment to a post
-router.post('/:id/comments', async (req, res) => {
-  const { user, content } = req.body
+router.post('/:id/comments', authenticateToken, async (req, res) => {
+  const { content } = req.body
   try {
     const post = await Post.findById(req.params.id)
     if (!post) return res.status(404).json({ message: 'Post not found' })
 
-    post.comments.push({ user, content })
+    post.comments.push({ user: req.user.id, content })
     await post.save()
     res.status(201).json({ message: 'Comment added successfully', comments: post.comments })
   } catch (error) {
     res.status(400).json({ message: 'Error adding comment', error })
   }
 })
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' })
 
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid token' })
+    req.user = user
+    next()
+  })
+  next()
+}
 
 
 export default router

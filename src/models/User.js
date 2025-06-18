@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-
+import getRandomCat from 'random-cat-img'
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -14,6 +14,15 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    avatar: {
+        type: String,
+        default: getRandomCat()
+    },
+    oAuthProvider: {
+        type: String,
+        enum: ["google", "github", "none"],
+        default: "none"
     },
     bio: {
         type: String,

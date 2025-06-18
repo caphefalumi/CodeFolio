@@ -2,10 +2,11 @@ import express from 'express'
 import mongoose from 'mongoose'
 import 'dotenv/config'
 
-// import postRoutes from './routes/postRoutes.js'
+
 import userRoutes from './routes/userRoutes.js'
 import postRoutes from './routes/postRoutes.js'
 import authRoutes from './routes/authRoutes.js'
+import uploadRoutes from './routes/uploadRoutes.js'
 const app = express()
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -19,6 +20,7 @@ app.use(express.json())
 app.use('/api/users', userRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/users', authRoutes)
+app.use('/api/upload', uploadRoutes)
 app.listen(process.env.SERVER_PORT, () => {
   console.log(`Server is running on port ${process.env.SERVER_PORT}`)
 })

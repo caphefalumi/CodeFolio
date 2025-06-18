@@ -44,6 +44,8 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Username, email, and password are required' })
     } else if (await User.findOne({ username: user.username })) {
       return res.status(400).json({ message: 'Username already exists' })
+    } else if (await User.findOne({ email: user.email })) {
+      return res.status(400).json({ message: 'Email already exists' })
     }
   } catch (error) {
     return res.status(500).json({ message: 'Error creating user', error })

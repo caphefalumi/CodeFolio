@@ -52,7 +52,16 @@
 
             <div class="text-center">
               <p class="text-body-2 mb-2">Or login with</p>
-              <GoogleLogin :callback="handleGoogleLogin" prompt auto-login/>
+              <GoogleLogin :callback="handleGoogleLogin" prompt auto-login popup-type="TOKEN">
+                <v-btn
+                  class="google-btn"
+                  block
+                  elevation="1"
+                >
+                  <v-icon left class="me-2 google-icon" color="#EA4335" />
+                  Sign in with Google
+                </v-btn>
+              </GoogleLogin>
             </div>
 
             <div class="text-center mt-4">
@@ -116,8 +125,40 @@ export default {
       }
     },
     async handleGoogleLogin(response) {
-      
+      axios.post('/api/users/login/google', {
+        token: response.access_token
+      },)
+        .then(res => {
+          console.log(res.data)
+          sessionStorage.setItem('accessToken', res.data.accessToken)
+          this.$router.push('/')
+        })
+        .catch(error => {
+          console.error('Google login error:', error)
+          this.errorMessage = 'Google login failed. Please try again'
+        })
     }
   }
 }
 </script>
+<style scoped>
+.google-icon {
+
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
+  background-color: white;
+  background-repeat: no-repeat;
+}
+.google-btn {
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.54);
+  border: 1px solid #ddd;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 24px;
+}
+.google-btn:hover {
+  background-color: #f7f7f7;
+}
+</style>
+
