@@ -49,7 +49,10 @@ const router = createRouter({
 // Navigation guard for protected routes
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('accessToken')
-
+  
+  if (to.path === '/callback') {
+    next('/')
+  }
   // If route requires auth and user is not authenticated
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')

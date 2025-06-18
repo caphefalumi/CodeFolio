@@ -19,7 +19,7 @@ app.use(express.json())
 // app.use('/api/posts', postRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/posts', postRoutes)
-app.use('/api/users', authRoutes)
+app.use('/api/auth', authRoutes)
 app.use('/api/upload', uploadRoutes)
 app.listen(process.env.SERVER_PORT, () => {
   console.log(`Server is running on port ${process.env.SERVER_PORT}`)

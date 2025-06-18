@@ -12,6 +12,7 @@
     "generate-data": "node src/scripts/generateFakeData.js"
   },
   "dependencies": {
+    "@octokit/oauth-app": "^8.0.1",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "bson": "^6.10.4",

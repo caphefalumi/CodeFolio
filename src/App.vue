@@ -54,7 +54,7 @@ export default {
         console.log('Access token found in sessionStorage:', token);
         return;
       }
-      axios.post('/api/users/token', {}, { withCredentials: true })
+      axios.post('/api/auth/token', {}, { withCredentials: true })
         .then(response => {
           console.log('Access token fetched:', response.data.accessToken)
           sessionStorage.setItem('accessToken', response.data.accessToken)

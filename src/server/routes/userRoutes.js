@@ -1,5 +1,5 @@
 import express from 'express'
-import bcrypt from 'bcrypt'
+import authenticateToken from '../middleware/authenticateToken.js'
 import 'dotenv/config'
 import User from '../../models/User.js'
 const router = express.Router()
@@ -26,46 +26,23 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-router.post('/register', async (req, res) => {
-  const saltRounds = 10
-  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
-  const user = new User({
-    username: req.body.username,
-    email: req.body.email,
-    password: hashedPassword,
-    fullName: req.body.fullName,
-    bio: req.body.bio,
-    location: req.body.location,
-    githubUrl: req.body.githubUrl,
-    avatarUrl: req.body.avatarUrl
-  })
-  try {
-    if (!user.username || !user.email || !user.password) {
-      return res.status(400).json({ message: 'Username, email, and password are required' })
-    } else if (await User.findOne({ username: user.username })) {
-      return res.status(400).json({ message: 'Username already exists' })
-    } else if (await User.findOne({ email: user.email })) {
-      return res.status(400).json({ message: 'Email already exists' })
-    }
-  } catch (error) {
-    return res.status(500).json({ message: 'Error creating user', error })
-  }
-  // Here you would typically save the new user to the database
-  user.save()
-  res.status(201).json({ message: 'User created successfully', user: user })
-})
 
-
-
-router.patch('/', async (req, res) => {
+router.patch('/', authenticateToken, async (req, res) => {
   const updatedUser = req.body
-  // Here you would typically update the user in the database
-  res.json({ message: 'User updated successfully', user: updatedUser })
+  try {
+    await User.findByIdAndUpdate(req.user.id, updatedUser, { new: true })
+    res.json({ message: 'User updated successfully', user: updatedUser })
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating user', error })
+  }
 })
 
 
-router.delete('/:id', async (req, res) => {
-  const userId = req.params.id
+router.delete('/', authenticateToken, async (req, res) => {
+  const userId = req.user.id
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' })
+  }
   try {
     await User.findByIdAndDelete(userId)
     res.json({ message: `User with ID: ${userId} deleted successfully` })
@@ -73,5 +50,8 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error deleting user', error })
   }
 })
+
+
+
 
 export default router

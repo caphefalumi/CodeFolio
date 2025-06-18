@@ -1,12 +1,12 @@
 import express from 'express'
+import authenticateToken from '../middleware/authenticateToken.js'
 import Post from '../../models/Post.js'
-
 const router = express.Router()
 
 // 🔸 Create a new post
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
-    const newPost = await Post.create(req.body)
+    const newPost = await Post.create({ ...req.body, user: req.user.id })
     newPost.save()
     res.status(201).json({ message: 'Post created successfully', post: newPost })
   } catch (error) {
@@ -77,18 +77,8 @@ router.post('/:id/comments', authenticateToken, async (req, res) => {
     res.status(400).json({ message: 'Error adding comment', error })
   }
 })
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' })
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' })
-    req.user = user
-    next()
-  })
-  next()
-}
+
 
 
 export default router
