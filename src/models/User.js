@@ -13,17 +13,21 @@ const oAuthProviderSchema = new mongoose.Schema({
 }, { _id: false })
 
 const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
-  },
   email: {
     type: String,
     required: true,
     unique: true
   },
-  password: {
+  username: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName: {
     type: String,
     required: true
   },
@@ -63,5 +67,21 @@ userSchema.set('toJSON', {
   }
 })
 
+userSchema.static.findByUsername = function(username) {
+  return this.findOne({ username: new RegExp(username, 'i') })
+}
+
+userSchema.virtual('name').get(function() {
+  return this.firstName + ' ' + this.lastName
+})
+
+userSchema.pre('save', function(next) {
+  this.updatedAt = Date.now()
+  next()
+})
+userSchema.pre('findOneAndUpdate', function(next) {
+  this.updatedAt = Date.now()
+  next()
+})
 const User = mongoose.model("User", userSchema)
 export default User

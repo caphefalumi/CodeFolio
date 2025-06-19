@@ -12,6 +12,12 @@ const routes = [
     component: () => import('@/views/Projects.vue')
   },
   {
+    path: '/:username',
+    name: 'Profile',
+    component: () => import('@/views/Profile.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/:username/:id',
     name: 'ProjectDetail',
     component: () => import('@/views/ProjectDetail.vue')
@@ -28,12 +34,7 @@ const routes = [
     component: () => import('@/views/Register.vue'),
     meta: { requiresGuest: true }
   },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: () => import('@/views/Profile.vue'),
-    meta: { requiresAuth: true }
-  },
+
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',

@@ -129,7 +129,7 @@ export default {
   mounted() {
     axios.get('/api/posts/')
       .then(response => {
-        this.featuredProjects = response.data
+        this.projects = response.data
         console.log("Projects:", this.featuredProjects)
       })
       .catch(error => {

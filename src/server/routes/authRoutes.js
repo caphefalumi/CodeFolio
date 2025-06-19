@@ -16,11 +16,14 @@ router.post('/token', async (req, res) => {
     }
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err) => {
     if (err) {
-        return res.sendStatus(403)
+      console.error('Invalid refresh token:', err)
+      return res.sendStatus(403)
     }
     const user = User.findOne({ refreshToken: refreshToken })
     if (!user) {
-        return res.sendStatus(403)
+      console.error('User not found for refresh token:', refreshToken)
+      return res.sendStatus(403)
+
     }
 
     const newRefreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
@@ -40,8 +43,10 @@ router.post('/register', async (req, res) => {
   const saltRounds = 10
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
   const user = new User({
-    username: req.body.username,
     email: req.body.email,
+    username: req.body.username,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
     password: hashedPassword,
     avatar: await getRandomCat().then(data => data.message),
     bio: req.body.bio,
@@ -114,13 +119,14 @@ router.post('/login/google', async (req, res) => {
 
     const { id: id, email: email, picture: picture } = googleUser
     console.log('Google User Info:', googleUser)
-
     let user = await User.findOne({ email })
 
     if (!user) {
       user = new User({
         username: email.split('@')[0] + crypto.randomBytes(5).toString('hex'),
         email: email,
+        firstName: googleUser.given_name,
+        lastName: googleUser.family_name,
         password: crypto.randomBytes(128).toString('hex'),
         avatar: picture,
         oAuthProviders: [{ provider: 'google', providerId: id }],
@@ -182,7 +188,7 @@ router.get('/login/github/callback', async (req, res) => {
     const { data: userProfile } = await axios.get('https://api.github.com/user', {
       headers: { Authorization: `Bearer ${access_token}` },
     })
-
+    console.log('GitHub User Profile:', userProfile)
     const avatar_url = userProfile.avatar_url
 
     // 2. Get user email info
@@ -197,13 +203,15 @@ router.get('/login/github/callback', async (req, res) => {
     }
 
     const email = primaryEmailObj.email
-
+    const nameParts = userProfile.name.trim().split(' ')
     // 4. Find or create user
     let user = await User.findOne({ email })
     if (!user) {
       user = new User({
         username: email.split('@')[0] + crypto.randomBytes(5).toString('hex'),
-        email,
+        email: email,
+        firstName: nameParts[0],
+        lastName: nameParts.slice(1).join(' ') || 'User',
         password: crypto.randomBytes(128).toString('hex'), // Dummy password
         oAuthProviders: [{
           provider: 'github',
@@ -212,9 +220,9 @@ router.get('/login/github/callback', async (req, res) => {
         avatar: avatar_url,
       })
     } else {
-      const hasGithub = user.oAuthProviders.find(p => p.provider === 'github' && p.providerId === githubId)
+      const hasGithub = user.oAuthProviders.find(p => p.provider === 'github')
       if (!hasGithub) {
-        user.oAuthProviders.push({ provider: 'github', providerId: githubId })
+        user.oAuthProviders.push({ provider: 'github', providerId: userProfile.id })
       }
     }
 
@@ -229,13 +237,14 @@ router.get('/login/github/callback', async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       origin: 'http://localhost:3000',
-    })
-
+    })    
     res.json({ accessToken })
     res.redirect('http://localhost:3000')
+    return res.redirect('http://localhost:3000')
   } catch (err) {
     console.error('GitHub login failed:', err)
     res.status(500).json({ message: 'GitHub login failed', error: err.message || err })
+    
   }
   
 })

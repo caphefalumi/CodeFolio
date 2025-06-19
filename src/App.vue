@@ -9,7 +9,7 @@
       <v-spacer></v-spacer>
       <v-btn to="/" text>Home</v-btn>
       <v-btn to="/projects" text>Projects</v-btn>
-      <v-btn v-if="isAuthenticated" to="/profile" text>Profile</v-btn>
+      <v-btn v-if="isAuthenticated" :to="`/${username}`" text>Profile</v-btn>
       <v-btn v-else to="/login" text>Login</v-btn>
     </v-app-bar>
 
@@ -36,17 +36,30 @@
 </style>
 <script>
 import axios from 'axios'
+import { fetchCurrentUser }from '@/composables/user.js'
 export default {
   name: 'App',
   data() {
     return {
       isAuthenticated: false,
+      user: null,
+      username: ''
     }
   },
   mounted() {
     this.fetchToken();
+    this.fetchProfile();
   },
   methods: {
+    async fetchProfile() {
+      try {
+        this.user = await fetchCurrentUser();
+        this.username = this.user.username;
+        console.log('User profile fetched:', this.user);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    },
     fetchToken() {
       const token = sessionStorage.getItem('accessToken');
       if (token) {

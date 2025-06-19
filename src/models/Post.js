@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-
+import User from './User.js'
 const replySchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -44,6 +44,13 @@ const postSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    coverImage: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+    },
     content: {
         type: String,
         required: true
@@ -78,6 +85,18 @@ const postSchema = new mongoose.Schema({
     },
     comments: [commentSchema]
 })
+
+postSchema.static.findByAuthor = function(username) {
+    user = User.findOne({ username: new RegExp(username, 'i') })
+    return this.find({ author: user._id }).populate('author', 'username avatar')
+}
+postSchema.static.getAuthor = function(id) {
+    post = this.findById(id)
+    return User.findOne({ _id: post.author }).select('username avatar')
+}
+postSchema.static.getFullPath = function(id) {
+    return `${process.env.BASE_URL}/${Post.getAuthor(id).username}/${id}`
+}
 
 const Post = mongoose.model("Post", postSchema)
 export default Post

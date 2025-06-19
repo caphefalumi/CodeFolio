@@ -141,7 +141,7 @@ export default {
         })
       },
       handleGithubLogin() {
-        window.location.href = '/api/auth/login/github'
+        this.$router.push('/api/auth/login/github')
       }
 
   }
