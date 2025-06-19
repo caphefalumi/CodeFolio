@@ -1,32 +1,44 @@
 import express from 'express'
 import multer from 'multer'
-import image2uri from 'image2uri'
-const router = express.Router()
-const upload = multer({ dest: 'uploads/' })
+import sharp from 'sharp'
 
-router.post('/image', upload.single('image'), async (req, res) => {
+const router = express.Router()
+const upload = multer({ storage: multer.memoryStorage() })
+
+router.post('/image/:type', upload.single('image'), async (req, res) => {
   try {
-    const mimeToExt = {
-    'image/jpeg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-    'image/gif': '.gif',
-    'image/svg+xml': '.svg',
-    'image/bmp': '.bmp',
-    'image/x-icon': '.ico'
+    const file = req.file
+    const { type } = req.params
+
+    if (!file || (type !== 'profile' && type !== 'blog')) {
+      return res.status(400).json({ message: 'Invalid upload type or missing image' })
     }
 
-    const ext = mimeToExt[req.file.mimetype]
+    // Set dimensions based on image type
+    const resizeOptions = {
+      profile: { width: 512, height: 512 },
+      blog: { width: 1280, height: 720 }, // maintains aspect ratio
+    }
 
-    const filePath = req.file.path
-    const dataUri = await image2uri(filePath, { ext: ext})
+    const { width, height } = resizeOptions[type]
 
+    const compressedBuffer = await sharp(file.buffer)
+      .resize({
+        width,
+        height,
+        fit: 'cover',
+        position: 'center'
+      })
+      .jpeg({ quality: 75, mozjpeg: true })
+      .toBuffer()
 
-    // Send URI back to frontend
+    const base64 = compressedBuffer.toString('base64')
+    const dataUri = `data:image/jpeg;base64,${base64}`
+
     res.json({ uri: dataUri })
   } catch (err) {
-    console.error('Image conversion failed:', err)
-    res.status(400).json({ message: 'Failed to convert image' })
+    console.error('Image processing failed:', err)
+    res.status(500).json({ message: 'Failed to process image' })
   }
 })
 

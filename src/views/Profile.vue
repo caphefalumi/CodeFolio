@@ -6,7 +6,7 @@
         <v-col cols="12" md="4">
           <v-card>
             <v-img
-              :src="userProfile.avatar || 'https://via.placeholder.com/300'"
+              :src="userProfile.avatar"
               height="300"
               cover
             ></v-img>
@@ -194,26 +194,14 @@
 </template>
 
 <script>
+import axios from 'axios'
+import { fetchUserProfile, fetchUserProjects } from '@/composables/user.js'
 export default {
   name: 'ProfileView',
   data() {
     return {
-      userProfile: {
-        name: 'John Doe',
-        email: 'john@example.com',
-        bio: 'Full-stack developer passionate about creating amazing web applications.',
-        avatar: null
-      },
-      userProjects: [
-        {
-          id: 1,
-          title: 'Sample Project 1',
-          description: 'A brief description of the project',
-          image: 'https://via.placeholder.com/400x200',
-          tags: ['Vue.js', 'Vuetify'],
-          githubUrl: 'https://github.com/username/project1'
-        }
-      ],
+      userProfile: {},
+      userProjects: [],
       showEditProfile: false,
       showNewProject: false,
       loading: false,
@@ -232,15 +220,55 @@ export default {
     }
   },
   methods: {
+    async fetchUserProfile() {
+      try {
+        this.userProfile = await fetchUserProfile()
+        this.editForm.name = this.userProfile.name
+        this.editForm.bio = this.userProfile.bio
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error)
+      }
+    },
+    async fetchUserProjects() {
+      try {
+        this.userProjects = await fetchUserProjects()
+      } catch (error) {
+        console.error('Failed to fetch projects:', error)
+      }
+    },
     async saveProfile() {
       this.loading = true
+
       try {
-        // Add your profile update logic here
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        this.userProfile = {
-          ...this.userProfile,
-          ...this.editForm
+        let avatarUri = this.editForm.avatar
+
+        // Upload avatar if it's a File object
+        if (avatarUri && typeof avatarUri === 'object') {
+          const formData = new FormData()
+          formData.append('image', avatarUri)
+
+          const uploadRes = await axios.post('/api/upload/image/profile', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${this.accessToken}`
+            }
+          })
+
+          avatarUri = uploadRes.data.uri
         }
+
+        // Submit profile update
+        const payload = {
+          name: this.editForm.name,
+          bio: this.editForm.bio,
+          avatar: avatarUri
+        }
+
+        await axios.patch('/api/users', payload, {
+          headers: { Authorization: `Bearer ${this.accessToken}` }
+        })
+
+        this.fetchUserProfile()
         this.showEditProfile = false
       } catch (error) {
         console.error('Profile update failed:', error)
@@ -248,16 +276,15 @@ export default {
         this.loading = false
       }
     },
+
+
     async saveProject() {
       this.loading = true
       try {
-        // Add your project save logic here
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        const newProject = {
-          id: this.userProjects.length + 1,
-          ...this.projectForm
-        }
-        this.userProjects.push(newProject)
+        const response = await axios.post('/api/posts', this.projectForm, {
+          headers: { Authorization: `Bearer ${this.accessToken}` }
+        })
+        this.userProjects.push(response.data.post)
         this.showNewProject = false
         this.projectForm = {
           title: '',
@@ -276,13 +303,15 @@ export default {
       this.projectForm = { ...project }
       this.showNewProject = true
     },
+    
     async deleteProject(project) {
       if (confirm('Are you sure you want to delete this project?')) {
         this.loading = true
         try {
-          // Add your project deletion logic here
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          this.userProjects = this.userProjects.filter(p => p.id !== project.id)
+          await axios.delete(`/api/posts/${project._id}`, {
+            headers: { Authorization: `Bearer ${this.accessToken}` }
+          })
+          this.userProjects = this.userProjects.filter(p => p._id !== project._id)
         } catch (error) {
           console.error('Project deletion failed:', error)
         } finally {
@@ -290,6 +319,15 @@ export default {
         }
       }
     }
-  }
+  },
+  computed: {
+    accessToken() {
+      return sessionStorage.getItem('accessToken')
+    }
+  },
+    mounted() {
+      this.fetchUserProfile()
+      this.fetchUserProjects()
+  },
 }
-</script> 
+</script>

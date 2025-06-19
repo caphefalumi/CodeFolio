@@ -4,40 +4,40 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('../views/Home.vue')
+    component: () => import('@/views/Home.vue')
   },
   {
     path: '/projects',
     name: 'Projects',
-    component: () => import('../views/Projects.vue')
+    component: () => import('@/views/Projects.vue')
   },
   {
     path: '/:username/:id',
     name: 'ProjectDetail',
-    component: () => import('../views/ProjectDetail.vue')
+    component: () => import('@/views/ProjectDetail.vue')
   },
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../views/Login.vue'),
+    component: () => import('@/views/Login.vue'),
     meta: { requiresGuest: true }
   },
   {
     path: '/register',
     name: 'Register',
-    component: () => import('../views/Register.vue'),
+    component: () => import('@/views/Register.vue'),
     meta: { requiresGuest: true }
   },
   {
     path: '/profile',
     name: 'Profile',
-    component: () => import('../views/Profile.vue'),
+    component: () => import('@/views/Profile.vue'),
     meta: { requiresAuth: true }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('../views/NotFound.vue')
+    component: () => import('@/views/NotFound.vue')
   }
 ]
 
@@ -48,7 +48,7 @@ const router = createRouter({
 
 // Navigation guard for protected routes
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('accessToken')
+  const isAuthenticated = sessionStorage.getItem('accessToken')
   
   if (to.path === '/callback') {
     next('/')

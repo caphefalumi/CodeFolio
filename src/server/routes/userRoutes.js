@@ -12,6 +12,18 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Error fetching users', error })
   }
 })
+router.get('/me', authenticateToken, async (req, res) => {
+
+  try {
+    const user = await User.findById(req.user.id)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    res.json(user)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching current user', error })
+  }
+})
 
 router.get('/:id', async (req, res) => {
   const userId = req.params.id
@@ -20,11 +32,12 @@ router.get('/:id', async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
     }
-    res.json(user)
+    res.json(user.toObject({ getters: true }))
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user', error })
   }
 })
+
 
 
 router.patch('/', authenticateToken, async (req, res) => {
@@ -33,6 +46,7 @@ router.patch('/', authenticateToken, async (req, res) => {
     await User.findByIdAndUpdate(req.user.id, updatedUser, { new: true })
     res.json({ message: 'User updated successfully', user: updatedUser })
   } catch (error) {
+    console.error('Error updating user:', error)
     res.status(400).json({ message: 'Error updating user', error })
   }
 })

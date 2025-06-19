@@ -23,7 +23,18 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Error fetching posts', error })
   }
 })
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
 
+    const posts = await Post.find({ author: req.user.id })
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: 'No posts found for this user' })
+    }
+    res.json(posts)
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching posts', error })
+  }
+})
 // 🔸 Get a single post by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -34,6 +45,9 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error fetching post', error })
   }
 })
+
+
+
 
 // 🔸 Update a post
 router.patch('/:id', authenticateToken, async (req, res) => {
