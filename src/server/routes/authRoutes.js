@@ -83,8 +83,8 @@ router.post('/login/jwt', async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
-    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '12h' })
-    const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     user.refreshToken = refreshToken
     await user.save()
@@ -140,8 +140,8 @@ router.post('/login/google', async (req, res) => {
 
 
     // 4. Generate refresh and access tokens
-    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
     const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     // 5. Save refresh token to DB and send in cookie
     user.refreshToken = refreshToken
@@ -188,7 +188,7 @@ router.get('/login/github/callback', async (req, res) => {
     const { data: userProfile } = await axios.get('https://api.github.com/user', {
       headers: { Authorization: `Bearer ${access_token}` },
     })
-    console.log('GitHub User Profile:', userProfile)
+
     const avatar_url = userProfile.avatar_url
 
     // 2. Get user email info
@@ -203,15 +203,13 @@ router.get('/login/github/callback', async (req, res) => {
     }
 
     const email = primaryEmailObj.email
-    const nameParts = userProfile.name.trim().split(' ')
+
     // 4. Find or create user
     let user = await User.findOne({ email })
     if (!user) {
       user = new User({
         username: email.split('@')[0] + crypto.randomBytes(5).toString('hex'),
-        email: email,
-        firstName: nameParts[0],
-        lastName: nameParts.slice(1).join(' ') || 'User',
+        email,
         password: crypto.randomBytes(128).toString('hex'), // Dummy password
         oAuthProviders: [{
           provider: 'github',
@@ -220,16 +218,16 @@ router.get('/login/github/callback', async (req, res) => {
         avatar: avatar_url,
       })
     } else {
-      const hasGithub = user.oAuthProviders.find(p => p.provider === 'github')
+      const hasGithub = user.oAuthProviders.find(p => p.provider === 'github' && p.providerId === userProfile.id)
       if (!hasGithub) {
         user.oAuthProviders.push({ provider: 'github', providerId: userProfile.id })
       }
     }
 
     // 5. Generate and save tokens
-    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
     const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
-
+    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    console.log('Generated Access Token:', accessToken)
     user.refreshToken = refreshToken
     await user.save()
 
@@ -237,17 +235,23 @@ router.get('/login/github/callback', async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       origin: 'http://localhost:3000',
-    })    
-    res.json({ accessToken })
-    res.redirect('http://localhost:3000')
-    return res.redirect('http://localhost:3000')
+    })
+    res.send(`
+      <script>
+        window.opener.postMessage(
+          ${JSON.stringify({ accessToken})},
+          "http://localhost:3000"
+        );
+        window.close();
+      </script>
+    `)
+
   } catch (err) {
     console.error('GitHub login failed:', err)
     res.status(500).json({ message: 'GitHub login failed', error: err.message || err })
-    
   }
-  
 })
+  
 
 
 router.post('/logout', async (req, res) => {

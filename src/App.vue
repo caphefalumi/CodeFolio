@@ -79,7 +79,7 @@ export default {
     }
   },
   watch: {
-    '$route'() {
+    '$router'() {
       this.fetchToken();
     }
   }

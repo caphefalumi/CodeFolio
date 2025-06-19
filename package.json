@@ -17,6 +17,7 @@
     "bcrypt": "^6.0.0",
     "bson": "^6.10.4",
     "concurrently": "^9.1.2",
+    "cookie-parser": "^1.4.7",
     "core-js": "^3.8.3",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

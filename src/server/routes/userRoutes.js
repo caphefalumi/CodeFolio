@@ -50,7 +50,6 @@ router.get('/:username', authenticateToken, async (req, res) => {
 
 
 
-
 router.patch('/', authenticateToken, async (req, res) => {
   const updatedUser = req.body
   try {

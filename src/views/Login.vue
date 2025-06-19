@@ -81,6 +81,7 @@
 import { GoogleLogin } from 'vue3-google-login'
 import axios from 'axios'
 import vIconLogin from '@/components/vIconLogin.vue'
+
 export default {
   components: {
     GoogleLogin,
@@ -100,6 +101,12 @@ export default {
       }
     }
   },
+  mounted() {
+    window.addEventListener('message', this.receiveGithubToken)
+  },
+  beforeUnmount() {
+    window.removeEventListener('message', this.receiveGithubToken)
+  },
   methods: {
     async handleLogin() {
       this.loading = true
@@ -111,42 +118,51 @@ export default {
         }, {
           withCredentials: true
         })
-        console.log(response.data)
         sessionStorage.setItem('accessToken', response.data.accessToken)
-
         this.$router.push('/')
       } catch (error) {
         console.error('Login error:', error)
-        if (error.response && error.response.status === 401) {
-          this.errorMessage = 'Invalid email or password'
-        } else {
-          this.errorMessage = 'Something went wrong. Please try again'
-        }
+        this.errorMessage = error.response?.status === 401
+          ? 'Invalid email or password'
+          : 'Something went wrong. Please try again'
       } finally {
         this.loading = false
       }
     },
-    async handleGoogleLogin(response) {
-      axios.post('/api/auth/login/google', {
-        token: response.access_token
-      })
-        .then(res => {
-          console.log(res.data)
-          sessionStorage.setItem('accessToken', res.data.accessToken)
-          this.$router.push('/')
-        })
-        .catch(error => {
-          console.error('Google login error:', error)
-          this.errorMessage = 'Google login failed. Please try again'
-        })
-      },
-      handleGithubLogin() {
-        this.$router.push('/api/auth/login/github')
-      }
 
+    async handleGoogleLogin(response) {
+      try {
+        const res = await axios.post('/api/auth/login/google', {
+          token: response.access_token
+        })
+        sessionStorage.setItem('accessToken', res.data.accessToken)
+        this.$router.push('/')
+      } catch (error) {
+        console.error('Google login error:', error)
+        this.errorMessage = 'Google login failed. Please try again'
+      }
+    },
+
+    handleGithubLogin() {
+      const popup = window.open(
+        '/api/auth/login/github',
+        'GitHub Login',
+        'width=500,height=600'
+      )
+    },
+
+    receiveGithubToken(event) {
+      if (event.origin !== 'http://localhost:3001') return
+      const { accessToken } = event.data || {}
+      if (accessToken) {
+        sessionStorage.setItem('accessToken', accessToken)
+        this.$router.push('/')
+      }
+    }
   }
 }
 </script>
+
 
 <style scoped>
 .login-buttons {
