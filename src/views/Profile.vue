@@ -164,8 +164,8 @@
               required
             ></v-textarea>
             <v-file-input
-              v-model="projectForm.image"
-              label="Project Image"
+              v-model="projectForm.coverImage"
+              label="Project Cover Image"
               accept="image/*"
               prepend-icon="mdi-image"
             ></v-file-input>
@@ -226,7 +226,7 @@ export default {
         title: '',
         description: '',
         content: '',
-        image: null,
+        coverImage: null,
         tags: [],
         githubUrl: ''
       }
@@ -304,7 +304,7 @@ export default {
     async saveProject() {
       this.loading = true
       try {
-        let imageUri = this.projectForm.image
+        let imageUri = this.projectForm.coverImage
 
         if (imageUri && typeof imageUri === 'object') {
           const formData = new FormData()

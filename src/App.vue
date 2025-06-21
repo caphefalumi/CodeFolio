@@ -48,7 +48,6 @@ export default {
   },
   mounted() {
     this.fetchToken();
-    this.fetchProfile();
   },
   methods: {
     async fetchProfile() {
@@ -61,25 +60,49 @@ export default {
       }
     },
     fetchToken() {
+      console.log('Checking for access token in sessionStorage...');
       const token = sessionStorage.getItem('accessToken');
       if (token) {
-        this.isAuthenticated = true;
+        axios.post('/api/auth/validate', {}, { headers: { Authorization: `Bearer ${token}` } })
+          .then(response => {
+            if (response.data.valid) {
+              this.isAuthenticated = true;
+              this.fetchProfile();
+              console.log('Token is valid:', token);
+            } else {
+              console.warn('Token is invalid, fetching new token...');
+              this.getNewToken();
+            }
+          })
+          .catch(error => {
+            console.error('Error validating token:', error);
+            this.getNewToken();
+          });
         console.log('Access token found in sessionStorage:', token);
         return;
+      } else {
+        this.getNewToken();
       }
+
+    },
+    getNewToken() {
       axios.post('/api/auth/token', {}, { withCredentials: true })
         .then(response => {
-          console.log('Access token fetched:', response.data.accessToken)
-          sessionStorage.setItem('accessToken', response.data.accessToken)
-          this.isAuthenticated = true
+          console.log('New access token fetched:', response.data.accessToken);
+          sessionStorage.setItem('accessToken', response.data.accessToken);
+          this.isAuthenticated = true;
+          this.fetchToken();
         })
         .catch(error => {
-          console.error('Error fetching token:', error)
+          console.error('Error fetching new token:', error);
+          sessionStorage.removeItem('accessToken');
+          this.isAuthenticated = false;
         });
     }
   },
+
   watch: {
-    '$router'() {
+    '$route'() {
       this.fetchToken();
     }
   }

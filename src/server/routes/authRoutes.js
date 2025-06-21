@@ -9,33 +9,57 @@ const router = express.Router()
 import getRandomCat from 'random-cat-img'
 
 
+router.post('/validate', async (req, res) => {
+  const [bearer, accessToken] = req.headers.authorization.split(' ')
+  if (!accessToken) {
+    return res.status(401).json({ message: 'Access token is required' })
+  }
+
+  try {
+    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err) => {
+      if (bearer !== 'Bearer') {
+        console.error('Invalid access token format:', accessToken)
+        return res.status(403).json({ message: 'Invalid access token format' })
+      }
+      if (err) {
+        console.error('Invalid access token:', err)
+        return res.status(403).json({ message: 'Invalid access token' })
+      }
+      res.json({ valid: true })
+    })
+  } catch (error) {
+    console.error('Error validating access token:', error)
+    res.status(500).json({ message: 'Server error', error })
+  }
+})
+
 router.post('/token', async (req, res) => {
-    const refreshToken = req.headers.cookie
+    const refreshToken = req.headers.cookie.split('refreshToken=')[1]
     if (!refreshToken) {
         return res.sendStatus(401)
     }
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err) => {
-    if (err) {
-      console.error('Invalid refresh token:', err)
-      return res.sendStatus(403)
-    }
-    const user = User.findOne({ refreshToken: refreshToken })
-    if (!user) {
-      console.error('User not found for refresh token:', refreshToken)
-      return res.sendStatus(403)
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err) => {
+      if (err) {
+        console.error('Error verifying refresh token:', refreshToken, err)
+        return res.sendStatus(403)
+      }
+      const user = await User.findOne({ refreshToken: refreshToken })
+      if (!user) {
+        console.error('User not found for refresh token:', refreshToken)
+        return res.sendStatus(403)
 
-    }
+      }
 
-    const newRefreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
-    user.refreshToken = newRefreshToken
-    user.save()
-    res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        origin: 'http://localhost:3000',
-    })
+      const newRefreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+      user.refreshToken = newRefreshToken
+      user.save()
+      res.cookie('refreshToken', newRefreshToken, {
+          httpOnly: true,
+          origin: 'http://localhost:3000',
+      })
 
-    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
-    res.json({ accessToken })
+      const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+      res.json({ accessToken })
     })
 })
 
@@ -83,7 +107,7 @@ router.post('/login/jwt', async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     user.refreshToken = refreshToken
@@ -132,15 +156,18 @@ router.post('/login/google', async (req, res) => {
         oAuthProviders: [{ provider: 'google', providerId: id }],
       })
     } else {
-      const hasGoogle = user.oAuthProviders.find(p => p.provider === 'google' && p.providerId === id)
-      if (!hasGoogle) {
-        user.oAuthProviders.push({ provider: 'google', providerId: id })
+      const exists = user.oAuthProviders.some(p =>
+        p.provider === 'google' && p.providerId === String(id)
+      )
+
+      if (!exists) {
+        user.oAuthProviders.push({ provider: 'google', providerId: String(id) })
       }
     }
 
 
     // 4. Generate refresh and access tokens
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     // 5. Save refresh token to DB and send in cookie
@@ -218,14 +245,17 @@ router.get('/login/github/callback', async (req, res) => {
         avatar: avatar_url,
       })
     } else {
-      const hasGithub = user.oAuthProviders.find(p => p.provider === 'github' && p.providerId === userProfile.id)
-      if (!hasGithub) {
-        user.oAuthProviders.push({ provider: 'github', providerId: userProfile.id })
+      const exists = user.oAuthProviders.some(p =>
+        p.provider === 'github' && p.providerId === String(userProfile.id)
+      )
+
+      if (!exists) {
+        user.oAuthProviders.push({ provider: 'github', providerId: String(userProfile.id) })
       }
     }
 
     // 5. Generate and save tokens
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
     console.log('Generated Access Token:', accessToken)
     user.refreshToken = refreshToken

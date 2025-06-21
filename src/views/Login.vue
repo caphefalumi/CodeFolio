@@ -136,7 +136,7 @@ export default {
           token: response.access_token
         })
         sessionStorage.setItem('accessToken', res.data.accessToken)
-        this.$router.push('/')
+        window.location.href = '/'
       } catch (error) {
         console.error('Google login error:', error)
         this.errorMessage = 'Google login failed. Please try again'
@@ -156,7 +156,8 @@ export default {
       const { accessToken } = event.data || {}
       if (accessToken) {
         sessionStorage.setItem('accessToken', accessToken)
-        this.$router.push('/')
+        window.location.href = '/'
+
       }
     }
   }

@@ -46,10 +46,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
-  refreshToken: {
+  followed: [{
     type: String,
-    default: null
-  },
+    ref: "User",
+  }],
+
+  followers: [{
+    type: String,
+    ref: "User",
+  }],
   createdAt: {
     type: Date,
     default: Date.now
@@ -57,12 +62,17 @@ const userSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  refreshToken: {
+    type: String,
+    default: null
+  },
 })
 
 userSchema.set('toJSON', {
   transform: (_, ret) => {
     delete ret.password
+    delete ret.avatar
     return ret
   }
 })
@@ -80,8 +90,9 @@ userSchema.pre('save', function(next) {
   next()
 })
 userSchema.pre('findOneAndUpdate', function(next) {
-  this.updatedAt = Date.now()
+  this.set({ updatedAt: Date.now() })
   next()
 })
+
 const User = mongoose.model("User", userSchema)
 export default User
