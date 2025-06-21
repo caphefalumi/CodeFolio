@@ -216,7 +216,6 @@ export default {
       showNewProject: false,
       loading: false,
       isOwner: false,
-      currentUserId: '',
       editForm: {
         name: '',
         bio: '',
@@ -240,28 +239,34 @@ export default {
   methods: {
     async fetchProfileAndProjects(username) {
       try {
-        // 1. Get route profile
+        // 1. Get public user profile by username
         const profile = await fetchProfile(username)
         this.userProfile = profile
 
-        // 2. Get current logged-in user
-        const currentUser = await fetchCurrentUser()
-        this.currentUserId = currentUser._id
+        // 2. Try to get current logged-in user (optional)
+        try {
+          this.currentUser = await fetchCurrentUser()
+          this.isOwner = this.currentUser?._id === profile._id
+        } catch (err) {
+          console.warn('Not logged in or failed to fetch current user:', err)
+          this.currentUser = null
+          this.isOwner = false
+        }
 
-        // 3. Check ownership
-        this.isOwner = profile._id === currentUser._id
-
-        // 4. Fill edit form
-        this.editForm.name = profile.name
+        // 3. Fill edit form fields
+        this.editForm.name = profile.name || `${profile.firstName} ${profile.lastName}`
         this.editForm.bio = profile.bio
 
-        // 5. Get user projects
+        // 4. Fetch user's projects
+        console.log('Fetching projects for:', username)
         this.userProjects = await fetchProjects(username)
         console.log('User Projects:', this.userProjects)
+
       } catch (err) {
         console.error('Error loading profile or projects:', err)
       }
     },
+
 
     async saveProfile() {
       this.loading = true

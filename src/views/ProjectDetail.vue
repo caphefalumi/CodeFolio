@@ -151,66 +151,106 @@
 </template>
 
 <script>
+import axios from 'axios'
+import { getAccessToken } from '@/composables/user.js'
+
 export default {
   name: 'ProjectDetailView',
   data() {
     return {
       project: {
-        id: 1,
-        title: 'Sample Project',
-        description: 'This is a detailed description of the project. It includes information about the technologies used, the development process, and the challenges overcome.',
-        image: 'https://via.placeholder.com/1200x400',
-        author: 'John Doe',
-        tags: ['Vue.js', 'Vuetify', 'GitHub API'],
-        githubUrl: 'https://github.com/username/project',
-        createdAt: '2024-01-01',
-        updatedAt: '2024-03-15',
-        views: 1234,
+        title: '',
+        description: '',
+        image: '',
+        author: '',
+        tags: [],
+        githubUrl: '',
+        createdAt: '',
+        updatedAt: '',
+        views: 0,
         liked: false
       },
-      githubStats: {
-        stars: 42,
-        forks: 12,
-        issues: 5
-      },
-      comments: [
-        {
-          id: 1,
-          author: 'Jane Smith',
-          date: '2024-03-15',
-          content: 'This is an amazing project! I love how you implemented the GitHub integration.'
-        },
-        {
-          id: 2,
-          author: 'Mike Johnson',
-          date: '2024-03-14',
-          content: 'Great work! Would love to see more features in the future.'
-        }
-      ],
+      githubStats: { stars: 0, forks: 0, issues: 0 },
+      comments: [],
       newComment: ''
     }
   },
   methods: {
+    async fetchProjectDetail() {
+      try {
+        const { username, id } = this.$route.params
+        const res = await axios.get(`/api/posts/${username}/${id}`)
+        const post = res.data
+
+        this.project = {
+          title: post.title,
+          description: post.description,
+          image: post.coverImage,
+          author: post.author.username,
+          tags: post.tags || [],
+          githubUrl: post.githubUrl,
+          createdAt: new Date(post.createdAt).toLocaleDateString(),
+          updatedAt: new Date(post.updatedAt).toLocaleDateString(),
+          views: post.views,
+          liked: false
+        }
+
+        this.comments = (post.comments || []).map(c => ({
+          id: c._id,
+          author: c.user.username,
+          date: new Date(c.createdAt).toLocaleDateString(),
+          content: c.content
+        }))
+
+        if (this.project.githubUrl) {
+          this.fetchGitHubStats()
+        }
+      } catch (err) {
+        console.error('Error fetching project detail:', err)
+      }
+    },
+    async fetchGitHubStats() {
+      try {
+        const apiUrl = this.project.githubUrl
+          .replace('https://github.com/', 'https://api.github.com/repos/')
+        const res = await axios.get(apiUrl)
+        const { stargazers_count, forks_count, open_issues_count } = res.data
+        this.githubStats = {
+          stars: stargazers_count,
+          forks: forks_count,
+          issues: open_issues_count
+        }
+      } catch (err) {
+        console.error('Error fetching GitHub stats:', err)
+      }
+    },
     toggleLike() {
       this.project.liked = !this.project.liked
-      // Add API call here to update like status
+      // TODO: Add API call to upvote/downvote
     },
-    addComment() {
-      if (this.newComment.trim()) {
+    async addComment() {
+      if (!this.newComment.trim()) return
+      try {
+        const token = getAccessToken()
+        const res = await axios.post(
+          `/api/posts/${this.$route.params.id}/comments`,
+          { content: this.newComment },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
         this.comments.unshift({
-          id: this.comments.length + 1,
-          author: 'Current User', // Replace with actual user name
-          date: new Date().toISOString().split('T')[0],
+          id: `c${Date.now()}`,
+          author: 'You',
+          date: new Date().toLocaleDateString(),
           content: this.newComment
         })
         this.newComment = ''
+      } catch (err) {
+        console.error('Error posting comment:', err)
       }
     }
   },
   mounted() {
-    // Fetch project details using this.$route.params.id
-    console.log('Project ID:', this.$route.params.id)
-    // Add API calls here to fetch project details and GitHub stats
+    this.fetchProjectDetail()
   }
 }
-</script> 
+</script>

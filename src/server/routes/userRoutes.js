@@ -25,22 +25,20 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 })
 
-router.get('/:username', authenticateToken, async (req, res) => {
+router.get('/:username', async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username })
     if (!user) return res.status(404).json({ message: 'User not found' })
 
-    const isOwner = user._id.toString() === req.user.id
     const userData = {
       _id: user._id,
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      email: isOwner ? user.email : '',
       bio: user.bio,
       avatar: user.avatar,
     }
-
+    console.log('User data:', userData)
     res.json(userData)
   } catch (error) {
     console.error('Error fetching user:', error)

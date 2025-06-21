@@ -7,7 +7,6 @@ import userRoutes from './routes/userRoutes.js'
 import postRoutes from './routes/postRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
-import cookieParser from 'cookie-parser'
 const app = express()
 
 mongoose.connect(process.env.MONGODB_URI)

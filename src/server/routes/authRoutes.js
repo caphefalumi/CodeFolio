@@ -34,16 +34,20 @@ router.post('/validate', async (req, res) => {
 })
 
 router.post('/token', async (req, res) => {
-    const refreshToken = req.headers.cookie.split('refreshToken=')[1]
-    if (!refreshToken) {
-        return res.sendStatus(401)
+  if (!req.headers.cookie) {
+    console.error('No cookies found in request headers')
+    return res.sendStatus(401)
+  }
+  const refreshToken = req.headers.cookie.split('refreshToken=')[1]
+  if (!refreshToken) {
+      return res.sendStatus(401)
+  }
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err) => {
+    if (err) {
+      console.error('Error verifying refresh token:', refreshToken, err)
+      return res.sendStatus(403)
     }
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err) => {
-      if (err) {
-        console.error('Error verifying refresh token:', refreshToken, err)
-        return res.sendStatus(403)
-      }
-      const user = await User.findOne({ refreshToken: refreshToken })
+    const user = await User.findOne({ refreshToken: refreshToken })
       if (!user) {
         console.error('User not found for refresh token:', refreshToken)
         return res.sendStatus(403)
@@ -55,7 +59,8 @@ router.post('/token', async (req, res) => {
       user.save()
       res.cookie('refreshToken', newRefreshToken, {
           httpOnly: true,
-          origin: 'http://localhost:3000',
+          secure: true,
+          origin: 'https://localhost:3000',
       })
 
       const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
@@ -114,7 +119,8 @@ router.post('/login/jwt', async (req, res) => {
     await user.save()
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      origin: 'http://localhost:3000',
+      secure: true,
+      origin: 'https://localhost:3000',
     })
     res.status(200).json({ accessToken, refreshToken })
 
@@ -176,7 +182,8 @@ router.post('/login/google', async (req, res) => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      origin: 'http://localhost:3000',
+      origin: 'https://localhost:3000',
+      secure: true,
     })
 
     // 6. Send access token to client
@@ -264,7 +271,8 @@ router.get('/login/github/callback', async (req, res) => {
     // 6. Send cookie and token
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      origin: 'http://localhost:3000',
+      secure: true,
+      origin: 'https://localhost:3000',
     })
     res.send(`
       <script>

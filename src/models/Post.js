@@ -96,7 +96,7 @@ postSchema.static.getAuthor = async function(id) {
 }
 postSchema.static.getFullPath = async function(id) {
   const author = await this.getAuthor(id)
-  return `${process.env.BASE_URL}/${author.username}/${id}`
+  return `${author.username}/${id}`
 }
 
 const Post = mongoose.model("Post", postSchema)

@@ -15,7 +15,6 @@ const routes = [
     path: '/:username',
     name: 'Profile',
     component: () => import('@/views/Profile.vue'),
-    meta: { requiresAuth: true }
   },
   {
     path: '/:username/:id',
@@ -53,10 +52,6 @@ router.beforeEach((to, from, next) => {
   
   if (to.path === '/callback') {
     next('/')
-  }
-  // If route requires auth and user is not authenticated
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login')
   }
   // If route requires guest (login/register) and user is authenticated
   else if (to.meta.requiresGuest && isAuthenticated) {

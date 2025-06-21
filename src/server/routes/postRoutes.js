@@ -43,12 +43,15 @@ router.get('/:username', async (req, res) => {
 router.get('/:username/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
-    if (!post) return res.status(404).json({ message: 'Post not found' })
+      .populate('author', 'username')
+      .populate('comments.user', 'username')
+    if (!post) return res.status(404).json({ message: 'Not found' })
     res.json(post)
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching post', error })
+  } catch (err) {
+    res.status(500).json({ message: 'Error', err })
   }
 })
+
 
 // 🔹 Update a post
 router.patch('/:id', authenticateToken, async (req, res) => {

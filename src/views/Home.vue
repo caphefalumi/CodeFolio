@@ -45,7 +45,7 @@
               <v-btn
                 color="primary"
                 variant="text"
-                :to="`/project/${project._id}`"
+                :to="`${project.getFullPath}`"
               >
                 View Project
               </v-btn>
