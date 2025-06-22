@@ -31,7 +31,7 @@ const commentSchema = new mongoose.Schema({
         default: Date.now
     },
     replies: [replySchema]
-}, { _id: false })
+})
 
 const postSchema = new mongoose.Schema({
     author: {
@@ -85,19 +85,23 @@ const postSchema = new mongoose.Schema({
     comments: [commentSchema]
 })
 
-postSchema.static.findByAuthor = async function(username) {
+postSchema.statics.findByAuthor = async function(username) {
   const user = await User.findOne({ username: new RegExp(username, 'i') })
+  if (!user) return []
   return this.find({ author: user._id }).populate('author', 'username')
 }
 
-postSchema.static.getAuthor = async function(id) {
-  const post = await this.findById(id)
-  return User.findOne({ _id: post.author }).select('username')
-}
-postSchema.static.getFullPath = async function(id) {
-  const author = await this.getAuthor(id)
-  return `${author.username}/${id}`
-}
+
+postSchema.virtual('getAuthor').get(async function() {
+  return User.findById(this.author).select('username')
+})
+postSchema.virtual('getFullPath').get(function () {
+  console.log('Author:', this.author) // check this
+  if (!this.author || !this.author.username) return null
+  return `${this.author.username}/${this._id}`
+})
+
+postSchema.set('toJSON', { virtuals: true })
 
 const Post = mongoose.model("Post", postSchema)
 export default Post

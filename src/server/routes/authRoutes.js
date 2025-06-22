@@ -7,7 +7,7 @@ import User from '../../models/User.js'
 import axios from 'axios'
 const router = express.Router()
 import getRandomCat from 'random-cat-img'
-
+import sendEmail from '../../server/mailer.js'
 
 router.post('/validate', async (req, res) => {
   const [bearer, accessToken] = req.headers.authorization.split(' ')
@@ -84,7 +84,7 @@ router.post('/register', async (req, res) => {
     avatarUrl: req.body.avatarUrl
   })
   try {
-    if (!user.username || !user.email || !user.password) {
+    if (!req.body.username || !req.body.email || !req.body.password) {
       return res.status(400).json({ message: 'Username, email, and password are required' })
     } else if (await User.findOne({ username: user.username })) {
       return res.status(400).json({ message: 'Username already exists' })
@@ -94,9 +94,33 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: 'Error creating user', error })
   }
-  // Here you would typically save the new user to the database
-  user.save()
-  res.status(201).json({ message: 'User created successfully', user: user })
+  await user.save()
+  try {
+  // --- SEND WELCOME EMAIL ---
+  const mailOptions = {
+    from: `CodeFolio <${process.env.GMAIL_USER}>`,
+    to: user.email,
+    subject: 'Welcome to Our Platform!',
+    html: `<h1>Hi ${user.name},</h1><p>Thank you for registering. We're excited to have you!</p>`,
+  };
+  
+  await sendEmail(mailOptions);
+  // -------------------------
+
+  res.status(201).json({ message: 'User created successfully. Welcome email sent!', user: user });
+
+  } catch (error) {
+      // Check if the error is from sending the email or saving the user
+      if (error.message.includes('Failed to send email')) {
+          // The user was created, but email failed. Decide how to handle this.
+          // For now, we'll still return a success for the user creation but log the email error.
+          console.error("User was created, but sending the welcome email failed.", error);
+          return res.status(201).json({ message: 'User created successfully, but could not send welcome email.', user: user });
+      }
+      // Otherwise, it was likely a database save error
+      console.error('Error saving user:', error);
+      return res.status(500).json({ message: 'Error creating user', error });
+  }
 })
 
 

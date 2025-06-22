@@ -62,77 +62,67 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
+import axios from 'axios'
 import { GoogleLogin, decodeCredential } from 'vue3-google-login'
 
-const router = useRouter()
-const loading = ref(false)
-
-const form = reactive({
-  email: '',
-  password: '',
-  confirmPassword: ''
-})
-
-const rules = {
-  required: v => !!v || 'This field is required',
-  email: v => /.+@.+\..+/.test(v) || 'Email must be valid',
-  password: v => v.length >= 8 || 'Password must be at least 8 characters',
-  confirmPassword: v => v === form.password || 'Passwords must match'
-}
-
-const handleRegister = async () => {
-  loading.value = true
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+export default {
+  name: 'RegisterComponent',
+  components: {
+    GoogleLogin
+  },
+  data() {
+    return {
+      loading: false,
+      form: {
+        email: '',
+        password: '',
+        confirmPassword: ''
       },
-      body: JSON.stringify({
-        email: form.email,
-        password: form.password
-      })
-    })
-    
-    if (!response.ok) {
-      throw new Error('Registration failed')
+      rules: {
+        required: v => !!v || 'This field is required',
+        email: v => /.+@.+\..+/.test(v) || 'Email must be valid',
+        password: v => v.length >= 8 || 'Password must be at least 8 characters',
+        // Note: We use 'this' here to access the component's data
+        confirmPassword: v => v === this.form.password || 'Passwords must match'
+      }
     }
+  },
+  methods: {
+    async handleRegister() {
+      this.loading = true
+      try {
+        // Axios automatically sets Content-Type and stringifies the body
+        await axios.post(`/api/auth/register`, {
+          email: this.form.email,
+          password: this.form.password
+        })
+        
+        // Axios provides response data in the 'data' property
+        this.$router.push('/')
 
-    const data = await response.json()
-    localStorage.setItem('user', JSON.stringify(data))
-    router.push('/')
-  } catch (error) {
-    console.error('Registration error:', error)
-  } finally {
-    loading.value = false
+      } catch (error) {
+        // Axios throws an error for non-2xx responses, which is caught here
+        console.error('Registration error:', error.response?.data || error.message)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async handleGoogleLogin(response) {
+      const userData = decodeCredential(response.credential)
+      console.log("Google user data:", userData)
+      
+      try {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/google/register`, userData)
+        
+        localStorage.setItem('user', JSON.stringify(response.data))
+        this.$router.push('/')
+
+      } catch (error) {
+        console.error('Google registration error:', error.response?.data || error.message)
+      }
+    }
   }
 }
-
-const handleGoogleLogin = async (response) => {
-  const userData = decodeCredential(response.credential)
-  console.log("Google user data:", userData)
-  
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/google/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userData)
-    })
-    
-    if (!response.ok) {
-      throw new Error('Google registration failed')
-    }
-
-    const data = await response.json()
-    localStorage.setItem('user', JSON.stringify(data))
-    router.push('/')
-  } catch (error) {
-    console.error('Google registration error:', error)
-  }
-}
-</script> 
+</script>

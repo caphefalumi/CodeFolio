@@ -2,14 +2,16 @@ import express from 'express'
 import mongoose from 'mongoose'
 import 'dotenv/config'
 
-
 import userRoutes from './routes/userRoutes.js'
 import postRoutes from './routes/postRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
 const app = express()
 
+
+
 mongoose.connect(process.env.MONGODB_URI)
+
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 db.once('open', () => console.log('MongoDB connected successfully'))

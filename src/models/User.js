@@ -77,8 +77,8 @@ userSchema.set('toJSON', {
   }
 })
 
-userSchema.static.findByUsername = function(username) {
-  return this.findOne({ username: new RegExp(username, 'i') })
+userSchema.statics.findByUsername = function(username) {
+  return this.findOne({ username: username })
 }
 
 userSchema.virtual('name').get(function() {
@@ -95,4 +95,5 @@ userSchema.pre('findOneAndUpdate', function(next) {
 })
 
 const User = mongoose.model("User", userSchema)
+
 export default User
