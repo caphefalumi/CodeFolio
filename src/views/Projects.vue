@@ -39,7 +39,7 @@
       <!-- Projects Grid -->
       <v-row>
         <v-col
-          v-for="project in paginatedProjects"
+          v-for="project in filteredProjects"
           :key="project._id"
           cols="12"
           md="4"
@@ -120,24 +120,28 @@ export default {
   },
   computed: {
     filteredProjects() {
-      return this.projects
-        .filter(project => {
-          const searchMatch =
-            this.search === '' ||
-            project.title.toLowerCase().includes(this.search.toLowerCase()) ||
-            project.description.toLowerCase().includes(this.search.toLowerCase())
-          return searchMatch
+      if (this.projects) {
+
+        return this.projects
+          .filter(project => {
+            const searchMatch =
+              this.search === '' ||
+              project.title.toLowerCase().includes(this.search.toLowerCase()) ||
+              project.description?.toLowerCase().includes(this.search.toLowerCase())
+            return searchMatch
         })
-        .sort((a, b) => {
-          if (this.sortBy === 'newest') {
-            return new Date(b.createdAt) - new Date(a.createdAt)
-          } else if (this.sortBy === 'liked') {
-            return (b.upvotes || 0) - (a.upvotes || 0)
-          } else if (this.sortBy === 'viewed') {
-            return (b.views || 0) - (a.views || 0)
-          }
-          return 0
-        })
+        // .sort((a, b) => {
+        //   if (this.sortBy === 'newest') {
+        //     return new Date(b.createdAt) - new Date(a.createdAt)
+        //   } else if (this.sortBy === 'liked') {
+        //     return (b.upvotes || 0) - (a.upvotes || 0)
+        //   } else if (this.sortBy === 'viewed') {
+        //     return (b.views || 0) - (a.views || 0)
+        //   }
+        //   return 0
+        // })
+      }
+
     },
     totalPages() {
       return Math.ceil(this.filteredProjects.length / this.itemsPerPage)
@@ -153,15 +157,14 @@ export default {
       // Optional: Add axios call to backend to update like state
     }
   },
-  mounted() {
-    axios.get('/api/posts/')
-      .then(response => {
-        this.projects = response.data
-        console.log('Projects:', this.projects)
-      })
-      .catch(error => {
-        console.error('Error fetching projects:', error)
-      })
+  async mounted() {
+    try {
+      const response = await axios.get('/api/posts/')
+      this.projects = response.data
+      console.log('Projects:', this.projects)
+    } catch (error) {
+      console.error('Error fetching projects:', error)
+    }
   },
 }
 </script>
