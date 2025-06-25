@@ -7,16 +7,18 @@
         </router-link>
       </v-app-bar-title>
       <v-spacer></v-spacer>
+      <v-btn icon @click="toggleTheme">
+        <v-icon>{{ isDark ? 'mdi-weather-night' : 'mdi-weather-sunny' }}</v-icon>
+      </v-btn>
       <v-btn to="/" text>Home</v-btn>
       <v-btn to="/projects" text>Projects</v-btn>
       <v-btn v-if="isAuthenticated" :to="`/${username}`" class="pa-0" style="min-width: 0;">
-        <v-avatar size="32">
-          <v-img
-            :src="avatar"
-            alt="User avatar"
-            cover
-            style="object-fit: cover; width: 32px; height: 32px;"
-          ></v-img>
+      <v-avatar size="32" v-if="avatar">
+        <v-img :src="avatar" alt="User avatar" cover></v-img>
+      </v-avatar>
+
+        <v-avatar v-else size="32" class="bg-grey lighten-2">
+          <v-icon>mdi-account</v-icon>
         </v-avatar>
       </v-btn>
       <v-btn v-else to="/login" text>Login</v-btn>
@@ -53,11 +55,13 @@ export default {
       isAuthenticated: false,
       user: null,
       username: '',
-      avatar: ''
+      avatar: '',
+      isDark: false
     }
   },
   mounted() {
     this.fetchToken();
+    this.loadThemePreference();
   },
   methods: {
     async fetchProfile() {
@@ -109,6 +113,22 @@ export default {
           sessionStorage.removeItem('accessToken');
           this.isAuthenticated = false;
         });
+    },
+    toggleTheme() {
+      this.isDark = !this.isDark
+      this.$vuetify.theme.global.name = this.isDark ? 'dark' : 'light'
+      localStorage.setItem('theme', this.isDark ? 'dark' : 'light')
+    },
+    loadThemePreference() {
+      const savedTheme = localStorage.getItem('theme')
+      if (!savedTheme) {
+        this.isDark = false;
+        this.$vuetify.theme.global.name = 'light';
+        localStorage.setItem('theme', 'light');
+        return;
+      }
+      this.isDark = savedTheme === 'dark'
+      this.$vuetify.theme.global.name = this.isDark ? 'dark' : 'light'
     }
   },
 
