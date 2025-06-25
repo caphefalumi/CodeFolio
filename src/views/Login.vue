@@ -24,20 +24,20 @@
                 :rules="[rules.required]"
               ></v-text-field>
               <v-alert
-              v-if="errorMessage"
-              type="error"
-              class="mb-4"
-              border="start"
-              colored-border
-              elevation="0"
-              density="comfortable"
-              style="background-color: #fff; color: #d32f2f; font-weight: 500;"
-            >
-              <template #prepend>
-                <v-icon color="error" size="24">mdi-alert-circle</v-icon>
-              </template>
-              {{ errorMessage }}
-            </v-alert>
+                v-if="errorMessage"
+                type="error"
+                class="mb-4"
+                border="start"
+                colored-border
+                elevation="0"
+                density="comfortable"
+                style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+              >
+                <template #prepend>
+                  <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+                </template>
+                {{ errorMessage }}
+              </v-alert>
 
               <v-btn
                 type="submit"
@@ -109,55 +109,65 @@ export default {
   },
   methods: {
     async handleLogin() {
-      this.loading = true
-      this.errorMessage = ''
+      this.errorMessage = '';
+      this.loading = true;
       try {
-        const response = await axios.post('/api/auth/login/jwt', {
-          email: this.form.email,
-          password: this.form.password
-        }, {
-          withCredentials: true
-        })
-        sessionStorage.setItem('accessToken', response.data.accessToken)
-        this.$router.push('/')
+        const response = await axios.post('/api/auth/login/jwt',
+          {
+            email: this.form.email,
+            password: this.form.password,
+          },
+          { withCredentials: true }
+        );
+        sessionStorage.setItem('accessToken', response.data.accessToken);
+        this.$router.push('/');
       } catch (error) {
-        console.error('Login error:', error)
-        this.errorMessage = error.response?.status === 401
-          ? 'Invalid email or password'
-          : 'Something went wrong. Please try again'
+        this.errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          'An unexpected error occurred. Please try again.';
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async handleGoogleLogin(response) {
+      this.errorMessage = '';
+      this.loading = true;
       try {
-        const res = await axios.post('/api/auth/login/google', {
-          token: response.access_token
-        })
-        sessionStorage.setItem('accessToken', res.data.accessToken)
-        window.location.href = '/'
+        const res = await axios.post(
+          '/api/auth/login/google',
+          { token: response.access_token }
+        );
+        sessionStorage.setItem('accessToken', res.data.accessToken);
+        window.location.href = '/';
       } catch (error) {
-        console.error('Google login error:', error)
-        this.errorMessage = 'Google login failed. Please try again'
+        this.errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          'Google login failed. Please try again';
+      } finally {
+        this.loading = false;
       }
     },
 
     handleGithubLogin() {
-      const popup = window.open(
+      this.errorMessage = '';
+      window.open(
         '/api/auth/login/github',
         'GitHub Login',
         'width=500,height=600'
-      )
+      );
     },
 
     receiveGithubToken(event) {
-      if (event.origin !== 'http://localhost:3001') return
-      const { accessToken } = event.data || {}
+      if (event.origin !== 'http://localhost:3001') return;
+      const { accessToken, error: githubError } = event.data || {};
       if (accessToken) {
-        sessionStorage.setItem('accessToken', accessToken)
-        window.location.href = '/'
-
+        sessionStorage.setItem('accessToken', accessToken);
+        window.location.href = '/';
+      } else if (githubError) {
+        this.errorMessage = githubError;
       }
     }
   }

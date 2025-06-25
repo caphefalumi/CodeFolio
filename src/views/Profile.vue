@@ -181,6 +181,12 @@
               label="GitHub Repository URL"
               prepend-icon="mdi-github"
             ></v-text-field>
+            <v-select
+              v-model="projectForm.type"
+              :items="projectTypes"
+              label="Project Type"
+              required
+            ></v-select>
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -195,6 +201,22 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-alert
+      v-if="errorMessage"
+      type="error"
+      class="mb-4"
+      border="start"
+      colored-border
+      elevation="0"
+      density="comfortable"
+      style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+    >
+      <template #prepend>
+        <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+      </template>
+      {{ errorMessage }}
+    </v-alert>
   </div>
 </template>
 
@@ -227,8 +249,16 @@ export default {
         content: '',
         coverImage: null,
         tags: [],
-        githubUrl: ''
-      }
+        githubUrl: '',
+        type: '', // Add type for sorting
+      },
+      errorMessage: '',
+      projectTypes: [
+        'Web Development',
+        'Mobile App',
+        'API Development',
+        'Other',
+      ],
     }
   },
   computed: {
@@ -267,9 +297,9 @@ export default {
       }
     },
 
-
-    async saveProfile() {
-      this.loading = true
+    async handleProfileUpdate() {
+      this.errorMessage = '';
+      this.loading = true;
       try {
         let avatarUri = this.editForm.avatar
 
@@ -300,9 +330,12 @@ export default {
         this.fetchProfileAndProjects(this.$route.params.username)
         this.showEditProfile = false
       } catch (error) {
-        console.error('Profile update failed:', error)
+        this.errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          'Failed to update profile. Please try again.';
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
@@ -331,7 +364,8 @@ export default {
           content: this.projectForm.content,
           coverImage: imageUri,
           tags: this.projectForm.tags,
-          githubUrl: this.projectForm.githubUrl
+          githubUrl: this.projectForm.githubUrl,
+          type: this.projectForm.type, // Add type to payload
         }
 
         let response
@@ -387,7 +421,8 @@ export default {
         description: '',
         image: null,
         tags: [],
-        githubUrl: ''
+        githubUrl: '',
+        type: '', // Reset type
       }
     }
   },

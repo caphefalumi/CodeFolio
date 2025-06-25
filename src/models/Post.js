@@ -62,6 +62,12 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    type: {
+        type: String,
+        enum: ['web', 'mobile', 'game', 'design'],
+        default: 'web',
+        required: true
+    },
     upvotes: {
         type: Number,
         default: 0
@@ -82,7 +88,15 @@ const postSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    comments: [commentSchema]
+    comments: [commentSchema],
+    upvotedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    downvotedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }]
 })
 
 postSchema.statics.findByAuthor = async function(username) {

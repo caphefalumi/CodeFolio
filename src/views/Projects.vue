@@ -87,6 +87,22 @@
           ></v-pagination>
         </v-col>
       </v-row>
+
+      <v-alert
+        v-if="errorMessage"
+        type="error"
+        class="mb-4"
+        border="start"
+        colored-border
+        elevation="0"
+        density="comfortable"
+        style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+      >
+        <template #prepend>
+          <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+        </template>
+        {{ errorMessage }}
+      </v-alert>
     </v-container>
   </div>
 </template>
@@ -115,33 +131,30 @@ export default {
         { title: 'Newest First', value: 'newest' },
         { title: 'Most Liked', value: 'liked' },
         { title: 'Most Viewed', value: 'viewed' }
-      ]
+      ],
+      errorMessage: '',
     }
   },
   computed: {
     filteredProjects() {
-      if (this.projects) {
-
-        return this.projects
-          .filter(project => {
-            const searchMatch =
-              this.search === '' ||
-              project.title.toLowerCase().includes(this.search.toLowerCase()) ||
-              project.description?.toLowerCase().includes(this.search.toLowerCase())
-            return searchMatch
-        })
-        // .sort((a, b) => {
-        //   if (this.sortBy === 'newest') {
-        //     return new Date(b.createdAt) - new Date(a.createdAt)
-        //   } else if (this.sortBy === 'liked') {
-        //     return (b.upvotes || 0) - (a.upvotes || 0)
-        //   } else if (this.sortBy === 'viewed') {
-        //     return (b.views || 0) - (a.views || 0)
-        //   }
-        //   return 0
-        // })
+      let filtered = this.projects
+      if (this.selectedType !== 'all') {
+        filtered = filtered.filter(project => project.type === this.selectedType)
       }
-
+      if (this.search) {
+        filtered = filtered.filter(project =>
+          project.title.toLowerCase().includes(this.search.toLowerCase()) ||
+          project.description?.toLowerCase().includes(this.search.toLowerCase())
+        )
+      }
+      if (this.sortBy === 'newest') {
+        filtered = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      } else if (this.sortBy === 'liked') {
+        filtered = filtered.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0))
+      } else if (this.sortBy === 'viewed') {
+        filtered = filtered.sort((a, b) => (b.views || 0) - (a.views || 0))
+      }
+      return filtered
     },
     totalPages() {
       return Math.ceil(this.filteredProjects.length / this.itemsPerPage)
@@ -152,10 +165,39 @@ export default {
     }
   },
   methods: {
-    toggleLike(project) {
-      project.liked = !project.liked
-      // Optional: Add axios call to backend to update like state
-    }
+    async toggleLike(project) {
+      try {
+        // Assume user must be logged in and backend handles authentication
+        if (!project.liked) {
+          const res = await axios.post(`/api/posts/${project._id}/upvote`)
+          project.upvotes = res.data.upvotes
+          project.liked = true
+        } else {
+          const res = await axios.post(`/api/posts/${project._id}/downvote`)
+          project.downvotes = res.data.downvotes
+          project.liked = false
+        }
+      } catch (error) {
+        this.errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          'Failed to update vote. Please try again.'
+      }
+    },
+    async handleCreatePost() {
+      this.errorMessage = '';
+      this.loading = true;
+      try {
+        // ...post creation logic...
+      } catch (error) {
+        this.errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          'Failed to create post. Please try again.';
+      } finally {
+        this.loading = false;
+      }
+    },
   },
   async mounted() {
     try {

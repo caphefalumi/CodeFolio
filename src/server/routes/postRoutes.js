@@ -102,4 +102,49 @@ router.post('/:id/comments', authenticateToken, async (req, res) => {
   }
 })
 
+router.post('/:id/upvote', authenticateToken, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+    if (!post) return res.status(404).json({ message: 'Post not found' })
+    const userId = req.user.id
+    // Remove from downvotedBy if present
+    post.downvotedBy = post.downvotedBy.filter(id => id.toString() !== userId)
+    // If already upvoted, remove upvote (toggle)
+    if (post.upvotedBy.some(id => id.toString() === userId)) {
+      post.upvotedBy = post.upvotedBy.filter(id => id.toString() !== userId)
+    } else {
+      post.upvotedBy.push(userId)
+    }
+    post.upvotes = post.upvotedBy.length
+    post.downvotes = post.downvotedBy.length
+    await post.save()
+    res.json({ upvotes: post.upvotes, downvotes: post.downvotes })
+  } catch (error) {
+    res.status(400).json({ message: 'Error upvoting post', error })
+  }
+})
+
+// 🔹 Downvote a post (Reddit/StackOverflow style)
+router.post('/:id/downvote', authenticateToken, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+    if (!post) return res.status(404).json({ message: 'Post not found' })
+    const userId = req.user.id
+    // Remove from upvotedBy if present
+    post.upvotedBy = post.upvotedBy.filter(id => id.toString() !== userId)
+    // If already downvoted, remove downvote (toggle)
+    if (post.downvotedBy.some(id => id.toString() === userId)) {
+      post.downvotedBy = post.downvotedBy.filter(id => id.toString() !== userId)
+    } else {
+      post.downvotedBy.push(userId)
+    }
+    post.upvotes = post.upvotedBy.length
+    post.downvotes = post.downvotedBy.length
+    await post.save()
+    res.json({ upvotes: post.upvotes, downvotes: post.downvotes })
+  } catch (error) {
+    res.status(400).json({ message: 'Error downvoting post', error })
+  }
+})
+
 export default router

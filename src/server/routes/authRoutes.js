@@ -69,6 +69,7 @@ router.post('/token', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
+  console.log('Registering user with data:', req.body)
   const saltRounds = 10
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
   const user = new User({
@@ -131,7 +132,10 @@ router.post('/login/jwt', async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
-
+    if (!user.password) {
+      // User registered via OAuth or missing password
+      return res.status(401).json({ message: 'This account does not have a password. Please log in with your OAuth provider.' })
+    }
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' })
@@ -154,68 +158,80 @@ router.post('/login/jwt', async (req, res) => {
   }
 })
 
-
-
+// POST /login/google
 router.post('/login/google', async (req, res) => {
-  const googleAccessToken = req.body.token
+  const googleAccessToken = req.body.token;
 
   if (!googleAccessToken) {
-    return res.status(400).json({ message: 'No access token provided' })
+    return res.status(400).json({ message: 'No access token provided' });
   }
 
   try {
     // 1. Get user info from Google
-    const { data: googleUser } = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: {
-        Authorization: `Bearer ${googleAccessToken}`,
-      },
-    })
+    const { data: googleUser } = await axios.get(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${googleAccessToken}`,
+        },
+      }
+    );
 
-    const { id: id, email: email, picture: picture } = googleUser
-    console.log('Google User Info:', googleUser)
-    let user = await User.findOne({ email })
+    const { id, email, picture, given_name, family_name } = googleUser;
+    console.log('Google User Info:', googleUser);
+    let user = await User.findOne({ email });
 
     if (!user) {
       user = new User({
         username: email.split('@')[0] + crypto.randomBytes(5).toString('hex'),
-        email: email,
-        firstName: googleUser.given_name,
-        lastName: googleUser.family_name,
-        password: crypto.randomBytes(128).toString('hex'),
+        email,
+        firstName: given_name,
+        lastName: family_name,
+        password: crypto.randomBytes(128).toString('hex'), // Random password for OAuth
         avatar: picture,
         oAuthProviders: [{ provider: 'google', providerId: id }],
-      })
+      });
     } else {
-      const exists = user.oAuthProviders.some(p =>
-        p.provider === 'google' && p.providerId === String(id)
-      )
-
+      // Add Google provider if not already present
+      const exists = user.oAuthProviders.some(
+        (p) => p.provider === 'google' && p.providerId === String(id)
+      );
       if (!exists) {
-        user.oAuthProviders.push({ provider: 'google', providerId: String(id) })
+        user.oAuthProviders.push({ provider: 'google', providerId: String(id) });
       }
     }
 
+    // Generate tokens
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '1h' }
+    );
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
 
-    // 4. Generate refresh and access tokens
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
-    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    // Save refresh token and user
+    user.refreshToken = refreshToken;
+    await user.save();
 
-    // 5. Save refresh token to DB and send in cookie
-    user.refreshToken = refreshToken
-    await user.save()
-
+    // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       origin: 'https://localhost:3000',
       secure: true,
-    })
+    });
 
-    // 6. Send access token to client
-    res.json({ accessToken })
-
+    // Send access token
+    res.json({ accessToken });
   } catch (err) {
-    console.error('Google login failed:', err)
-    res.status(500).json({ message: 'Google login failed', error: err.message || err })
+    console.error('Google login failed:', err);
+    res.status(500).json({
+      message: 'Google login failed',
+      error: err.message || err,
+    });
   }
 })
 

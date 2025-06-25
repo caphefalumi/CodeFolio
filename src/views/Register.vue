@@ -17,6 +17,14 @@
               ></v-text-field>
 
               <v-text-field
+                v-model="form.username"
+                label="Username"
+                type="text"
+                required
+                :rules="[rules.required, rules.username]"
+              ></v-text-field>
+
+              <v-text-field
                 v-model="form.password"
                 label="Password"
                 type="password"
@@ -38,6 +46,8 @@
                 block
                 class="mt-4"
                 :loading="loading"
+                :disabled="!isFormValid"
+                :style="isFormValid ? 'background-color: #43a047; color: #fff;' : 'background-color: #bdbdbd; color: #fff;'"
               >
                 Register
               </v-btn>
@@ -55,6 +65,22 @@
                 Already have an account? Login
               </router-link>
             </div>
+
+            <v-alert
+              v-if="errorMessage"
+              type="error"
+              class="mb-4"
+              border="start"
+              colored-border
+              elevation="0"
+              density="comfortable"
+              style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+            >
+              <template #prepend>
+                <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+              </template>
+              {{ errorMessage }}
+            </v-alert>
           </v-card-text>
         </v-card>
       </v-col>
@@ -76,34 +102,52 @@ export default {
       loading: false,
       form: {
         email: '',
+        username: '',
         password: '',
         confirmPassword: ''
       },
       rules: {
         required: v => !!v || 'This field is required',
         email: v => /.+@.+\..+/.test(v) || 'Email must be valid',
+        username: v => /^[a-zA-Z0-9_]{3,20}$/.test(v) || 'Username must be 3-20 characters, letters, numbers, or underscores',
         password: v => v.length >= 8 || 'Password must be at least 8 characters',
-        // Note: We use 'this' here to access the component's data
         confirmPassword: v => v === this.form.password || 'Passwords must match'
-      }
+      },
+      errorMessage: '',
+    }
+  },
+  computed: {
+    isFormValid() {
+      return (
+        this.form.email &&
+        this.rules.email(this.form.email) === true &&
+        this.form.username &&
+        this.rules.username(this.form.username) === true &&
+        this.form.password &&
+        this.rules.password(this.form.password) === true &&
+        this.form.confirmPassword &&
+        this.rules.confirmPassword(this.form.confirmPassword) === true
+      );
     }
   },
   methods: {
     async handleRegister() {
-      this.loading = true
+      this.errorMessage = '';
+      this.loading = true;
       try {
-        // Axios automatically sets Content-Type and stringifies the body
         await axios.post(`/api/auth/register`, {
           email: this.form.email,
+          username: this.form.username,
           password: this.form.password
         })
         
-        // Axios provides response data in the 'data' property
         this.$router.push('/')
 
       } catch (error) {
-        // Axios throws an error for non-2xx responses, which is caught here
-        console.error('Registration error:', error.response?.data || error.message)
+        this.errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          'Registration failed. Please try again.';
       } finally {
         this.loading = false
       }

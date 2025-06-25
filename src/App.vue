@@ -9,7 +9,16 @@
       <v-spacer></v-spacer>
       <v-btn to="/" text>Home</v-btn>
       <v-btn to="/projects" text>Projects</v-btn>
-      <v-btn v-if="isAuthenticated" :to="`/${username}`" text>Profile</v-btn>
+      <v-btn v-if="isAuthenticated" :to="`/${username}`" class="pa-0" style="min-width: 0;">
+        <v-avatar size="32">
+          <v-img
+            :src="avatar"
+            alt="User avatar"
+            cover
+            style="object-fit: cover; width: 32px; height: 32px;"
+          ></v-img>
+        </v-avatar>
+      </v-btn>
       <v-btn v-else to="/login" text>Login</v-btn>
     </v-app-bar>
 
@@ -43,7 +52,8 @@ export default {
     return {
       isAuthenticated: false,
       user: null,
-      username: ''
+      username: '',
+      avatar: ''
     }
   },
   mounted() {
@@ -54,7 +64,8 @@ export default {
       try {
         this.user = await fetchCurrentUser();
         this.username = this.user.username;
-        console.log('User profile fetched:', this.user);
+        this.avatar = this.user.avatar;
+        console.log('User profile fetched:', this.avatar, this.username);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }

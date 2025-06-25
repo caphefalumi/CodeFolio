@@ -37,13 +37,12 @@
                 View on GitHub
               </v-btn>
               <v-spacer></v-spacer>
-              <v-btn
-                icon
-                @click="toggleLike"
-              >
-                <v-icon>
-                  {{ project.liked ? 'mdi-heart' : 'mdi-heart-outline' }}
-                </v-icon>
+              <v-btn icon @click="upvoteProject" :disabled="project.upvoting">
+                <v-icon color="success">mdi-arrow-up-bold</v-icon>
+              </v-btn>
+              <span class="mx-2">{{ project.upvotes - project.downvotes }}</span>
+              <v-btn icon @click="downvoteProject" :disabled="project.downvoting">
+                <v-icon color="error">mdi-arrow-down-bold</v-icon>
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -115,6 +114,21 @@
           <v-card>
             <v-card-title>Comments</v-card-title>
             <v-card-text>
+              <v-alert
+                v-if="errorMessage"
+                type="error"
+                class="mb-4"
+                border="start"
+                colored-border
+                elevation="0"
+                density="comfortable"
+                style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+              >
+                <template #prepend>
+                  <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+                </template>
+                {{ errorMessage }}
+              </v-alert>
               <v-textarea
                 v-model="newComment"
                 label="Add a comment"
@@ -147,6 +161,23 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <!-- Move the auth banner outside the comment section and make it fixed at the top -->
+    <v-alert
+      v-if="showAuthBanner"
+      type="warning"
+      class="mb-4 fade-banner auth-banner-fixed text-center"
+      border="start"
+      colored-border
+      elevation="0"
+      density="comfortable"
+      style="background-color: #fffbe7; color: #b26a00; font-weight: 500; transition: opacity 1s; z-index: 9999;"
+    >
+      <template #prepend>
+        <v-icon color="warning" size="24">mdi-alert</v-icon>
+      </template>
+      <div class="banner-center">You must be logged in to vote on projects.</div>
+    </v-alert>
   </div>
 </template>
 
@@ -168,11 +199,18 @@ export default {
         createdAt: '',
         updatedAt: '',
         views: 0,
-        liked: false
+        upvotes: 0,
+        downvotes: 0,
+        upvoting: false,
+        downvoting: false
       },
       githubStats: { stars: 0, forks: 0, issues: 0 },
       comments: [],
-      newComment: ''
+      newComment: '',
+      errorMessage: '',
+      showAuthBanner: false,
+      authBannerTimeout: null,
+      loading: false
     }
   },
   methods: {
@@ -182,6 +220,7 @@ export default {
         const res = await axios.get(`/api/posts/${username}/${id}`)
         const post = res.data
 
+        // Detect if user has upvoted/downvoted (if you have user info, add logic here)
         this.project = {
           title: post.title,
           description: post.description,
@@ -192,7 +231,11 @@ export default {
           createdAt: new Date(post.createdAt).toLocaleDateString(),
           updatedAt: new Date(post.updatedAt).toLocaleDateString(),
           views: post.views,
-          liked: false
+          upvotes: post.upvotes || 0,
+          downvotes: post.downvotes || 0,
+          upvoting: false,
+          downvoting: false,
+          // Optionally, add logic to check if current user has upvoted/downvoted
         }
 
         this.comments = (post.comments || []).map(c => ({
@@ -229,8 +272,10 @@ export default {
       // TODO: Add API call to upvote/downvote
     },
     async addComment() {
-      if (!this.newComment.trim()) return
+      this.errorMessage = '';
+      this.loading = true;
       try {
+        if (!this.newComment.trim()) return
         const token = getAccessToken()
         const res = await axios.post(
           `/api/posts/${this.$route.params.id}/comments`,
@@ -244,8 +289,53 @@ export default {
           content: this.newComment
         })
         this.newComment = ''
-      } catch (err) {
-        console.error('Error posting comment:', err)
+      } catch (error) {
+        this.errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          'Failed to post comment. Please try again.';
+      } finally {
+        this.loading = false;
+      }
+    },
+    async upvoteProject() {
+      this.project.upvoting = true
+      try {
+        const res = await axios.post(`/api/posts/${this.$route.params.id}/upvote`)
+        this.project.upvotes = res.data.upvotes
+        this.project.downvotes = res.data.downvotes
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          this.showAuthBanner = true
+          clearTimeout(this.authBannerTimeout)
+          this.authBannerTimeout = setTimeout(() => {
+            this.showAuthBanner = false
+          }, 5000)
+        } else {
+          this.errorMessage = error.response?.data?.message || error.message || 'Failed to upvote.'
+        }
+      } finally {
+        this.project.upvoting = false
+      }
+    },
+    async downvoteProject() {
+      this.project.downvoting = true
+      try {
+        const res = await axios.post(`/api/posts/${this.$route.params.id}/downvote`)
+        this.project.upvotes = res.data.upvotes
+        this.project.downvotes = res.data.downvotes
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          this.showAuthBanner = true
+          clearTimeout(this.authBannerTimeout)
+          this.authBannerTimeout = setTimeout(() => {
+            this.showAuthBanner = false
+          }, 5000)
+        } else {
+          this.errorMessage = error.response?.data?.message || error.message || 'Failed to downvote.'
+        }
+      } finally {
+        this.project.downvoting = false
       }
     }
   },
@@ -254,3 +344,27 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.fade-banner {
+  opacity: 1;
+  transition: opacity 1s;
+}
+.fade-banner[style*="display: none"] {
+  opacity: 0;
+}
+.auth-banner-fixed {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  pointer-events: none;
+}
+.banner-center {
+  text-align: center;
+  width: 100%;
+}
+</style>
