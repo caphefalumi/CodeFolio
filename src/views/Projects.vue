@@ -144,10 +144,19 @@ export default {
         filtered = filtered.filter(project => project.type === this.selectedType)
       }
       if (this.search) {
-        filtered = filtered.filter(project =>
-          project.title.toLowerCase().includes(this.search.toLowerCase()) ||
-          project.description?.toLowerCase().includes(this.search.toLowerCase())
-        )
+        // If search starts with #, filter by tag
+        if (this.search.startsWith('#')) {
+          const tagQuery = this.search.slice(1).toLowerCase()
+          filtered = filtered.filter(project =>
+            Array.isArray(project.tags) &&
+            project.tags.some(tag => tag.toLowerCase().includes(tagQuery))
+          )
+        } else {
+          filtered = filtered.filter(project =>
+            project.title.toLowerCase().includes(this.search.toLowerCase()) ||
+            project.description?.toLowerCase().includes(this.search.toLowerCase())
+          )
+        }
       }
       if (this.sortBy === 'newest') {
         filtered = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
