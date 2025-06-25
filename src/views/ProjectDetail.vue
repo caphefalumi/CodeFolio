@@ -1,7 +1,9 @@
 <template>
   <div>
     <v-container>
-      <v-row>
+      <v-row
+        v-auto-animate
+      >
         <!-- Project Header -->
         <v-col cols="12">
           <v-card>
@@ -143,7 +145,9 @@
                 Post Comment
               </v-btn>
             </v-card-text>
-            <v-list>
+            <v-list
+              v-auto-animate
+            >
               <v-list-item
                 v-for="comment in comments"
                 :key="comment.id"
@@ -299,43 +303,53 @@ export default {
       }
     },
     async upvoteProject() {
-      this.project.upvoting = true
+      this.project.upvoting = true;
       try {
-        const res = await axios.post(`/api/posts/${this.$route.params.id}/upvote`)
-        this.project.upvotes = res.data.upvotes
-        this.project.downvotes = res.data.downvotes
+        const token = getAccessToken();
+        const res = await axios.post(
+          `/api/posts/${this.$route.params.id}/upvote`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        this.project.upvotes = res.data.upvotes;
+        this.project.downvotes = res.data.downvotes;
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          this.showAuthBanner = true
-          clearTimeout(this.authBannerTimeout)
+          this.showAuthBanner = true;
+          clearTimeout(this.authBannerTimeout);
           this.authBannerTimeout = setTimeout(() => {
-            this.showAuthBanner = false
-          }, 5000)
+            this.showAuthBanner = false;
+          }, 5000);
         } else {
-          this.errorMessage = error.response?.data?.message || error.message || 'Failed to upvote.'
+          this.errorMessage = error.response?.data?.message || error.message || 'Failed to upvote.';
         }
       } finally {
-        this.project.upvoting = false
+        this.project.upvoting = false;
       }
     },
     async downvoteProject() {
-      this.project.downvoting = true
+      this.project.downvoting = true;
       try {
-        const res = await axios.post(`/api/posts/${this.$route.params.id}/downvote`)
-        this.project.upvotes = res.data.upvotes
-        this.project.downvotes = res.data.downvotes
+        const token = getAccessToken();
+        const res = await axios.post(
+          `/api/posts/${this.$route.params.id}/downvote`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        this.project.upvotes = res.data.upvotes;
+        this.project.downvotes = res.data.downvotes;
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          this.showAuthBanner = true
-          clearTimeout(this.authBannerTimeout)
+          this.showAuthBanner = true;
+          clearTimeout(this.authBannerTimeout);
           this.authBannerTimeout = setTimeout(() => {
-            this.showAuthBanner = false
-          }, 5000)
+            this.showAuthBanner = false;
+          }, 5000);
         } else {
-          this.errorMessage = error.response?.data?.message || error.message || 'Failed to downvote.'
+          this.errorMessage = error.response?.data?.message || error.message || 'Failed to downvote.';
         }
       } finally {
-        this.project.downvoting = false
+        this.project.downvoting = false;
       }
     }
   },

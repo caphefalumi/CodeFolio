@@ -1,10 +1,10 @@
 {
   "name": "codefolio",
-  "version": "0.1.0",
+  "version": "1.4.9",
   "private": true,
   "type": "module",
   "scripts": {
-    "app": "concurrently \"npm run server\" \"npm run dev\" ",
+    "app": "concurrently \"npm run server\" \"npm run dev --host\" ",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -12,7 +12,7 @@
     "generate-data": "node src/scripts/generateFakeData.js"
   },
   "dependencies": {
-    "@octokit/oauth-app": "^8.0.1",
+    "@formkit/auto-animate": "^0.8.2",
     "@vitejs/plugin-basic-ssl": "^2.0.0",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",

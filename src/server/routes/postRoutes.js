@@ -98,6 +98,7 @@ router.post('/:id/comments', authenticateToken, async (req, res) => {
 
     res.status(201).json({ message: 'Comment added successfully', comments: post.comments })
   } catch (error) {
+    console.error('Error adding comment:', error)
     res.status(400).json({ message: 'Error adding comment', error })
   }
 })

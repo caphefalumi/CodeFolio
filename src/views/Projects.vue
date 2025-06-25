@@ -37,7 +37,9 @@
       </v-row>
 
       <!-- Projects Grid -->
-      <v-row>
+      <v-row
+        v-auto-animate
+      >
         <v-col
           v-for="project in filteredProjects"
           :key="project._id"

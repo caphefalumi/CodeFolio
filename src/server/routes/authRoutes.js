@@ -5,12 +5,13 @@ import bcrypt from 'bcrypt'
 import 'dotenv/config'
 import User from '../../models/User.js'
 import axios from 'axios'
-const router = express.Router()
 import getRandomCat from 'random-cat-img'
 import sendEmail from '../../server/mailer.js'
 
+const router = express.Router()
+
 router.post('/validate', async (req, res) => {
-  const [bearer, accessToken] = req.headers.authorization.split(' ')
+  const [bearer, accessToken] = req.headers.authorization?.split(' ') || []
   if (!accessToken) {
     return res.status(401).json({ message: 'Access token is required' })
   }
@@ -18,58 +19,46 @@ router.post('/validate', async (req, res) => {
   try {
     jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err) => {
       if (bearer !== 'Bearer') {
-        console.error('Invalid access token format:', accessToken)
         return res.status(403).json({ message: 'Invalid access token format' })
       }
       if (err) {
-        console.error('Invalid access token:', err)
         return res.status(403).json({ message: 'Invalid access token' })
       }
       res.json({ valid: true })
     })
   } catch (error) {
-    console.error('Error validating access token:', error)
     res.status(500).json({ message: 'Server error', error })
   }
 })
 
 router.post('/token', async (req, res) => {
-  if (!req.headers.cookie) {
-    console.error('No cookies found in request headers')
+  const refreshToken = req.cookies.refreshToken
+  if (!refreshToken) {
     return res.sendStatus(401)
   }
-  const refreshToken = req.headers.cookie.split('refreshToken=')[1]
-  if (!refreshToken) {
-      return res.sendStatus(401)
-  }
+
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err) => {
-    if (err) {
-      console.error('Error verifying refresh token:', refreshToken, err)
-      return res.sendStatus(403)
-    }
-    const user = await User.findOne({ refreshToken: refreshToken })
-      if (!user) {
-        console.error('User not found for refresh token:', refreshToken)
-        return res.sendStatus(403)
+    if (err) return res.sendStatus(403)
 
-      }
+    const user = await User.findOne({ refreshToken })
+    if (!user) return res.sendStatus(403)
 
-      const newRefreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
-      user.refreshToken = newRefreshToken
-      user.save()
-      res.cookie('refreshToken', newRefreshToken, {
-          httpOnly: true,
-          secure: true,
-          origin: 'https://localhost:3000',
-      })
+    const newRefreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+    user.refreshToken = newRefreshToken
+    await user.save()
 
-      const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
-      res.json({ accessToken })
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
     })
+
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    res.json({ accessToken })
+  })
 })
 
 router.post('/register', async (req, res) => {
-  console.log('Registering user with data:', req.body)
   const saltRounds = 10
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
   const user = new User({
@@ -84,6 +73,7 @@ router.post('/register', async (req, res) => {
     githubUrl: req.body.githubUrl,
     avatarUrl: req.body.avatarUrl
   })
+
   try {
     if (!req.body.username || !req.body.email || !req.body.password) {
       return res.status(400).json({ message: 'Username, email, and password are required' })
@@ -95,91 +85,72 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: 'Error creating user', error })
   }
+
   await user.save()
+
   try {
-  // --- SEND WELCOME EMAIL ---
-  const mailOptions = {
-    from: `CodeFolio <${process.env.GMAIL_USER}>`,
-    to: user.email,
-    subject: 'Welcome to Our Platform!',
-    html: `<h1>Hi ${user.name},</h1><p>Thank you for registering. We're excited to have you!</p>`,
-  };
-  
-  await sendEmail(mailOptions);
-  // -------------------------
+    const mailOptions = {
+      from: `CodeFolio <${process.env.GMAIL_USER}>`,
+      to: user.email,
+      subject: 'Welcome to Our Platform!',
+      html: `<h1>Hi ${user.firstName},</h1><p>Thank you for registering. We're excited to have you!</p>`,
+    }
 
-  res.status(201).json({ message: 'User created successfully. Welcome email sent!', user: user });
-
+    await sendEmail(mailOptions)
+    res.status(201).json({ message: 'User created successfully. Welcome email sent!', user })
   } catch (error) {
-      // Check if the error is from sending the email or saving the user
-      if (error.message.includes('Failed to send email')) {
-          // The user was created, but email failed. Decide how to handle this.
-          // For now, we'll still return a success for the user creation but log the email error.
-          console.error("User was created, but sending the welcome email failed.", error);
-          return res.status(201).json({ message: 'User created successfully, but could not send welcome email.', user: user });
-      }
-      // Otherwise, it was likely a database save error
-      console.error('Error saving user:', error);
-      return res.status(500).json({ message: 'Error creating user', error });
+    console.error("Email send error:", error)
+    res.status(201).json({ message: 'User created, but welcome email failed.', user })
   }
 })
-
 
 router.post('/login/jwt', async (req, res) => {
   const { email, password } = req.body
   try {
     const user = await User.findOne({ email })
-    if (!user) {
+    if (!user || !user.password) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
-    if (!user.password) {
-      // User registered via OAuth or missing password
-      return res.status(401).json({ message: 'This account does not have a password. Please log in with your OAuth provider.' })
-    }
+
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
+
     const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     user.refreshToken = refreshToken
     await user.save()
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      origin: 'https://localhost:3000',
+      sameSite: 'None',
     })
-    res.status(200).json({ accessToken, refreshToken })
-
+    res.status(200).json({ accessToken })
   } catch (err) {
-    console.error(err)
     res.status(500).json({ message: 'Server error', error: err })
   }
 })
 
-// POST /login/google
 router.post('/login/google', async (req, res) => {
-  const googleAccessToken = req.body.token;
+  const googleAccessToken = req.body.token
 
   if (!googleAccessToken) {
-    return res.status(400).json({ message: 'No access token provided' });
+    return res.status(400).json({ message: 'No access token provided' })
   }
 
   try {
-    // 1. Get user info from Google
     const { data: googleUser } = await axios.get(
       'https://www.googleapis.com/oauth2/v2/userinfo',
       {
-        headers: {
-          Authorization: `Bearer ${googleAccessToken}`,
-        },
+        headers: { Authorization: `Bearer ${googleAccessToken}` },
       }
-    );
+    )
 
-    const { id, email, picture, given_name, family_name } = googleUser;
-    console.log('Google User Info:', googleUser);
-    let user = await User.findOne({ email });
+    const { id, email, picture, given_name, family_name } = googleUser
+    let user = await User.findOne({ email })
 
     if (!user) {
       user = new User({
@@ -187,62 +158,45 @@ router.post('/login/google', async (req, res) => {
         email,
         firstName: given_name,
         lastName: family_name,
-        password: crypto.randomBytes(128).toString('hex'), // Random password for OAuth
+        password: crypto.randomBytes(128).toString('hex'),
         avatar: picture,
         oAuthProviders: [{ provider: 'google', providerId: id }],
-      });
+      })
     } else {
-      // Add Google provider if not already present
       const exists = user.oAuthProviders.some(
         (p) => p.provider === 'google' && p.providerId === String(id)
-      );
+      )
       if (!exists) {
-        user.oAuthProviders.push({ provider: 'google', providerId: String(id) });
+        user.oAuthProviders.push({ provider: 'google', providerId: String(id) })
       }
     }
 
-    // Generate tokens
-    const accessToken = jwt.sign(
-      { id: user._id },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '1h' }
-    );
-    const refreshToken = jwt.sign(
-      { id: user._id },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: '7d' }
-    );
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
-    // Save refresh token and user
-    user.refreshToken = refreshToken;
-    await user.save();
+    user.refreshToken = refreshToken
+    await user.save()
 
-    // Set refresh token cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      origin: 'https://localhost:3000',
       secure: true,
-    });
+      sameSite: 'None',
+    })
 
-    // Send access token
-    res.json({ accessToken });
+    res.json({ accessToken })
   } catch (err) {
-    console.error('Google login failed:', err);
-    res.status(500).json({
-      message: 'Google login failed',
-      error: err.message || err,
-    });
+    res.status(500).json({ message: 'Google login failed', error: err.message || err })
   }
 })
 
-router.get('/login/github', async (req, res) => {
-  res.redirect(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${process.env.GITHUB_CLIENT_ID}&scope=user`)
+router.get('/login/github', (req, res) => {
+  res.redirect(`https://github.com/login/oauth/authorize?scope=user:email&client_id=${process.env.GITHUB_CLIENT_ID}`)
 })
 
 router.get('/login/github/callback', async (req, res) => {
   const code = req.query.code
+
   try {
-    // Exchange code for access token
     const resp = await axios.post(
       `https://github.com/login/oauth/access_token`,
       {
@@ -256,68 +210,58 @@ router.get('/login/github/callback', async (req, res) => {
     )
 
     const access_token = resp.data.access_token
-    console.log('GitHub Access Token:', access_token)
 
-    // 1. Get user profile info
     const { data: userProfile } = await axios.get('https://api.github.com/user', {
       headers: { Authorization: `Bearer ${access_token}` },
     })
 
-    const avatar_url = userProfile.avatar_url
-
-    // 2. Get user email info
     const { data: emails } = await axios.get('https://api.github.com/user/emails', {
       headers: { Authorization: `Bearer ${access_token}` },
     })
 
-    // 3. Extract primary verified email
     const primaryEmailObj = emails.find(email => email.primary && email.verified)
     if (!primaryEmailObj) {
-      return res.status(400).json({ message: 'No verified primary email found in GitHub account' })
+      return res.status(400).json({ message: 'No verified primary email found' })
     }
 
     const email = primaryEmailObj.email
+    const avatar_url = userProfile.avatar_url
 
-    // 4. Find or create user
     let user = await User.findOne({ email })
+
     if (!user) {
       user = new User({
         username: email.split('@')[0] + crypto.randomBytes(5).toString('hex'),
         email,
-        password: crypto.randomBytes(128).toString('hex'), // Dummy password
-        oAuthProviders: [{
-          provider: 'github',
-          providerId: userProfile.id,
-        }],
+        password: crypto.randomBytes(128).toString('hex'),
+        oAuthProviders: [{ provider: 'github', providerId: userProfile.id }],
         avatar: avatar_url,
       })
     } else {
       const exists = user.oAuthProviders.some(p =>
         p.provider === 'github' && p.providerId === String(userProfile.id)
       )
-
       if (!exists) {
         user.oAuthProviders.push({ provider: 'github', providerId: String(userProfile.id) })
       }
     }
 
-    // 5. Generate and save tokens
     const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
-    console.log('Generated Access Token:', accessToken)
+
     user.refreshToken = refreshToken
     await user.save()
 
-    // 6. Send cookie and token
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      origin: 'https://localhost:3000',
+      sameSite: 'None',
     })
+
     res.send(`
       <script>
         window.opener.postMessage(
-          ${JSON.stringify({ accessToken})},
+          ${JSON.stringify({ accessToken })},
           "http://localhost:3000"
         );
         window.close();
@@ -325,32 +269,101 @@ router.get('/login/github/callback', async (req, res) => {
     `)
 
   } catch (err) {
-    console.error('GitHub login failed:', err)
     res.status(500).json({ message: 'GitHub login failed', error: err.message || err })
   }
 })
-  
-
 
 router.post('/logout', async (req, res) => {
-  const { refreshToken } = req.body
+  const refreshToken = req.cookies.refreshToken
   if (!refreshToken) {
     return res.sendStatus(204)
   }
   try {
-    const user = await User.findOne({ refreshToken: refreshToken })
-    if (!user) {
-      return res.sendStatus(204)
-    }
+    const user = await User.findOne({ refreshToken })
+    if (!user) return res.sendStatus(204)
+
     user.refreshToken = null
     await user.save()
+
+    res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'None' })
     res.sendStatus(204)
   } catch (err) {
-    console.error(err)
     res.status(500).json({ message: 'Server error', error: err })
   }
 })
 
+// Forgot password: send 6-digit code to email
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: 'No user with that email' });
 
+  // Generate 6-digit code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  user.resetCode = code;
+  user.resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 min expiry
+  await user.save();
+
+  // Send email
+  const mailOptions = {
+    from: `CodeFolio <${process.env.GMAIL_USER}>`,
+    to: user.email,
+    subject: 'Password Reset Code',
+    html: `<h2>Your CodeFolio password reset code:</h2><h1>${code}</h1><p>This code will expire in 15 minutes.</p>`
+  };
+  try {
+    await sendEmail(mailOptions);
+    res.json({ message: 'Reset code sent to email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to send email', error });
+  }
+});
+
+// Verify reset code
+router.post('/verify-reset-code', async (req, res) => {
+  const { email, code } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !user.resetCode || !user.resetCodeExpires) {
+    return res.status(400).json({ message: 'Invalid or expired code' });
+  }
+  if (user.resetCode !== code || Date.now() > user.resetCodeExpires) {
+    return res.status(400).json({ message: 'Invalid or expired code' });
+  }
+  res.json({ message: 'Code verified' });
+});
+
+// Reset password with code
+router.post('/reset-password', async (req, res) => {
+  const { email, code, newPassword } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !user.resetCode || !user.resetCodeExpires) {
+    return res.status(400).json({ message: 'Invalid or expired code' });
+  }
+  if (user.resetCode !== code || Date.now() > user.resetCodeExpires) {
+    return res.status(400).json({ message: 'Invalid or expired code' });
+  }
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetCode = undefined;
+  user.resetCodeExpires = undefined;
+  await user.save();
+  res.json({ message: 'Password reset successful' });
+});
+
+// Change password (user knows current password)
+router.post('/change-password', async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || !user.password) {
+    return res.status(400).json({ message: 'User not found or no password set' });
+  }
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: 'Current password is incorrect' });
+  }
+  user.password = await bcrypt.hash(newPassword, 10);
+  await user.save();
+  res.json({ message: 'Password changed successfully' });
+});
 
 export default router

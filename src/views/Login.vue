@@ -55,7 +55,7 @@
             </div>
 
             <div class="login-buttons">
-                <GoogleLogin :callback="handleGoogleLogin" prompt auto-login popup-type="TOKEN">
+                <GoogleLogin :callback="handleGoogleLogin" auto-login popup-type="TOKEN">
                   <v-icon-login provider="google" />
                 </GoogleLogin>
 

@@ -45,7 +45,6 @@ const postSchema = new mongoose.Schema({
     },
     coverImage: {
         type: String,
-        required: true
     },
     description: {
         type: String,

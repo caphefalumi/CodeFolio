@@ -67,6 +67,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  resetCode: {
+    type: String,
+  },
+  resetCodeExpires: {
+    type: Date,
+  }
 })
 
 userSchema.set('toJSON', {
