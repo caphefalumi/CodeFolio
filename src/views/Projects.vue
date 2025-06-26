@@ -1,94 +1,110 @@
 <template>
   <div>
-    <v-container>
-      <!-- Search and Filter Section -->
-      <v-row class="mb-6">
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="search"
-            label="Search projects"
-            prepend-inner-icon="mdi-magnify"
-            variant="outlined"
-            hide-details
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" md="3">
-          <v-select
-            v-model="selectedType"
-            :items="projectTypes"
-            item-title="title"
-            item-value="value"
-            label="Project Type"
-            variant="outlined"
-            hide-details
-          ></v-select>
-        </v-col>
-        <v-col cols="12" md="3">
-          <v-select
-            v-model="sortBy"
-            :items="sortOptions"
-            item-title="title"
-            item-value="value"
-            label="Sort By"
-            variant="outlined"
-            hide-details
-          ></v-select>
-        </v-col>
-      </v-row>
-
-      <!-- Projects Grid -->
-      <v-row
-        v-auto-animate
-      >
-        <v-col
-          v-for="project in paginatedProjects"
-          :key="project._id"
-          cols="12"
-          md="4"
+    <v-container>      <!-- Search and Filter Section -->
+      <section aria-label="Projects Search and Filter">
+        <v-row class="mb-6">
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="search"
+              label="Search projects"
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              hide-details
+              aria-label="Search by project title or description. Use # followed by a tag name to search by tags."
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-select
+              v-model="selectedType"
+              :items="projectTypes"
+              item-title="title"
+              item-value="value"
+              label="Project Type"
+              variant="outlined"
+              hide-details
+              aria-label="Filter projects by type"
+            ></v-select>
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-select
+              v-model="sortBy"
+              :items="sortOptions"
+              item-title="title"
+              item-value="value"
+              label="Sort By"
+              variant="outlined"
+              hide-details
+              aria-label="Sort projects by criteria"
+            ></v-select>
+          </v-col>
+        </v-row>
+      </section>      <!-- Projects Grid -->
+      <section aria-label="Projects List">
+        <v-row
+          v-auto-animate
         >
-          <v-card>
-            <v-card-title>{{ project.title }}</v-card-title>
-            <v-card-text>
-              <p>{{ project.description }}</p>
-              <v-chip
-                v-for="tag in project.tags"
-                :key="tag"
-                class="mr-2 mb-2"
-                size="small"
-              >
-                {{ tag }}
-              </v-chip>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                variant="text"
-                :to="`${project.getFullPath}`"
-                prepend-icon="mdi-eye"
-              >
-                View Project
-              </v-btn>
-              <v-spacer></v-spacer>
-              <v-btn icon @click="toggleLike(project)">
-                <v-icon>
-                  {{ project.liked ? 'mdi-heart' : 'mdi-heart-outline' }}
-                </v-icon>
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Pagination -->
-      <v-row class="mt-6">
-        <v-col cols="12" class="text-center">
-          <v-pagination
-            v-model="page"
-            :length="totalPages"
-            rounded
-          ></v-pagination>
-        </v-col>
-      </v-row>
+          <v-col
+            v-for="project in paginatedProjects"
+            :key="project._id"
+            cols="12"
+            md="4"
+          >
+            <article>
+              <v-card>
+                <v-card-title>{{ project.title }}</v-card-title>
+                <v-card-text>
+                  <p>{{ project.description }}</p>
+                  <div role="list" aria-label="Project tags">
+                    <v-chip
+                      v-for="tag in project.tags"
+                      :key="tag"
+                      class="mr-2 mb-2"
+                      size="small"
+                      role="listitem"
+                    >
+                      {{ tag }}
+                    </v-chip>
+                  </div>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn
+                    color="primary"
+                    variant="text"
+                    :to="`${project.getFullPath}`"
+                    prepend-icon="mdi-eye"
+                    :aria-label="`View project: ${project.title}`"
+                  >
+                    View Project
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                  <v-btn 
+                    icon 
+                    @click="toggleLike(project)"
+                    :aria-label="`${project.liked ? 'Unlike' : 'Like'} project: ${project.title}`"
+                    :title="`${project.liked ? 'Unlike' : 'Like'} this project`"
+                  >
+                    <v-icon aria-hidden="true">
+                      {{ project.liked ? 'mdi-heart' : 'mdi-heart-outline' }}
+                    </v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </article>
+          </v-col>
+        </v-row>
+      </section>      <!-- Pagination -->
+      <section aria-label="Page Navigation">
+        <v-row class="mt-6">
+          <v-col cols="12" class="text-center">
+            <v-pagination
+              v-model="page"
+              :length="totalPages"
+              rounded
+              aria-label="Project pages navigation"
+            ></v-pagination>
+          </v-col>
+        </v-row>
+      </section>
 
       <v-alert
         v-if="errorMessage"
@@ -99,9 +115,11 @@
         elevation="0"
         density="comfortable"
         style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+        role="alert"
+        aria-live="polite"
       >
         <template #prepend>
-          <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+          <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
         </template>
         {{ errorMessage }}
       </v-alert>

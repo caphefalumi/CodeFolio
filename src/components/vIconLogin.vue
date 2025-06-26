@@ -3,10 +3,24 @@
     class="login-btn"
     block
     elevation="1"
+    :aria-label="`Sign in with ${providerName} - opens ${providerName} authentication`"
+    role="button"
+    tabindex="0"
   >
-    <v-icon v-if="provider === 'google'" left class="me-2 google-icon" color="#EA4335" />
-    <v-icon v-else-if="provider === 'github'" left class="me-2 github-icon" color="#4267B2" />
-    Login with {{ providerName }}
+    <v-icon 
+      v-if="provider === 'google'" 
+      left 
+      class="me-2 google-icon" 
+      color="#EA4335"
+      :aria-hidden="true"
+    />
+    <v-icon 
+      v-else-if="provider === 'github'" 
+      left 
+      class="me-2 github-icon" 
+      color="#4267B2"
+      :aria-hidden="true"
+    />    Login with {{ providerName }}
   </v-btn>
 </template>
 
@@ -29,7 +43,6 @@ export default {
 
 <style scoped>
 .google-icon {
-
   background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
   background-color: white;
   background-repeat: no-repeat;

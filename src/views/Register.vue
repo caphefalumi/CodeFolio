@@ -3,17 +3,19 @@
     <v-row justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="mt-8">
-          <v-card-title class="text-h4 text-center pt-6">
+          <v-card-title class="text-h4 text-center pt-6" id="register-heading">
             Create Account
           </v-card-title>
           <v-card-text>
-            <v-form @submit.prevent="handleRegister">
+            <v-form @submit.prevent="handleRegister" aria-labelledby="register-heading">
               <v-text-field
                 v-model="form.email"
                 label="Email"
                 type="email"
                 required
                 :rules="[rules.required, rules.email]"
+                aria-describedby="email-register-help"
+                autocomplete="email"
               ></v-text-field>
 
               <v-text-field
@@ -22,6 +24,8 @@
                 type="text"
                 required
                 :rules="[rules.required, rules.username]"
+                aria-describedby="username-help"
+                autocomplete="username"
               ></v-text-field>
 
               <v-text-field
@@ -30,14 +34,17 @@
                 type="password"
                 required
                 :rules="[rules.required, rules.password]"
+                aria-describedby="password-register-help"
+                autocomplete="new-password"
               ></v-text-field>
-
               <v-text-field
                 v-model="form.confirmPassword"
                 label="Confirm Password"
                 type="password"
                 required
                 :rules="[rules.required, rules.confirmPassword]"
+                aria-describedby="confirm-password-help"
+                autocomplete="new-password"
               ></v-text-field>
 
               <v-btn
@@ -48,12 +55,13 @@
                 :loading="loading"
                 :disabled="!isFormValid"
                 :style="isFormValid ? 'background-color: #43a047; color: #fff;' : 'background-color: #bdbdbd; color: #fff;'"
+                :aria-label="loading ? 'Creating account...' : 'Create your account'"
               >
                 Register
               </v-btn>
             </v-form>
 
-            <v-divider class="my-4"></v-divider>
+            <v-divider class="my-4" aria-hidden="true"></v-divider>
 
             <div class="text-center">
               <p class="text-body-2 mb-2">Or register with</p>
@@ -75,9 +83,11 @@
               elevation="0"
               density="comfortable"
               style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+              role="alert"
+              aria-live="polite"
             >
               <template #prepend>
-                <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+                <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
               </template>
               {{ errorMessage }}
             </v-alert>

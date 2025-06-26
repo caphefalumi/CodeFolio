@@ -6,158 +6,207 @@
       >
         <!-- Project Header -->
         <v-col cols="12">
-          <v-card>
-            <v-img
-              :src="project.image"
-              height="400"
-              cover
-            ></v-img>
-            <v-card-title class="text-h3">
-              {{ project.title }}
-            </v-card-title>
-            <v-card-subtitle>
-              By {{ project.author }}
-            </v-card-subtitle>
-            <v-card-text>
-              <p class="text-body-1 mb-4">{{ project.description }}</p>
-              <v-chip
-                v-for="tag in project.tags"
-                :key="tag"
-                class="mr-2 mb-2"
-              >
-                {{ tag }}
-              </v-chip>
-            </v-card-text>
-            <v-card-actions class="justify-center align-center">
-              <v-btn icon @click="upvoteProject" :disabled="project.upvoting" class="mr-2">
-                <v-icon :color="project.liked === true ? 'success' : 'grey'">mdi-arrow-up-bold</v-icon>
-              </v-btn>
-              <div class="text-h5 font-weight-bold mx-2" style="min-width: 32px; text-align: center;">
-                {{ project.upvotes - project.downvotes }}
-              </div>
-              <v-btn icon @click="downvoteProject" :disabled="project.downvoting" class="ml-2">
-                <v-icon :color="project.liked === false ? 'error' : 'grey'">mdi-arrow-down-bold</v-icon>
-              </v-btn>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" variant="text" :href="project.githubUrl" target="_blank" prepend-icon="mdi-github">
-                View on GitHub
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-
-        <!-- GitHub Stats -->
+          <article>
+            <v-card>
+              <v-img
+                :src="project.image"
+                height="400"
+                cover
+                :alt="`${project.title} project cover image`"
+              ></v-img>
+              <v-card-title class="text-h3">
+                <h1>{{ project.title }}</h1>
+              </v-card-title>
+              <v-card-subtitle>
+                By <span>{{ project.author }}</span>
+              </v-card-subtitle>
+              <v-card-text>
+                <p class="text-body-1 mb-4">{{ project.description }}</p>
+                <div role="list" aria-label="Project tags">
+                  <v-chip
+                    v-for="tag in project.tags"
+                    :key="tag"
+                    class="mr-2 mb-2"
+                    role="listitem"
+                  >
+                    {{ tag }}
+                  </v-chip>
+                </div>
+              </v-card-text>              <v-card-actions class="justify-center align-center" role="group" aria-label="Project voting actions">
+                <v-btn 
+                  icon 
+                  @click="upvoteProject" 
+                  :disabled="project.upvoting" 
+                  class="mr-2"
+                  :aria-label="`Upvote project. Current score: ${project.upvotes - project.downvotes}`"
+                  :title="`Upvote this project`"
+                >
+                  <v-icon 
+                    :color="project.liked === true ? 'success' : 'grey'"
+                    aria-hidden="true"
+                  >mdi-arrow-up-bold</v-icon>
+                </v-btn>
+                <div class="text-h5 font-weight-bold mx-2" style="min-width: 32px; text-align: center;" aria-live="polite">
+                  {{ project.upvotes - project.downvotes }}
+                </div>
+                <v-btn 
+                  icon 
+                  @click="downvoteProject" 
+                  :disabled="project.downvoting" 
+                  class="ml-2"
+                  :aria-label="`Downvote project. Current score: ${project.upvotes - project.downvotes}`"
+                  :title="`Downvote this project`"
+                >
+                  <v-icon 
+                    :color="project.liked === false ? 'error' : 'grey'"
+                    aria-hidden="true"
+                  >mdi-arrow-down-bold</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn 
+                  color="primary" 
+                  variant="text" 
+                  :href="project.githubUrl" 
+                  target="_blank" 
+                  prepend-icon="mdi-github"
+                  rel="noopener noreferrer"
+                  aria-label="View project on GitHub (opens in new tab)"
+                >
+                  View on GitHub
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </article>
+        </v-col>        <!-- GitHub Stats -->
         <v-col cols="12" md="6" v-if="project.githubUrl">
-          <v-card>
-            <v-card-title>GitHub Stats</v-card-title>
-            <v-card-text>
-              <v-row>
-                <v-col cols="4">
-                  <div class="text-center">
-                    <div class="text-h4">{{ githubStats.stars }}</div>
-                    <div class="text-subtitle-1">Stars</div>
-                  </div>
-                </v-col>
-                <v-col cols="4">
-                  <div class="text-center">
-                    <div class="text-h4">{{ githubStats.forks }}</div>
-                    <div class="text-subtitle-1">Forks</div>
-                  </div>
-                </v-col>
-                <v-col cols="4">
-                  <div class="text-center">
-                    <div class="text-h4">{{ githubStats.issues }}</div>
-                    <div class="text-subtitle-1">Issues</div>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
+          <section aria-labelledby="github-stats-heading">
+            <v-card>
+              <v-card-title>
+                <h2 id="github-stats-heading">GitHub Stats</h2>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col cols="4">
+                    <div class="text-center">
+                      <div class="text-h4" aria-label="Stars count">{{ githubStats.stars }}</div>
+                      <div class="text-subtitle-1">Stars</div>
+                    </div>
+                  </v-col>
+                  <v-col cols="4">
+                    <div class="text-center">
+                      <div class="text-h4" aria-label="Forks count">{{ githubStats.forks }}</div>
+                      <div class="text-subtitle-1">Forks</div>
+                    </div>
+                  </v-col>
+                  <v-col cols="4">
+                    <div class="text-center">
+                      <div class="text-h4" aria-label="Issues count">{{ githubStats.issues }}</div>
+                      <div class="text-subtitle-1">Issues</div>
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </section>
         </v-col>
 
         <!-- Project Details -->
         <v-col cols="12" md="6">
-          <v-card>
-            <v-card-title>Project Details</v-card-title>
-            <v-card-text>
-              <v-list>
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-icon>mdi-calendar</v-icon>
+          <section aria-labelledby="project-details-heading">
+            <v-card>
+              <v-card-title>
+                <h2 id="project-details-heading">Project Details</h2>
+              </v-card-title>
+              <v-card-text>
+                <v-list>
+                  <v-list-item>
+                    <template v-slot:prepend>
+                      <v-icon aria-hidden="true">mdi-calendar</v-icon>
+                    </template>
+                    <v-list-item-title>Created</v-list-item-title>
+                    <v-list-item-subtitle>{{ project.createdAt }}</v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <template v-slot:prepend>
+                      <v-icon aria-hidden="true">mdi-update</v-icon>
+                    </template>
+                    <v-list-item-title>Last Updated</v-list-item-title>
+                    <v-list-item-subtitle>{{ project.updatedAt }}</v-list-item-subtitle>
+                  </v-list-item>
+                  <v-list-item>
+                    <template v-slot:prepend>
+                      <v-icon aria-hidden="true">mdi-eye</v-icon>
+                    </template>
+                    <v-list-item-title>Views</v-list-item-title>
+                    <v-list-item-subtitle>{{ project.views }}</v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </section>
+        </v-col>        <!-- Comments Section -->
+        <v-col cols="12">
+          <section aria-labelledby="comments-heading">
+            <v-card>
+              <v-card-title>
+                <h2 id="comments-heading">Comments</h2>
+              </v-card-title>
+              <v-card-text>
+                <v-alert
+                  v-if="errorMessage"
+                  type="error"
+                  class="mb-4"
+                  border="start"
+                  colored-border
+                  elevation="0"
+                  density="comfortable"
+                  style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  <template #prepend>
+                    <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
                   </template>
-                  <v-list-item-title>Created</v-list-item-title>
-                  <v-list-item-subtitle>{{ project.createdAt }}</v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item>
+                  {{ errorMessage }}                </v-alert>
+                <v-form @submit.prevent="addComment" aria-label="Add a comment">
+                  <v-textarea
+                    v-model="newComment"
+                    label="Add a comment"
+                    rows="3"
+                    variant="outlined"
+                    aria-label="Share your thoughts about this project"
+                  ></v-textarea>
+                  <v-btn
+                    color="primary"
+                    type="submit"
+                    :disabled="!newComment.trim()"
+                    :aria-label="loading ? 'Posting comment...' : 'Post comment'"
+                  >
+                    Post Comment
+                  </v-btn>
+                </v-form>
+              </v-card-text>
+              <v-list
+                v-auto-animate
+                aria-label="Project comments"
+              >
+                <v-list-item
+                  v-for="comment in comments"
+                  :key="comment.id"
+                  :subtitle="comment.author + ' • ' + comment.date"
+                  role="article"
+                  :aria-label="`Comment by ${comment.author} on ${comment.date}`"
+                >
                   <template v-slot:prepend>
-                    <v-icon>mdi-update</v-icon>
+                    <v-avatar color="primary" :aria-label="`${comment.author} avatar`">
+                      {{ comment.author.charAt(0) }}
+                    </v-avatar>
                   </template>
-                  <v-list-item-title>Last Updated</v-list-item-title>
-                  <v-list-item-subtitle>{{ project.updatedAt }}</v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-icon>mdi-eye</v-icon>
-                  </template>
-                  <v-list-item-title>Views</v-list-item-title>
-                  <v-list-item-subtitle>{{ project.views }}</v-list-item-subtitle>
+                  <v-list-item-title>{{ comment.content }}</v-list-item-title>
                 </v-list-item>
               </v-list>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <!-- Comments Section -->
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>Comments</v-card-title>
-            <v-card-text>
-              <v-alert
-                v-if="errorMessage"
-                type="error"
-                class="mb-4"
-                border="start"
-                colored-border
-                elevation="0"
-                density="comfortable"
-                style="background-color: #fff; color: #d32f2f; font-weight: 500;"
-              >
-                <template #prepend>
-                  <v-icon color="error" size="24">mdi-alert-circle</v-icon>
-                </template>
-                {{ errorMessage }}
-              </v-alert>
-              <v-textarea
-                v-model="newComment"
-                label="Add a comment"
-                rows="3"
-                variant="outlined"
-              ></v-textarea>
-              <v-btn
-                color="primary"
-                @click="addComment"
-                :disabled="!newComment.trim()"
-              >
-                Post Comment
-              </v-btn>
-            </v-card-text>
-            <v-list
-              v-auto-animate
-            >
-              <v-list-item
-                v-for="comment in comments"
-                :key="comment.id"
-                :subtitle="comment.author + ' • ' + comment.date"
-              >
-                <template v-slot:prepend>
-                  <v-avatar color="primary">
-                    {{ comment.author.charAt(0) }}
-                  </v-avatar>
-                </template>
-                <v-list-item-title>{{ comment.content }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-card>
+            </v-card>
+          </section>
         </v-col>
       </v-row>
     </v-container>

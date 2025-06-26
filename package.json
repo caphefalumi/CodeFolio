@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "fs": "^0.0.1-security",
     "google-auth-library": "^10.1.0",
     "googleapis": "^150.0.1",
     "image-resize-compress": "^2.1.1",
@@ -37,6 +38,7 @@
     "sharp": "^0.34.2",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
+    "vue-virtual-scroller": "^2.0.0-beta.8",
     "vue3-google-login": "^2.0.33",
     "vuetify": "^3.8.8"
   },

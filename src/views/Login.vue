@@ -3,17 +3,19 @@
     <v-row justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="mt-8">
-          <v-card-title class="text-h4 text-center pt-6">
+          <v-card-title class="text-h4 text-center pt-6" id="login-heading">
             Login
           </v-card-title>
           <v-card-text>
-            <v-form @submit.prevent="handleLogin">
+            <v-form @submit.prevent="handleLogin" aria-labelledby="login-heading">
               <v-text-field
                 v-model="form.email"
                 label="Email"
                 type="email"
-                required
+                required                
                 :rules="[rules.required, rules.email]"
+                aria-label="Enter your email address to log in"
+                autocomplete="email"
               ></v-text-field>
 
               <v-text-field
@@ -22,7 +24,10 @@
                 type="password"
                 required
                 :rules="[rules.required]"
+                aria-label="Enter your password to log in"
+                autocomplete="current-password"
               ></v-text-field>
+
               <v-alert
                 v-if="errorMessage"
                 type="error"
@@ -32,9 +37,11 @@
                 elevation="0"
                 density="comfortable"
                 style="background-color: #fff; color: #d32f2f; font-weight: 500;"
+                role="alert"
+                aria-live="polite"
               >
                 <template #prepend>
-                  <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+                  <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
                 </template>
                 {{ errorMessage }}
               </v-alert>
@@ -45,16 +52,17 @@
                 block
                 class="mt-4"
                 :loading="loading"
+                :aria-label="loading ? 'Logging in...' : 'Log in to your account'"
               >Login</v-btn>
             </v-form>
 
-            <v-divider class="my-4"></v-divider>
+            <v-divider class="my-4" aria-hidden="true"></v-divider>
 
             <div class="text-center text-body-2 mb-2">
               <span>Or login with</span>
             </div>
 
-            <div class="login-buttons">
+            <div class="login-buttons" role="group" aria-label="Alternative login methods">
                 <GoogleLogin :callback="handleGoogleLogin" auto-login popup-type="TOKEN">
                   <v-icon-login provider="google" />
                 </GoogleLogin>
@@ -183,13 +191,11 @@ export default {
   gap: 1em;
 }
 
-
 .login-btn-wrapper {
   width: 51%;
 }
+
 .shrink {
   width: 1px;
 }
-
-
 </style>

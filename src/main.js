@@ -3,6 +3,8 @@ import App from '@/App.vue'
 import router from '@/router/router.js'
 import vue3GoogleLogin from 'vue3-google-login'
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
+import VueVirtualScroller from 'vue-virtual-scroller'
+
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
@@ -10,6 +12,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
+
 const availableThemes = ['light', 'dark']
 const savedTheme = localStorage.getItem('theme')
 const defaultTheme = availableThemes.includes(savedTheme) ? savedTheme : 'light'
@@ -62,6 +65,7 @@ const vuetify = createVuetify({
 const app = createApp(App)
 app.use(router)
 app.use(vuetify)
+app.use(VueVirtualScroller)
 app.use(autoAnimatePlugin)
 app.use(vue3GoogleLogin, {
   clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
