@@ -41,7 +41,7 @@
         v-auto-animate
       >
         <v-col
-          v-for="project in filteredProjects"
+          v-for="project in paginatedProjects"
           :key="project._id"
           cols="12"
           md="4"
@@ -121,7 +121,7 @@ export default {
       selectedType: 'all',
       sortBy: 'newest',
       page: 1,
-      itemsPerPage: 9,
+      itemsPerPage: 6,
       projectTypes: [
         { title: 'All Types', value: 'all' },
         { title: 'Web App', value: 'web' },

@@ -1,191 +1,189 @@
 <template>
-  <v-container class="profile-container py-8">
-    <v-row class="profile-header" align="center" justify="center">
-      <v-col cols="12" md="4" class="d-flex flex-column align-center">
-        <v-avatar size="120" class="profile-avatar elevation-4 mb-4">
-          <v-img :src="userProfile.avatar" cover></v-img>
-        </v-avatar>
-        <h2 class="text-h4 font-weight-bold mb-1">{{ userProfile.firstName + ' ' + userProfile.lastName }}</h2>
-        <div class="text-subtitle-2 text-grey-darken-1 mb-2">@{{ userProfile.username }}</div>
-        <div class="text-body-1 mb-2">{{ userProfile.bio }}</div>
-        <div class="mb-2">
-          <v-icon size="18" class="mr-1">mdi-email</v-icon>{{ userProfile.email }}
-        </div>
-        <div v-if="userProfile.githubUrl" class="mb-2">
-          <v-icon size="18" class="mr-1">mdi-github</v-icon>
-          <a :href="userProfile.githubUrl" target="_blank">GitHub</a>
-        </div>
-        <div class="d-flex gap-2 mb-2">
-          <v-chip color="primary" class="mr-2" label>
-            <v-icon left size="18">mdi-account-multiple</v-icon>
-            {{ userProfile.followers?.length || 0 }} Followers
-          </v-chip>
-          <v-chip color="secondary" label>
-            <v-icon left size="18">mdi-account-plus</v-icon>
-            {{ userProfile.followed?.length || 0 }} Following
-          </v-chip>
-        </div>
-        <div class="d-flex gap-2 mt-2">
-          <v-btn v-if="isOwner" color="primary" variant="outlined" @click="showEditProfile = true">Edit Profile</v-btn>
-          <v-btn v-if="isOwner" color="warning" variant="outlined" @click="showResetPassword = true">Reset Password</v-btn>
-        </div>
-      </v-col>
-      <v-col cols="12" md="8">
-        <v-card class="elevation-2 pa-6 profile-projects-card">
-          <v-toolbar color="primary" dark flat class="rounded-lg mb-4">
-            <v-toolbar-title class="text-h5">My Projects</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn v-if="isOwner" color="white" variant="text" @click="showNewProject = true">
-              <v-icon left>mdi-plus</v-icon> Add New Project
-            </v-btn>
-          </v-toolbar>
-          <v-row v-auto-animate>
-            <v-col v-for="project in userProjects" :key="project._id" cols="12" md="6">
-              <v-card class="project-card elevation-1 mb-4">
-                <v-img :src="project.coverImage" height="180" cover class="rounded-t-lg"></v-img>
-                <v-card-title class="font-weight-bold">{{ project.title }}</v-card-title>
-                <v-card-text>
-                  <div class="text-body-2 mb-2">{{ project.description }}</div>
-                  <div class="mb-2">
-                    <v-chip v-for="tag in project.tags" :key="tag" class="mr-2 mb-2" size="small">{{ tag }}</v-chip>
-                  </div>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn color="primary" variant="text" :to="`/${userProfile.username}/${project.id}`">
-                    <v-icon left>mdi-eye</v-icon> View
-                  </v-btn>
-                  <v-btn v-if="isOwner" color="primary" variant="text" @click="editProject(project)">
-                    <v-icon left>mdi-pencil</v-icon> Edit
-                  </v-btn>
-                  <v-btn v-if="isOwner" color="error" variant="text" @click="deleteProject(project)">
-                    <v-icon left>mdi-delete</v-icon> Delete
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Edit Profile Dialog -->
-    <v-dialog v-model="showEditProfile" fullscreen scrollable transition="dialog-bottom-transition">
-      <v-card class="pa-0" style="max-width:100vw;">
-        <v-toolbar color="primary" dark flat>
-          <v-toolbar-title>Edit Profile</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn icon @click="showEditProfile = false"><v-icon>mdi-close</v-icon></v-btn>
-        </v-toolbar>
-        <v-container class="py-6 px-2 px-md-12" style="max-width:600px; margin:auto;">
-          <div class="d-flex flex-column align-center mb-4">
-            <v-avatar size="96" class="mb-2">
-              <v-img :src="editForm.avatarPreview || userProfile.avatar" cover></v-img>
-            </v-avatar>
-            <v-btn small color="primary" variant="text" @click="$refs.avatarInput.click()">
-              <v-icon left>mdi-camera</v-icon> Change Photo
-            </v-btn>
-            <input ref="avatarInput" type="file" accept="image/*" style="display:none" @change="onAvatarChange" />
+  <v-theme-provider>
+    <v-container class="py-8">
+      <v-row class="profile-header" align="center" justify="center">
+        <v-col cols="12" md="4" class="d-flex flex-column align-center">
+          <v-avatar size="120" class="profile-avatar elevation-4 mb-4">
+            <v-img :src="userProfile.avatar" cover></v-img>
+          </v-avatar>
+          <h2 class="text-h4 font-weight-bold mb-1">{{ userProfile.firstName + ' ' + userProfile.lastName }}</h2>
+          <div class="text-subtitle-2 text-grey-darken-1 mb-2">@{{ userProfile.username }}</div>
+          <div class="text-body-1 mb-2">{{ userProfile.bio }}</div>
+          <div class="mb-2">
+            <v-icon size="18" class="mr-1">mdi-email</v-icon>{{ userProfile.email }}
           </div>
-          <v-form @submit.prevent="handleProfileUpdate" class="w-100">
-            <v-text-field v-model="editForm.firstName" label="First Name" required></v-text-field>
-            <v-text-field v-model="editForm.lastName" label="Last Name" required></v-text-field>
-            <v-text-field v-model="editForm.email" label="Email" required disabled></v-text-field>
-            <v-textarea v-model="editForm.bio" label="Bio" rows="3"></v-textarea>
-            <v-alert v-if="errorMessage" type="error" class="mt-2">{{ errorMessage }}</v-alert>
-            <v-alert v-if="successMessage" type="success" class="mt-2">{{ successMessage }}</v-alert>
-            <v-btn color="primary" class="mt-4" type="submit" block :loading="loading">Save Changes</v-btn>
-          </v-form>
-        </v-container>
-      </v-card>
-    </v-dialog>
+          <div v-if="userProfile.githubUrl" class="mb-2">
+            <v-icon size="18" class="mr-1">mdi-github</v-icon>
+            <a :href="userProfile.githubUrl" target="_blank">GitHub</a>
+          </div>
+          <div class="d-flex gap-2 mb-2">
+            <v-chip color="primary" class="mr-2" label>
+              <v-icon left size="18">mdi-account-multiple</v-icon>
+              {{ userProfile.followers?.length || 0 }} Followers
+            </v-chip>
+            <v-chip color="secondary" label>
+              <v-icon left size="18">mdi-account-plus</v-icon>
+              {{ userProfile.followed?.length || 0 }} Following
+            </v-chip>
+          </div>
+          <div class="d-flex gap-2 mt-2">
+            <v-btn v-if="isOwner" color="primary" variant="outlined" @click="showEditProfile = true">Edit Profile</v-btn>
+            <v-btn v-if="isOwner" color="warning" variant="outlined" @click="showResetPassword = true">Reset Password</v-btn>
+          </div>
+        </v-col>
+        <v-col cols="12" md="8">
+          <v-card class="elevation-2 pa-6 profile-projects-card">
+            <v-toolbar color="primary" dark flat class="rounded-lg mb-4">
+              <v-toolbar-title class="text-h5">My Projects</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn v-if="isOwner" color="white" variant="text" @click="showNewProject = true">
+                <v-icon left>mdi-plus</v-icon> Add New Project
+              </v-btn>
+            </v-toolbar>
+            <v-row v-auto-animate>
+              <v-col v-for="project in userProjects" :key="project._id" cols="12" md="6">
+                <v-card class="project-card elevation-1 mb-4">
+                  <v-img :src="project.coverImage" height="180" cover class="rounded-t-lg"></v-img>
+                  <v-card-title class="font-weight-bold">{{ project.title }}</v-card-title>
+                  <v-card-text>
+                    <div class="text-body-2 mb-2">{{ project.description }}</div>
+                    <div class="mb-2">
+                      <v-chip v-for="tag in project.tags" :key="tag" class="mr-2 mb-2" size="small">{{ tag }}</v-chip>
+                    </div>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn color="primary" variant="text" :to="`/${userProfile.username}/${project.id}`">
+                      <v-icon left>mdi-eye</v-icon> View
+                    </v-btn>
+                    <v-btn v-if="isOwner" color="primary" variant="text" @click="editProject(project)">
+                      <v-icon left>mdi-pencil</v-icon> Edit
+                    </v-btn>
+                    <v-btn v-if="isOwner" color="error" variant="text" @click="deleteProject(project)">
+                      <v-icon left>mdi-delete</v-icon> Delete
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+      </v-row>
 
-    <!-- New Project Dialog -->
-    <v-dialog v-model="showNewProject" max-width="800">
-      <v-card>
-        <v-toolbar color="primary" dark flat>
-          <v-toolbar-title>Add New Project</v-toolbar-title>
-        </v-toolbar>
-        <v-card-text>
-          <v-form @submit.prevent="saveProject">
-            <v-text-field v-model="projectForm.title" label="Project Title" required></v-text-field>
-            <v-textarea v-model="projectForm.description" label="Project Description" required></v-textarea>
-            <v-textarea v-model="projectForm.content" label="Project Content" required></v-textarea>
-            <v-file-input v-model="projectForm.coverImage" label="Project Cover Image" accept="image/*" prepend-icon="mdi-image"></v-file-input>
-            <v-combobox v-model="projectForm.tags" label="Tags" multiple chips small-chips></v-combobox>
-            <v-text-field v-model="projectForm.githubUrl" label="GitHub Repository URL" prepend-icon="mdi-github"></v-text-field>
-            <v-select v-model="projectForm.type" :items="projectTypes" label="Project Type" required></v-select>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" @click="saveProject" :loading="loading">Save Project</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <!-- Edit Profile Dialog -->
+      <v-dialog v-model="showEditProfile" fullscreen scrollable transition="dialog-bottom-transition">
+        <v-card class="pa-0" style="max-width:100vw;">
+          <v-toolbar color="primary" dark flat>
+            <v-toolbar-title>Edit Profile</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon @click="showEditProfile = false"><v-icon>mdi-close</v-icon></v-btn>
+          </v-toolbar>
+          <v-container class="py-6 px-2 px-md-12" style="max-width:600px; margin:auto;">
+            <div class="d-flex flex-column align-center mb-4">
+              <v-avatar size="96" class="mb-2">
+                <v-img :src="userProfile.avatar" cover></v-img>
+              </v-avatar>
+              <v-btn small color="primary" variant="text" @click="$refs.avatarInput.click()">
+                <v-icon left>mdi-camera</v-icon> Change Photo
+              </v-btn>
+              <input ref="avatarInput" type="file" accept="image/*" style="display:none" @change="onAvatarChange" />
+            </div>
+            <v-form @submit.prevent="handleProfileUpdate" class="w-100">
+              <v-text-field v-model="editForm.firstName" label="First Name" required></v-text-field>
+              <v-text-field v-model="editForm.lastName" label="Last Name" required></v-text-field>
+              <v-text-field v-model="editForm.email" label="Email" required disabled></v-text-field>
+              <v-textarea v-model="editForm.bio" label="Bio" rows="3"></v-textarea>
+              <v-alert v-if="errorMessage" type="error" class="mt-2">{{ errorMessage }}</v-alert>
+              <v-alert v-if="successMessage" type="success" class="mt-2">{{ successMessage }}</v-alert>
+              <v-btn color="primary" class="mt-4" type="submit" block :loading="loading">Save Changes</v-btn>
+            </v-form>
+          </v-container>
+        </v-card>
+      </v-dialog>
 
-    <!-- Password Reset Dialog (FAANG style) -->
-    <v-dialog v-model="showResetPassword" max-width="420">
-      <v-card>
-        <v-toolbar color="warning" dark flat>
-          <v-toolbar-title>Reset Password</v-toolbar-title>
-        </v-toolbar>
-        <v-card-text>
-          <v-stepper v-model="resetStep" flat class="mb-2">
-            <v-stepper-header>
-              <v-stepper-step :complete="resetStep > 1" step="1">Email</v-stepper-step>
-              <v-divider></v-divider>
-              <v-stepper-step :complete="resetStep > 2" step="2">Code</v-stepper-step>
-              <v-divider></v-divider>
-              <v-stepper-step step="3">New Password</v-stepper-step>
-            </v-stepper-header>
-          </v-stepper>
-          <v-form v-if="resetStep === 1" @submit.prevent="handleForgotPassword">
-            <v-text-field v-model="resetEmail" label="Email" type="email" required></v-text-field>
-            <v-btn color="primary" type="submit" :loading="resetLoading" block>Send Reset Code</v-btn>
-          </v-form>
-          <v-form v-if="resetStep === 2" @submit.prevent="handleVerifyCode">
-            <v-text-field v-model="resetCode" label="6-digit Code" required></v-text-field>
-            <v-btn color="primary" type="submit" :loading="resetLoading" block>Verify Code</v-btn>
-          </v-form>
-          <v-form v-if="resetStep === 3" @submit.prevent="handleResetPassword">
-            <v-text-field v-model="resetNewPassword" label="New Password" type="password" required></v-text-field>
-            <v-text-field v-model="resetConfirmPassword" label="Retype New Password" type="password" required></v-text-field>
-            <v-btn color="primary" type="submit" :loading="resetLoading" block>Set New Password</v-btn>
-          </v-form>
-          <v-alert v-if="resetMessage" type="success" class="mt-2">{{ resetMessage }}</v-alert>
-          <v-alert v-if="resetError" type="error" class="mt-2">{{ resetError }}</v-alert>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text @click="showResetPassword = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <!-- New Project Dialog -->
+      <v-dialog v-model="showNewProject" max-width="800">
+        <v-card>
+          <v-toolbar color="primary" dark flat>
+            <v-toolbar-title>Add New Project</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text>
+            <v-form @submit.prevent="saveProject">
+              <v-text-field v-model="projectForm.title" label="Project Title" required></v-text-field>
+              <v-textarea v-model="projectForm.description" label="Project Description" required></v-textarea>
+              <v-textarea v-model="projectForm.content" label="Project Content" required></v-textarea>
+              <v-file-input v-model="projectForm.coverImage" label="Project Cover Image" accept="image/*" prepend-icon="mdi-image"></v-file-input>
+              <v-combobox v-model="projectForm.tags" label="Tags" multiple chips small-chips></v-combobox>
+              <v-text-field v-model="projectForm.githubUrl" label="GitHub Repository URL" prepend-icon="mdi-github"></v-text-field>
+              <v-select v-model="projectForm.type" :items="projectTypes" label="Project Type" required></v-select>
+            </v-form>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" @click="saveProject" :loading="loading">Save Project</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
-    <v-alert v-if="errorMessage" type="error" class="mb-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;">
-      <template #prepend>
-        <v-icon color="error" size="24">mdi-alert-circle</v-icon>
-      </template>
-      {{ errorMessage }}
-    </v-alert>
-  </v-container>
+      <!-- Password Reset Dialog (FAANG style) -->
+      <v-dialog v-model="showResetPassword" max-width="420">
+        <v-card>
+          <v-toolbar color="warning" dark flat>
+            <v-toolbar-title>Reset Password</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text>
+            <v-stepper v-model="resetStep" flat class="mb-2">
+              <v-stepper-header>
+                <v-stepper-step :complete="resetStep > 1" step="1">Email</v-stepper-step>
+                <v-divider></v-divider>
+                <v-stepper-step :complete="resetStep > 2" step="2">Code</v-stepper-step>
+                <v-divider></v-divider>
+                <v-stepper-step step="3">New Password</v-stepper-step>
+              </v-stepper-header>
+            </v-stepper>
+            <v-form v-if="resetStep === 1" @submit.prevent="handleForgotPassword">
+              <v-text-field v-model="resetEmail" label="Email" type="email" required></v-text-field>
+              <v-btn color="primary" type="submit" :loading="resetLoading" block>Send Reset Code</v-btn>
+            </v-form>
+            <v-form v-if="resetStep === 2" @submit.prevent="handleVerifyCode">
+              <v-text-field v-model="resetCode" label="6-digit Code" required></v-text-field>
+              <v-btn color="primary" type="submit" :loading="resetLoading" block>Verify Code</v-btn>
+            </v-form>
+            <v-form v-if="resetStep === 3" @submit.prevent="handleResetPassword">
+              <v-text-field v-model="resetNewPassword" label="New Password" type="password" required></v-text-field>
+              <v-text-field v-model="resetConfirmPassword" label="Retype New Password" type="password" required></v-text-field>
+              <v-btn color="primary" type="submit" :loading="resetLoading" block>Set New Password</v-btn>
+            </v-form>
+            <v-alert v-if="resetMessage" type="success" class="mt-2">{{ resetMessage }}</v-alert>
+            <v-alert v-if="resetError" type="error" class="mt-2">{{ resetError }}</v-alert>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text @click="showResetPassword = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-alert v-if="errorMessage" type="error" class="mb-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;">
+        <template #prepend>
+          <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+        </template>
+        {{ errorMessage }}
+      </v-alert>
+    </v-container>
+  </v-theme-provider>
 </template>
 
 <style scoped>
-.profile-container {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
-}
 .profile-header {
   margin-bottom: 32px;
 }
 .profile-avatar {
-  border: 4px solid #fff;
+  border: 4px solid #fff; 
   box-shadow: 0 4px 24px rgba(44, 62, 80, 0.15);
 }
 .profile-projects-card {
   border-radius: 18px;
-  background: #fff;
+  background: var(--v-theme-surface);
 }
 .project-card {
   border-radius: 12px;

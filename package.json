@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "app": "concurrently \"npm run server\" \"npm run dev --host\" ",
-    "dev": "vite",
+    "app": "concurrently \"npm run server\" \"npm run dev\" ",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "server": "nodemon src/server/server.js",

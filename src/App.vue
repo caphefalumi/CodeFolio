@@ -12,15 +12,26 @@
       </v-btn>
       <v-btn to="/" text>Home</v-btn>
       <v-btn to="/projects" text>Projects</v-btn>
-      <v-btn v-if="isAuthenticated" :to="`/${username}`" class="pa-0" style="min-width: 0;">
-      <v-avatar size="32" v-if="avatar">
-        <v-img :src="avatar" alt="User avatar" cover></v-img>
-      </v-avatar>
-
-        <v-avatar v-else size="32" class="bg-grey lighten-2">
-          <v-icon>mdi-account</v-icon>
-        </v-avatar>
-      </v-btn>
+      <v-menu v-if="isAuthenticated" offset-y>
+        <template #activator="{ props }">
+          <v-btn icon v-bind="props">
+            <v-avatar size="32" v-if="avatar">
+              <v-img :src="avatar" alt="User avatar" cover></v-img>
+            </v-avatar>
+            <v-avatar v-else size="32" class="bg-grey lighten-2">
+              <v-icon>mdi-account</v-icon>
+            </v-avatar>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item :to="`/${username}`">
+            <v-list-item-title>Profile</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="logout">
+            <v-list-item-title>Log out</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-btn v-else to="/login" text>Login</v-btn>
     </v-app-bar>
 
@@ -129,7 +140,27 @@ export default {
       }
       this.isDark = savedTheme === 'dark'
       this.$vuetify.theme.global.name = this.isDark ? 'dark' : 'light'
-    }
+    },
+    logout() {
+      axios.post('/api/auth/logout', {}, { withCredentials: true })
+        .then(() => {
+          sessionStorage.removeItem('accessToken');
+          this.isAuthenticated = false;
+          this.user = null;
+          this.username = '';
+          this.avatar = '';
+          this.$router.push('/login');
+        })
+        .catch(error => {
+          console.error('Error logging out:', error);
+          sessionStorage.removeItem('accessToken');
+          this.isAuthenticated = false;
+          this.user = null;
+          this.username = '';
+          this.avatar = '';
+          this.$router.push('/login');
+        });
+    },
   },
 
   watch: {

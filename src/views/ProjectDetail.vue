@@ -28,23 +28,19 @@
                 {{ tag }}
               </v-chip>
             </v-card-text>
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                variant="text"
-                :href="project.githubUrl"
-                target="_blank"
-                prepend-icon="mdi-github"
-              >
-                View on GitHub
+            <v-card-actions class="justify-center align-center">
+              <v-btn icon @click="upvoteProject" :disabled="project.upvoting" class="mr-2">
+                <v-icon :color="project.liked === true ? 'success' : 'grey'">mdi-arrow-up-bold</v-icon>
+              </v-btn>
+              <div class="text-h5 font-weight-bold mx-2" style="min-width: 32px; text-align: center;">
+                {{ project.upvotes - project.downvotes }}
+              </div>
+              <v-btn icon @click="downvoteProject" :disabled="project.downvoting" class="ml-2">
+                <v-icon :color="project.liked === false ? 'error' : 'grey'">mdi-arrow-down-bold</v-icon>
               </v-btn>
               <v-spacer></v-spacer>
-              <v-btn icon @click="upvoteProject" :disabled="project.upvoting">
-                <v-icon color="success">mdi-arrow-up-bold</v-icon>
-              </v-btn>
-              <span class="mx-2">{{ project.upvotes - project.downvotes }}</span>
-              <v-btn icon @click="downvoteProject" :disabled="project.downvoting">
-                <v-icon color="error">mdi-arrow-down-bold</v-icon>
+              <v-btn color="primary" variant="text" :href="project.githubUrl" target="_blank" prepend-icon="mdi-github">
+                View on GitHub
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -221,10 +217,12 @@ export default {
     async fetchProjectDetail() {
       try {
         const { username, id } = this.$route.params
-        const res = await axios.get(`/api/posts/${username}/${id}`)
+        let headers = {}
+        const token = getAccessToken && getAccessToken()
+        if (token) headers.Authorization = `Bearer ${token}`
+        const res = await axios.get(`/api/posts/${username}/${id}`, { headers })
         const post = res.data
 
-        // Detect if user has upvoted/downvoted (if you have user info, add logic here)
         this.project = {
           title: post.title,
           description: post.description,
@@ -239,7 +237,7 @@ export default {
           downvotes: post.downvotes || 0,
           upvoting: false,
           downvoting: false,
-          // Optionally, add logic to check if current user has upvoted/downvoted
+          liked: post.liked // <-- set vote state from backend
         }
 
         this.comments = (post.comments || []).map(c => ({
@@ -303,6 +301,7 @@ export default {
       }
     },
     async upvoteProject() {
+      if (this.project.upvoting) return;
       this.project.upvoting = true;
       try {
         const token = getAccessToken();
@@ -313,21 +312,15 @@ export default {
         );
         this.project.upvotes = res.data.upvotes;
         this.project.downvotes = res.data.downvotes;
+        this.project.liked = res.data.liked;
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          this.showAuthBanner = true;
-          clearTimeout(this.authBannerTimeout);
-          this.authBannerTimeout = setTimeout(() => {
-            this.showAuthBanner = false;
-          }, 5000);
-        } else {
-          this.errorMessage = error.response?.data?.message || error.message || 'Failed to upvote.';
-        }
+        this.handleVoteError(error);
       } finally {
         this.project.upvoting = false;
       }
     },
     async downvoteProject() {
+      if (this.project.downvoting) return;
       this.project.downvoting = true;
       try {
         const token = getAccessToken();
@@ -338,18 +331,22 @@ export default {
         );
         this.project.upvotes = res.data.upvotes;
         this.project.downvotes = res.data.downvotes;
+        this.project.liked = res.data.liked;
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          this.showAuthBanner = true;
-          clearTimeout(this.authBannerTimeout);
-          this.authBannerTimeout = setTimeout(() => {
-            this.showAuthBanner = false;
-          }, 5000);
-        } else {
-          this.errorMessage = error.response?.data?.message || error.message || 'Failed to downvote.';
-        }
+        this.handleVoteError(error);
       } finally {
         this.project.downvoting = false;
+      }
+    },
+    handleVoteError(error) {
+      if (error.response && error.response.status === 401) {
+        this.showAuthBanner = true;
+        clearTimeout(this.authBannerTimeout);
+        this.authBannerTimeout = setTimeout(() => {
+          this.showAuthBanner = false;
+        }, 5000);
+      } else {
+        this.errorMessage = error.response?.data?.message || error.message || 'Failed to vote.';
       }
     }
   },

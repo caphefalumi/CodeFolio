@@ -285,7 +285,7 @@ router.post('/logout', async (req, res) => {
     user.refreshToken = null
     await user.save()
 
-    res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'None' })
+    res.clearCookie('refreshToken', { httpOnly: true, secure: true})
     res.sendStatus(204)
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err })
