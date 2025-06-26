@@ -272,9 +272,7 @@
             </v-btn>
           </v-card-actions>
         </v-card>
-      </v-dialog>
-
-      <!-- Password Reset Dialog (FAANG style) -->
+      </v-dialog>      <!-- Password Reset Dialog -->
       <v-dialog v-model="showResetPassword" max-width="420">
         <v-card>
           <v-toolbar color="warning" dark flat>
@@ -283,24 +281,43 @@
           <v-card-text>
             <v-stepper v-model="resetStep" flat class="mb-2">
               <v-stepper-header>
-                <v-stepper-step :complete="resetStep > 1" step="1">Email</v-stepper-step>
+                <v-stepper-step :complete="resetStep > 1" step="1">Send Code</v-stepper-step>
                 <v-divider></v-divider>
-                <v-stepper-step :complete="resetStep > 2" step="2">Code</v-stepper-step>
+                <v-stepper-step :complete="resetStep > 2" step="2">Verify Code</v-stepper-step>
                 <v-divider></v-divider>
                 <v-stepper-step step="3">New Password</v-stepper-step>
               </v-stepper-header>
             </v-stepper>
             <v-form v-if="resetStep === 1" @submit.prevent="handleForgotPassword">
-              <v-text-field v-model="resetEmail" label="Email" type="email" required></v-text-field>
+              <p class="text-body-2 mb-4">A reset code will be sent to: <strong>{{ userProfile.email }}</strong></p>
               <v-btn color="primary" type="submit" :loading="resetLoading" block>Send Reset Code</v-btn>
-            </v-form>
-            <v-form v-if="resetStep === 2" @submit.prevent="handleVerifyCode">
-              <v-text-field v-model="resetCode" label="6-digit Code" required></v-text-field>
+            </v-form>            <v-form v-if="resetStep === 2" @submit.prevent="handleVerifyCode">
+              <v-text-field 
+                v-model="resetCode" 
+                label="6-digit Code" 
+                required
+                aria-label="Enter the 6-digit verification code sent to your email"
+                autocomplete="one-time-code"
+              ></v-text-field>
               <v-btn color="primary" type="submit" :loading="resetLoading" block>Verify Code</v-btn>
             </v-form>
             <v-form v-if="resetStep === 3" @submit.prevent="handleResetPassword">
-              <v-text-field v-model="resetNewPassword" label="New Password" type="password" required></v-text-field>
-              <v-text-field v-model="resetConfirmPassword" label="Retype New Password" type="password" required></v-text-field>
+              <v-text-field 
+                v-model="resetNewPassword" 
+                label="New Password" 
+                type="password" 
+                required
+                aria-label="Enter your new password"
+                autocomplete="new-password"
+              ></v-text-field>
+              <v-text-field 
+                v-model="resetConfirmPassword" 
+                label="Retype New Password" 
+                type="password" 
+                required
+                aria-label="Confirm your new password by typing it again"
+                autocomplete="new-password"
+              ></v-text-field>
               <v-btn color="primary" type="submit" :loading="resetLoading" block>Set New Password</v-btn>
             </v-form>
             <v-alert v-if="resetMessage" type="success" class="mt-2">{{ resetMessage }}</v-alert>
@@ -384,9 +401,7 @@ export default {
         'Mobile App',
         'API Development',
         'Other',
-      ],
-      showResetPassword: false,
-      resetEmail: '',
+      ],      showResetPassword: false,
       resetCode: '',
       resetNewPassword: '',
       resetConfirmPassword: '',
@@ -559,25 +574,23 @@ export default {
           this.loading = false
         }
       }
-    },
-
-    resetProjectForm() {
+    },    resetProjectForm() {
       this.projectForm = {
         title: '',
         description: '',
-        image: null,
+        content: '',
+        coverImage: null,
         tags: [],
         githubUrl: '',
         type: '', // Reset type
       }
-    },
-
-    async handleForgotPassword() {
+    },async handleForgotPassword() {
       this.resetLoading = true;
       this.resetError = '';
       this.resetMessage = '';
       try {
-        const res = await axios.post('/api/auth/forgot-password', { email: this.resetEmail });
+        // Use the current user's email automatically
+        const res = await axios.post('/api/auth/forgot-password', { withCredentials: true, email: this.userProfile.email });
         this.resetMessage = res.data.message;
         this.resetStep = 2;
       } catch (err) {
@@ -591,7 +604,7 @@ export default {
       this.resetError = '';
       this.resetMessage = '';
       try {
-        const res = await axios.post('/api/auth/verify-reset-code', { email: this.resetEmail, code: this.resetCode });
+        const res = await axios.post('/api/auth/verify-reset-code', { email: this.userProfile.email, code: this.resetCode });
         this.resetMessage = res.data.message;
         this.resetStep = 3;
       } catch (err) {
@@ -610,9 +623,17 @@ export default {
         return;
       }
       try {
-        const res = await axios.post('/api/auth/reset-password', { email: this.resetEmail, code: this.resetCode, newPassword: this.resetNewPassword });
+        const res = await axios.post('/api/auth/reset-password', { email: this.userProfile.email, code: this.resetCode, newPassword: this.resetNewPassword });
         this.resetMessage = res.data.message;
         this.resetStep = 1;
+        // Close the dialog after successful password reset
+        setTimeout(() => {
+          this.showResetPassword = false;
+          this.resetMessage = '';
+          this.resetCode = '';
+          this.resetNewPassword = '';
+          this.resetConfirmPassword = '';
+        }, 2000);
       } catch (err) {
         this.resetError = err.response?.data?.message || err.message;
       } finally {

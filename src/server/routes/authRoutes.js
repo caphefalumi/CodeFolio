@@ -7,6 +7,7 @@ import User from '../../models/User.js'
 import axios from 'axios'
 import getRandomCat from 'random-cat-img'
 import sendEmail from '../../server/mailer.js'
+import authenticateToken from '../middleware/authenticateToken.js'
 
 const router = express.Router()
 
@@ -41,8 +42,7 @@ router.post('/token', async (req, res) => {
     if (err) return res.sendStatus(403)
 
     const user = await User.findOne({ refreshToken })
-    if (!user) return res.sendStatus(403)
-
+    if (!user) return res.sendStatus(403)   
     const newRefreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
     user.refreshToken = newRefreshToken
     await user.save()
@@ -50,7 +50,7 @@ router.post('/token', async (req, res) => {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
     const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
@@ -255,7 +255,7 @@ router.get('/login/github/callback', async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
     res.send(`
@@ -293,11 +293,12 @@ router.post('/logout', async (req, res) => {
 })
 
 // Forgot password: send 6-digit code to email
-router.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: 'Email is required' });
-  const user = await User.findOne({ email });
-  if (!user) return res.status(404).json({ message: 'No user with that email' });
+router.post('/forgot-password', authenticateToken, async (req, res) => {
+  const user = await User.findById(req.user.id);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  console.log(req.body);
+  if (!req.body.email) return res.status(400).json({ message: 'Email is required' });
+  if (user.email !== req.body.email) return res.status(403).json({ message: 'Not authorized' });
 
   // Generate 6-digit code
   const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -330,6 +331,9 @@ router.post('/verify-reset-code', async (req, res) => {
   if (user.resetCode !== code || Date.now() > user.resetCodeExpires) {
     return res.status(400).json({ message: 'Invalid or expired code' });
   }
+  user.resetCode = undefined;
+  user.resetCodeExpires = undefined;
+  await user.save();
   res.json({ message: 'Code verified' });
 });
 
