@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
+  password: {
+    type: String,
+  },
   oAuthProviders: {
     type: [oAuthProviderSchema],
     default: []

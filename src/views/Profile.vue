@@ -439,7 +439,7 @@ export default {
         this.editForm.bio = profile.bio
         this.editForm.avatar = null
         this.editForm.avatarPreview = profile.avatar
-        this.editForm.email = profile.email || ''
+        this.editForm.email = profile.email
 
         // 4. Fetch user's projects
         this.userProjects = await fetchProjects(username)

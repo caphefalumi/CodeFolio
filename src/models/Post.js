@@ -87,15 +87,7 @@ const postSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    comments: [commentSchema],
-    upvotedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    }],
-    downvotedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    }]
+    comments: [commentSchema]
 })
 
 postSchema.statics.findByAuthor = async function(username) {

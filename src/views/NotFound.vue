@@ -25,7 +25,3 @@
     </v-row>
   </v-container>
 </template>
-
-<script setup>
-// No additional logic needed for this component
-</script> 
