@@ -1,26 +1,20 @@
-<template>
-  <v-btn
+<template>  <v-btn
     class="login-btn"
     block
     elevation="1"
-    :aria-label="`Sign in with ${providerName} - opens ${providerName} authentication`"
-    role="button"
-    tabindex="0"
   >
     <v-icon 
       v-if="provider === 'google'" 
       left 
       class="me-2 google-icon" 
       color="#EA4335"
-      :aria-hidden="true"
     />
     <v-icon 
       v-else-if="provider === 'github'" 
       left 
       class="me-2 github-icon" 
       color="#4267B2"
-      :aria-hidden="true"
-    />    Login with {{ providerName }}
+    />Login with {{ providerName }}
   </v-btn>
 </template>
 

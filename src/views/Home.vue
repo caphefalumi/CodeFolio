@@ -10,23 +10,8 @@
               A platform for independent developers and creators to showcase their work.
               Share your projects, get feedback, and connect with other creators.
             </p>
-            <v-btn 
-              color="primary" 
-              size="large" 
-              to="/projects" 
-              class="mr-4"
-              aria-label="Browse all projects"
-            >
-              Browse Projects
-            </v-btn>
-            <v-btn 
-              variant="outlined"
-              size="large" 
-              to="/login"
-              aria-label="Get started by creating an account"
-            >
-              Get Started
-            </v-btn>
+            <v-btn color="primary" size="large" to="/projects" class="mr-4">Browse Projects</v-btn>
+            <v-btn variant="outlined" size="large" to="/login">Get Started</v-btn>
           </v-col>
           <v-col cols="12" md="6" class="d-flex align-center justify-center">
             <v-img
@@ -40,19 +25,15 @@
       </section>
 
       <!-- Featured Projects Section with DynamicScroller -->
-      <section aria-labelledby="featured-projects-heading">
+      <section>
         <v-row class="mt-8">
           <v-col cols="12">
-            <h2 id="featured-projects-heading" class="text-h4 mb-6">Featured Projects</h2>
+            <h2 id="featured-projects-heading" class="text-h4 mb-6">
+              Featured Projects
+            </h2>
           </v-col>
           <v-col cols="12">
-            <DynamicScroller
-              :items="featuredProjects"
-              :min-item-size="120"
-              page-mode
-              v-slot="{ item }"
-              aria-label="Featured projects list"
-            >
+            <DynamicScroller :items="featuredProjects" :min-item-size="120" page-mode v-slot="{ item }">
               <article class="mb-4">
                 <v-card>
                   <v-card-title>{{ item.title }}</v-card-title>
@@ -60,12 +41,7 @@
                     <p>{{ item.description || 'No description provided.' }}</p>
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn
-                      color="primary"
-                      variant="text"
-                      :to="`${item.getFullPath}`"
-                      :aria-label="`View project: ${item.title}`"
-                    >
+                    <v-btn color="primary" variant="text" :to="`${item.getFullPath}`">
                       View Project
                     </v-btn>
                   </v-card-actions>
@@ -104,9 +80,3 @@ export default {
   },
 }
 </script>
-
-<style>
-#app {
-  font-family: 'Roboto', sans-serif
-}
-</style>

@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "nodemon src/server/server.js",
-    "generate-data": "node src/scripts/generateFakeData.js"
+    "generate-data": "node seed.js"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",

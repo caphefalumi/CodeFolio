@@ -3,119 +3,20 @@
     <v-row justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="mt-8">
-          <v-card-title class="text-h4 text-center pt-6" id="register-heading">
-            Create Account
-          </v-card-title>
-          <v-card-text>            <v-form @submit.prevent="handleRegister" aria-labelledby="register-heading">
-              <!-- First Name and Last Name on same row -->
+          <v-card-title class="text-h4 text-center pt-6" id="register-heading">Create Account</v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="handleRegister" aria-labelledby="register-heading">
               <v-row>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="form.firstName"
-                    label="First Name"
-                    type="text"
-                    required
-                    :rules="[rules.required, rules.name]"
-                    aria-label="Enter your first name"
-                    autocomplete="given-name"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="form.lastName"
-                    label="Last Name"
-                    type="text"
-                    required
-                    :rules="[rules.required, rules.name]"
-                    aria-label="Enter your last name"
-                    autocomplete="family-name"
-                  ></v-text-field>
-                </v-col>
+                <v-col cols="6"><v-text-field v-model="form.firstName" label="First Name" type="text" required :rules="[rules.required, rules.name]" autocomplete="given-name"></v-text-field></v-col>
+                <v-col cols="6"><v-text-field v-model="form.lastName" label="Last Name" type="text" required :rules="[rules.required, rules.name]" autocomplete="family-name"></v-text-field></v-col>
               </v-row>
-
-              <v-text-field
-                v-model="form.email"
-                label="Email"
-                type="email"
-                required
-                :rules="[rules.required, rules.email]"
-                aria-describedby="email-register-help"
-                autocomplete="email"
-              ></v-text-field>
-
-              <v-text-field
-                v-model="form.username"
-                label="Username"
-                type="text"
-                required
-                :rules="[rules.required, rules.username]"
-                aria-describedby="username-help"
-                autocomplete="username"
-              ></v-text-field>              <v-text-field
-                v-model="form.password"
-                label="Password"
-                type="password"
-                required
-                :rules="[rules.required, rules.password]"
-                aria-describedby="password-register-help"
-                autocomplete="new-password"
-                hint="Password must be at least 8 characters with uppercase, lowercase, number, and special character"
-                persistent-hint
-              ></v-text-field>
-              <v-text-field
-                v-model="form.confirmPassword"
-                label="Confirm Password"
-                type="password"
-                required
-                :rules="[rules.required, rules.confirmPassword]"
-                aria-describedby="confirm-password-help"
-                autocomplete="new-password"
-              ></v-text-field>
-
-              <v-btn
-                type="submit"
-                color="primary"
-                block
-                class="mt-4"
-                :loading="loading"
-                :disabled="!isFormValid"
-                :style="isFormValid ? 'background-color: #43a047; color: #fff;' : 'background-color: #bdbdbd; color: #fff;'"
-                :aria-label="loading ? 'Creating account...' : 'Create your account'"
-              >
-                Register
-              </v-btn>
+              <v-text-field v-model="form.email" label="Email" type="email" required :rules="[rules.required, rules.email]" autocomplete="email"></v-text-field>
+              <v-text-field v-model="form.username" label="Username" type="text" required :rules="[rules.required, rules.username]" autocomplete="username"></v-text-field>
+              <v-text-field v-model="form.password" label="Password" type="password" required :rules="[rules.required, rules.password]" autocomplete="new-password"></v-text-field>
+              <v-btn type="submit" color="primary" block class="mt-4" :loading="loading">Register</v-btn>
             </v-form>
-
-            <v-divider class="my-4" aria-hidden="true"></v-divider>
-
-            <div class="text-center">
-              <p class="text-body-2 mb-2">Or register with</p>
-              <GoogleLogin :callback="handleGoogleLogin" prompt auto-login/>
-            </div>
-
-            <div class="text-center mt-4">
-              <router-link to="/login" class="text-decoration-none">
-                Already have an account? Login
-              </router-link>
-            </div>
-
-            <v-alert
-              v-if="errorMessage"
-              type="error"
-              class="mb-4"
-              border="start"
-              colored-border
-              elevation="0"
-              density="comfortable"
-              style="background-color: #fff; color: #d32f2f; font-weight: 500;"
-              role="alert"
-              aria-live="polite"
-            >
-              <template #prepend>
-                <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
-              </template>
-              {{ errorMessage }}
-            </v-alert>
+            <v-alert v-if="errorMessage" type="error" class="mt-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;" role="alert" aria-live="polite"><template #prepend><v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon></template>{{ errorMessage }}</v-alert>
+            <div class="mt-4 text-center">Already have an account? <router-link to="/login">Login</router-link></div>
           </v-card-text>
         </v-card>
       </v-col>

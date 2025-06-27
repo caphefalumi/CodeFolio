@@ -1,14 +1,8 @@
 <template>
   <v-app>
-    <!-- Skip Links for Accessibility -->
-    <div class="skip-links">
-      <a href="#main-content" class="skip-link">Skip to main content</a>
-      <a href="#navigation" class="skip-link">Skip to navigation</a>
-    </div>
-
     <v-app-bar app color="primary" dark role="banner" id="navigation">
       <v-app-bar-title>
-        <router-link to="/" class="text-decoration-none text-white" aria-label="CodeFolio Home">
+        <router-link to="/" class="text-decoration-none text-white">
           CodeFolio
         </router-link>
       </v-app-bar-title>
@@ -17,19 +11,17 @@
         icon 
         @click="toggleTheme" 
         :aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-        :title="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
       >
         <v-icon>{{ isDark ? 'mdi-weather-night' : 'mdi-weather-sunny' }}</v-icon>
       </v-btn>
-      <v-btn to="/" text aria-label="Navigate to Home">Home</v-btn>
-      <v-btn to="/projects" text aria-label="Navigate to Projects">Projects</v-btn>
+      <v-btn to="/" text>Home</v-btn>
+      <v-btn to="/projects" text>Projects</v-btn>
       <v-menu v-if="isAuthenticated" offset-y>
         <template #activator="{ props }">
           <v-btn 
             icon 
             v-bind="props" 
             :aria-label="`User menu for ${username}`"
-            aria-haspopup="true"
           >
             <v-avatar size="32" v-if="avatar">
               <v-img 
@@ -38,10 +30,9 @@
                 cover
               ></v-img>
             </v-avatar>
-            <v-avatar v-else size="32" class="bg-grey lighten-2">
-              <v-icon aria-hidden="true">mdi-account</v-icon>
-            </v-avatar>
-          </v-btn>        </template>
+            <v-avatar v-else size="32" class="bg-grey lighten-2"></v-avatar>
+          </v-btn>        
+        </template>
         <v-list role="menu">
           <v-list-item :to="`/${username}`" role="menuitem">
             <v-list-item-title>Profile</v-list-item-title>
@@ -51,15 +42,13 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn v-else to="/login" text aria-label="Navigate to Login">Login</v-btn>
+      <v-btn v-else to="/login" text>Login</v-btn>
     </v-app-bar>
-
     <v-main role="main" id="main-content" tabindex="-1">
       <v-container>
         <router-view></router-view>
       </v-container>
     </v-main>
-
     <v-footer app color="primary" dark role="contentinfo">
       <v-row justify="center" no-gutters>
         <v-col class="text-center" cols="12">
@@ -185,3 +174,10 @@ export default {
 
 }
 </script>
+
+<style>
+  #app {
+    font-family: 'Roboto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+</style>

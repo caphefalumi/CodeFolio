@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-container>      <!-- Search and Filter Section -->
-      <section aria-label="Projects Search and Filter">
+      <section>
         <v-row class="mb-6">
           <v-col cols="12" md="6">
             <v-text-field
@@ -10,7 +10,6 @@
               prepend-inner-icon="mdi-magnify"
               variant="outlined"
               hide-details
-              aria-label="Search by project title or description. Use # followed by a tag name to search by tags."
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="3">
@@ -22,7 +21,6 @@
               label="Project Type"
               variant="outlined"
               hide-details
-              aria-label="Filter projects by type"
             ></v-select>
           </v-col>
           <v-col cols="12" md="3">
@@ -34,12 +32,11 @@
               label="Sort By"
               variant="outlined"
               hide-details
-              aria-label="Sort projects by criteria"
             ></v-select>
           </v-col>
         </v-row>
       </section>      <!-- Projects Grid -->
-      <section aria-label="Projects List">
+      <section>
         <v-row
           v-auto-animate
         >
@@ -54,13 +51,12 @@
                 <v-card-title>{{ project.title }}</v-card-title>
                 <v-card-text>
                   <p>{{ project.description }}</p>
-                  <div role="list" aria-label="Project tags">
+                  <div>
                     <v-chip
                       v-for="tag in project.tags"
                       :key="tag"
                       class="mr-2 mb-2"
                       size="small"
-                      role="listitem"
                     >
                       {{ tag }}
                     </v-chip>
@@ -72,16 +68,13 @@
                     variant="text"
                     :to="`${project.getFullPath}`"
                     prepend-icon="mdi-eye"
-                    :aria-label="`View project: ${project.title}`"
                   >
                     View Project
                   </v-btn>
-                  <v-spacer></v-spacer>
-                  <v-btn 
+                  <v-spacer></v-spacer>                  <v-btn 
                     icon 
                     @click="toggleLike(project)"
                     :aria-label="`${project.liked ? 'Unlike' : 'Like'} project: ${project.title}`"
-                    :title="`${project.liked ? 'Unlike' : 'Like'} this project`"
                   >
                     <v-icon aria-hidden="true">
                       {{ project.liked ? 'mdi-heart' : 'mdi-heart-outline' }}
@@ -93,14 +86,13 @@
           </v-col>
         </v-row>
       </section>      <!-- Pagination -->
-      <section aria-label="Page Navigation">
+      <section>
         <v-row class="mt-6">
           <v-col cols="12" class="text-center">
             <v-pagination
               v-model="page"
               :length="totalPages"
               rounded
-              aria-label="Project pages navigation"
             ></v-pagination>
           </v-col>
         </v-row>

@@ -69,8 +69,6 @@ app.use(VueVirtualScroller)
 app.use(autoAnimatePlugin)
 app.use(vue3GoogleLogin, {
   clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-  prompt: true,
-  autoLogin: true
 })
 
 app.mount('#app')

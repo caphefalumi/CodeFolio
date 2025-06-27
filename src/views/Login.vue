@@ -3,76 +3,26 @@
     <v-row justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="mt-8">
-          <v-card-title class="text-h4 text-center pt-6" id="login-heading">
-            Login
-          </v-card-title>
+          <v-card-title class="text-h4 text-center pt-6" id="login-heading">Login</v-card-title>
           <v-card-text>
             <v-form @submit.prevent="handleLogin" aria-labelledby="login-heading">
-              <v-text-field
-                v-model="form.email"
-                label="Email"
-                type="email"
-                required                
-                :rules="[rules.required, rules.email]"
-                aria-label="Enter your email address to log in"
-                autocomplete="email"
-              ></v-text-field>
-
-              <v-text-field
-                v-model="form.password"
-                label="Password"
-                type="password"
-                required
-                :rules="[rules.required]"
-                aria-label="Enter your password to log in"
-                autocomplete="current-password"
-              ></v-text-field>
-
-              <v-alert
-                v-if="errorMessage"
-                type="error"
-                class="mb-4"
-                border="start"
-                colored-border
-                elevation="0"
-                density="comfortable"
-                style="background-color: #fff; color: #d32f2f; font-weight: 500;"
-                role="alert"
-                aria-live="polite"
-              >
-                <template #prepend>
-                  <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
-                </template>
-                {{ errorMessage }}
-              </v-alert>
-
-              <v-btn
-                type="submit"
-                color="primary"
-                block
-                class="mt-4"
-                :loading="loading"
-                :aria-label="loading ? 'Logging in...' : 'Log in to your account'"
-              >Login</v-btn>
+              <v-text-field v-model="form.email" label="Email" type="email" required :rules="[rules.required, rules.email]" autocomplete="email"></v-text-field>
+              <v-text-field v-model="form.password" label="Password" type="password" required :rules="[rules.required]" autocomplete="current-password"></v-text-field>
+              <v-alert v-if="errorMessage" type="error" class="mb-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;" role="alert" aria-live="polite"><template #prepend><v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon></template>{{ errorMessage }}</v-alert>
+              <v-btn type="submit" color="primary" block class="mt-4" :loading="loading">Login</v-btn>
             </v-form>
-
             <v-divider class="my-4" aria-hidden="true"></v-divider>
-
             <div class="text-center text-body-2 mb-2">
               <span>Or login with</span>
             </div>
-
-            <div class="login-buttons" role="group" aria-label="Alternative login methods">
-                <GoogleLogin :callback="handleGoogleLogin" auto-login popup-type="TOKEN">
-                  <v-icon-login provider="google" />
-                </GoogleLogin>
-
+            <div class="login-buttons">
+              <GoogleLogin :callback="handleGoogleLogin" auto-login popup-type="TOKEN">
+                <v-icon-login provider="google" />
+              </GoogleLogin>
               <div class="login-btn-wrapper">
                 <v-icon-login provider="github" @click="handleGithubLogin" />
               </div>
             </div>
-
-
             <div class="text-center mt-4">
               <router-link to="/register" class="text-decoration-none">
                 Don't have an account? Register
@@ -181,7 +131,6 @@ export default {
   }
 }
 </script>
-
 
 <style scoped>
 .login-buttons {

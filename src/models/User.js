@@ -1,5 +1,16 @@
 import mongoose from 'mongoose'
 
+const votedPostsSchema = new mongoose.Schema({
+  postId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Post"
+  },
+  upvoted: {
+    type: Boolean,
+    default: null
+  },
+})
+
 const oAuthProviderSchema = new mongoose.Schema({
   provider: {
     type: String,
@@ -58,6 +69,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     ref: "User",
   }],
+  votedPosts: [votedPostsSchema],
   createdAt: {
     type: Date,
     default: Date.now
