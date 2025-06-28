@@ -294,16 +294,15 @@ router.post('/logout', async (req, res) => {
 
 // Forgot password: send 6-digit code to email
 router.post('/forgot-password', authenticateToken, async (req, res) => {
-  const user = await User.findById(req.user.id);
+
+  const user = await User.findOne({ _id: req.user.id });
+  console.log('User from token:', user);
   if (!user) return res.status(404).json({ message: 'User not found' });
   console.log(req.body);
-  if (!req.body.email) return res.status(400).json({ message: 'Email is required' });
-  if (user.email !== req.body.email) return res.status(403).json({ message: 'Not authorized' });
-
   // Generate 6-digit code
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   user.resetCode = code;
-  user.resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 min expiry
+  user.resetCodeExpires = Date.now() + 15 * 60 * 1000; // 15 min
   await user.save();
 
   // Send email
@@ -317,30 +316,31 @@ router.post('/forgot-password', authenticateToken, async (req, res) => {
     await sendEmail(mailOptions);
     res.json({ message: 'Reset code sent to email' });
   } catch (error) {
+    console.error('Email send error:', error);
     res.status(500).json({ message: 'Failed to send email', error });
   }
 });
 
 // Verify reset code
-router.post('/verify-reset-code', async (req, res) => {
-  const { email, code } = req.body;
-  const user = await User.findOne({ email });
+router.post('/verify-reset-code', authenticateToken, async (req, res) => {
+  const { code } = req.body;
+  console.log(code)
+
+  const user = await User.findOne({ _id: req.user.id });
   if (!user || !user.resetCode || !user.resetCodeExpires) {
+    console.log("1")
     return res.status(400).json({ message: 'Invalid or expired code' });
   }
   if (user.resetCode !== code || Date.now() > user.resetCodeExpires) {
+    console.log("2")
     return res.status(400).json({ message: 'Invalid or expired code' });
   }
-  user.resetCode = undefined;
-  user.resetCodeExpires = undefined;
-  await user.save();
   res.json({ message: 'Code verified' });
 });
-
 // Reset password with code
-router.post('/reset-password', async (req, res) => {
-  const { email, code, newPassword } = req.body;
-  const user = await User.findOne({ email });
+router.post('/reset-password', authenticateToken, async (req, res) => {
+  const { code, newPassword } = req.body;
+  const user = await User.findOne({ _id: req.user.id });
   if (!user || !user.resetCode || !user.resetCodeExpires) {
     return res.status(400).json({ message: 'Invalid or expired code' });
   }

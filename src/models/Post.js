@@ -106,6 +106,15 @@ postSchema.virtual('getFullPath').get(function () {
   return `${this.author.username}/${this._id}`
 })
 
+postSchema.pre('save', function(next) {
+  this.updatedAt = Date.now()
+  next()
+})
+postSchema.pre('findOneAndUpdate', function(next) {
+  this.set({ updatedAt: Date.now() })
+  next()
+})
+
 postSchema.set('toJSON', { virtuals: true })
 
 const Post = mongoose.model("Post", postSchema)

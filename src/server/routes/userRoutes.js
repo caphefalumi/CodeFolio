@@ -19,7 +19,6 @@ router.get('/me', authenticateToken, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
     }
-    console.log('Current user:', user)
     res.json(user)
   } catch (error) {
     res.status(500).json({ message: 'Error fetching current user', error })

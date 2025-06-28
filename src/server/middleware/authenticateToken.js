@@ -5,6 +5,7 @@ function authenticateToken(req, res, next) {
   // Try to get token from Authorization header first (preferred method)
   let token = null
   const authHeader = req.headers['authorization']
+  console.log('Authorization header:', authHeader)
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.split(' ')[1]

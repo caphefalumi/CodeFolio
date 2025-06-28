@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 })
 
 
-// 🔹 Get all post
+// 🔹 Get all posts for a user
 router.get('/:username', async (req, res) => {
   const user = await User.findOne({ username: req.params.username })
   try {
@@ -46,6 +46,11 @@ router.get('/:username/:id', async (req, res) => {
       .populate('author', 'username')
       .populate('comments.user', 'username')
     if (!post) return res.status(404).json({ message: 'Not found' })
+    
+    // Increment views by 1
+    post.views += 1
+    await post.save()
+    
     res.json(post)
   } catch (err) {
     res.status(500).json({ message: 'Error', err })
