@@ -1,7 +1,7 @@
 import express from 'express'
 import authenticateToken from '../middleware/authenticateToken.js'
-import Post from '../../../server/models/Post.js'
-import User from '../../../server/models/User.js'
+import Post from '../models/Post.js'
+import User from '../models/User.js'
 const router = express.Router()
 
 // 🔹 Create a post

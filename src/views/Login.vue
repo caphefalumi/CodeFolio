@@ -140,6 +140,7 @@ export default {
   gap: 1em;
 }
 
+
 .shrink {
   width: 1px;
 }

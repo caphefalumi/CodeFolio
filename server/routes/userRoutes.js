@@ -1,7 +1,7 @@
 import express from 'express'
 import authenticateToken from '../middleware/authenticateToken.js'
 import 'dotenv/config'
-import User from '../../../server/models/User.js'
+import User from '../models/User.js'
 const router = express.Router()
 
 router.get('/', async (req, res) => {

@@ -3,10 +3,10 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import 'dotenv/config'
-import User from '../../../server/models/User.js'
+import User from '../models/User.js'
 import axios from 'axios'
 import getRandomCat from 'random-cat-img'
-import sendEmail from '../../server/mailer.js'
+import sendEmail from '../mailer.js'
 import authenticateToken from '../middleware/authenticateToken.js'
 
 const router = express.Router()

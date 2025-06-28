@@ -8,7 +8,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "nodemon src/server/server.js",
+    "server": "nodemon server/server.js",
     "generate-data": "node seed.js"
   },
   "dependencies": {
