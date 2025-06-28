@@ -140,10 +140,6 @@ export default {
   gap: 1em;
 }
 
-.login-btn-wrapper {
-  width: 51%;
-}
-
 .shrink {
   width: 1px;
 }
