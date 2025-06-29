@@ -1,26 +1,25 @@
-import nodemailer from 'nodemailer';
-import 'dotenv/config';
-
+import nodemailer from "nodemailer"
+import "dotenv/config"
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-    type: 'OAuth2',
-    user: process.env.GMAIL_USER,
-    clientId: process.env.VITE_GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-    },
-});
+	service: "gmail",
+	auth: {
+		type: "OAuth2",
+		user: process.env.GMAIL_USER,
+		clientId: process.env.VITE_GOOGLE_CLIENT_ID,
+		clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+		refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+	},
+})
 
 const sendEmail = async (mailOptions) => {
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully!');
-    } catch (err) {
-        console.error('Error sending email:', err);
-        throw new Error('Failed to send email.');
-    }
-};
+	try {
+		await transporter.sendMail(mailOptions)
+		console.log("Email sent successfully!")
+	} catch (err) {
+		console.error("Error sending email:", err)
+		throw new Error("Failed to send email.")
+	}
+}
 
-export default sendEmail;
+export default sendEmail
