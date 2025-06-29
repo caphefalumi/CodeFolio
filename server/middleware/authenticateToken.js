@@ -20,7 +20,6 @@ function authenticateToken(req, res, next) {
   if (!token) {
     return res.status(401).json({ 
       message: 'Access denied. No token provided in Authorization header or cookies.',
-      details: 'Please include a valid access token in the Authorization header as "Bearer <token>" or ensure cookies are enabled.'
     })
   }
 
@@ -30,7 +29,7 @@ function authenticateToken(req, res, next) {
       if (err) {
         console.error('Token verification error:', err.message)
         return res.status(403).json({ 
-          message: 'Invalid or expired token',
+          message: 'Not authorized',
           error: err.name === 'TokenExpiredError' ? 'Token has expired' : 'Token is invalid'
         })
       }

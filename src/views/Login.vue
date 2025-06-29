@@ -1,16 +1,21 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" sm="8" md="6">
-        <v-card class="mt-8">
+      <v-col cols="12" sm="8" md="6">        <v-card class="mt-8">
           <v-card-title class="text-h4 text-center pt-6" id="login-heading">Login</v-card-title>
           <v-card-text>
-            <v-form @submit.prevent="handleLogin" aria-labelledby="login-heading">
+            <app-form
+              :loading="loading"
+              :error-message="errorMessage"
+              submit-button-text="Login"
+              :submit-button-block="true"
+              submit-button-class="mt-4"
+              aria-labelled-by="login-heading"
+              @submit="handleLogin"
+            >
               <v-text-field v-model="form.email" label="Email" type="email" required :rules="[rules.required, rules.email]" autocomplete="email"></v-text-field>
               <v-text-field v-model="form.password" label="Password" type="password" required :rules="[rules.required]" autocomplete="current-password"></v-text-field>
-              <v-alert v-if="errorMessage" type="error" class="mb-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;" role="alert" aria-live="polite"><template #prepend><v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon></template>{{ errorMessage }}</v-alert>
-              <v-btn type="submit" color="primary" block class="mt-4" :loading="loading">Login</v-btn>
-            </v-form>
+            </app-form>
             <v-divider class="my-4" aria-hidden="true"></v-divider>
             <div class="text-center text-body-2 mb-2">
               <span>Or login with</span>
@@ -39,11 +44,17 @@
 import { GoogleLogin } from 'vue3-google-login'
 import axios from 'axios'
 import vIconLogin from '@/components/vIconLogin.vue'
+import AppForm from '@/components/ui/AppForm.vue'
+import { useApi } from '@/composables/common.js'
 
 export default {
   components: {
     GoogleLogin,
-    vIconLogin
+    vIconLogin,
+    AppForm  },
+  setup() {
+    const { handleError } = useApi()
+    return { handleError }
   },
   data() {
     return {
@@ -65,8 +76,7 @@ export default {
   beforeUnmount() {
     window.removeEventListener('message', this.receiveGithubToken)
   },
-  methods: {
-    async handleLogin() {
+  methods: {    async handleLogin() {
       this.errorMessage = '';
       this.loading = true;
       try {
@@ -80,10 +90,7 @@ export default {
         sessionStorage.setItem('accessToken', response.data.accessToken);
         this.$router.push('/');
       } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          'An unexpected error occurred. Please try again.';
+        this.errorMessage = this.handleError(error, 'Login failed. Please try again.');
       } finally {
         this.loading = false;
       }
@@ -100,10 +107,7 @@ export default {
         sessionStorage.setItem('accessToken', res.data.accessToken);
         window.location.href = '/';
       } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          'Google login failed. Please try again';
+        this.errorMessage = this.handleError(error, 'Google login failed. Please try again.');
       } finally {
         this.loading = false;
       }

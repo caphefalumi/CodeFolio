@@ -45,7 +45,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
-db.once('open', () => console.log('MongoDB connected successfully'))
+db.once('open', () => console.log(`MongoDB connected to ${process.env.MONGODB_URI} successfully`))
 
 // Apply middleware in correct order
 app.use(cookieParser()) // Parse cookies first
@@ -62,3 +62,4 @@ app.use('/api/upload', uploadRoutes)
 app.listen(process.env.SERVER_PORT, () => {
   console.log(`Server is running on port ${process.env.SERVER_PORT}`)
 })
+export default app

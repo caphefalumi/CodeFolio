@@ -34,6 +34,7 @@
     "multer": "^2.0.1",
     "nodemailer": "^7.0.3",
     "nodemon": "^3.1.10",
+    "quill": "^2.0.3",
     "random-cat-img": "^1.1.8",
     "sharp": "^0.34.2",
     "vue": "^3.4.15",

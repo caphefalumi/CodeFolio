@@ -29,10 +29,22 @@
                 <v-btn color="primary" variant="text" :href="project.githubUrl" target="_blank" prepend-icon="mdi-github" rel="noopener noreferrer" aria-label="View project on GitHub (opens in new tab)">
                   View on GitHub
                 </v-btn>
-              </v-card-actions>
-            </v-card>
+              </v-card-actions>            </v-card>
           </article>
         </v-col>
+        
+        <!-- Project Content Section -->
+        <v-col cols="12" v-if="project.content">
+          <section aria-labelledby="project-content-heading">
+            <v-card>
+              <v-card-title><h2 id="project-content-heading">Project Content</h2></v-card-title>
+              <v-card-text>
+                <div class="project-content" v-html="project.content"></div>
+              </v-card-text>
+            </v-card>
+          </section>
+        </v-col>
+
         <!-- GitHub Stats -->
         <v-col cols="12" md="6" v-if="project.githubUrl">
           <section aria-labelledby="github-stats-heading">
@@ -98,20 +110,23 @@
         </v-col>
         <!-- Comments Section -->
         <v-col cols="12">
-          <section aria-labelledby="comments-heading">
-            <v-card>
+          <section aria-labelledby="comments-heading">            <v-card>
               <v-card-title><h2 id="comments-heading">Comments</h2></v-card-title>
               <v-card-text>
-                <v-alert v-if="errorMessage" type="error" class="mb-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;" role="alert" aria-live="polite">
-                  <template #prepend>
-                    <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
-                  </template>
-                  {{ errorMessage }}
-                </v-alert>
-                <v-form @submit.prevent="addComment">
+                <app-alert
+                  v-if="errorMessage"
+                  type="error"
+                  :message="errorMessage"
+                  custom-class="mb-4"
+                />
+                <app-form
+                  :loading="loading"
+                  submit-button-text="Post Comment"
+                  :submit-button-disabled="!newComment.trim()"
+                  @submit="addComment"
+                >
                   <v-textarea v-model="newComment" label="Add a comment" rows="3" variant="outlined"></v-textarea>
-                  <v-btn color="primary" type="submit" :disabled="!newComment.trim()">Post Comment</v-btn>
-                </v-form>
+                </app-form>
               </v-card-text>
               <v-list v-auto-animate aria-label="Project comments">
                 <v-list-item v-for="comment in comments" :key="comment.id" :subtitle="comment.author + ' • ' + comment.date" role="article" :aria-label="`Comment by ${comment.author} on ${comment.date}`">
@@ -139,14 +154,25 @@
 <script>
 import axios from 'axios'
 import { getAccessToken } from '@/composables/user.js'
+import { useApi } from '@/composables/common.js'
+import AppAlert from '@/components/ui/AppAlert.vue'
+import AppForm from '@/components/ui/AppForm.vue'
 
 export default {
   name: 'ProjectDetailView',
+  components: {
+    AppAlert,
+    AppForm
+  },
+  setup() {
+    const { handleError } = useApi()
+    return { handleError }
+  },
   data() {
-    return {
-      project: {
+    return {      project: {
         title: '',
         description: '',
+        content: '',
         image: '',
         author: '',
         tags: [],
@@ -176,11 +202,11 @@ export default {
         const token = getAccessToken && getAccessToken()
         if (token) headers.Authorization = `Bearer ${token}`
         const res = await axios.get(`/api/posts/${username}/${id}`, { headers })
-        const post = res.data
-
+        const post = res.data        
         this.project = {
           title: post.title,
           description: post.description,
+          content: post.content,
           image: post.coverImage,
           author: post.author.username,
           tags: post.tags || [],
@@ -231,26 +257,21 @@ export default {
     async addComment() {
       this.errorMessage = '';
       this.loading = true;
-      try {
-        if (!this.newComment.trim()) return
-        const token = getAccessToken()
-        const res = await axios.post(
+      try {        if (!this.newComment.trim()) return;
+        const token = getAccessToken();const res = await axios.post(
           `/api/posts/${this.$route.params.id}/comments`,
           { content: this.newComment },
           { headers: { Authorization: `Bearer ${token}` } }
-        )
+        );
         this.comments.unshift({
           id: `c${Date.now()}`,
           author: 'You',
           date: new Date().toLocaleDateString(),
           content: this.newComment
-        })
-        this.newComment = ''
+        });
+        this.newComment = '';
       } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          'Failed to post comment. Please try again.';
+        this.errorMessage = this.handleError(error, 'Failed to post comment. Please try again.');
       } finally {
         this.loading = false;
       }
@@ -297,11 +318,10 @@ export default {
       if (error.response && error.response.status === 401) {
         this.showAuthBanner = true;
         clearTimeout(this.authBannerTimeout);
-        this.authBannerTimeout = setTimeout(() => {
-          this.showAuthBanner = false;
+        this.authBannerTimeout = setTimeout(() => {          this.showAuthBanner = false;
         }, 5000);
       } else {
-        this.errorMessage = error.response?.data?.message || error.message || 'Failed to vote.';
+        this.errorMessage = this.handleError(error, 'Failed to vote.');
       }
     }
   },
@@ -333,4 +353,57 @@ export default {
   text-align: center;
   width: 100%;
 }
+
+.project-content {
+  line-height: 1.6;
+  font-family: inherit;
+}
+
+.project-content h1,
+.project-content h2,
+.project-content h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+.project-content p {
+  margin-bottom: 1em;
+}
+
+.project-content ul,
+.project-content ol {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.project-content blockquote {
+  border-left: 4px solid #e0e0e0;
+  padding-left: 1em;
+  margin: 1em 0;
+  font-style: italic;
+  color: #666;
+}
+
+.project-content pre {
+  background-color: #f5f5f5;
+  padding: 1em;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.project-content code {
+  background-color: #f5f5f5;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+}
+
+.project-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1em 0;
+}
+
 </style>

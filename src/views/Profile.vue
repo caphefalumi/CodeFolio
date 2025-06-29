@@ -39,35 +39,20 @@
               <v-card class="elevation-2 pa-6 profile-projects-card">
                 <v-toolbar color="primary" dark flat class="rounded-lg mb-4">
                   <v-toolbar-title id="projects-section-heading" class="text-h5">My Projects</v-toolbar-title>
-                  <v-spacer></v-spacer>
-                  <v-btn v-if="isOwner" color="white" variant="text" @click="showNewProject = true" aria-label="Add a new project">
+                  <v-spacer></v-spacer>                  <v-btn v-if="isOwner" color="white" variant="text" @click="openNewProjectDialog" aria-label="Add a new project">
                     <v-icon left aria-hidden="true">mdi-plus</v-icon> Add New Project
                   </v-btn>
                 </v-toolbar>
-                <v-row v-auto-animate>
-                  <v-col v-for="project in userProjects" :key="project._id" cols="12" md="6">
+                <v-row v-auto-animate>                  <v-col v-for="project in userProjects" :key="project._id" cols="12" md="6">
                     <article>
-                      <v-card class="project-card elevation-1 mb-4">
-                        <v-img :src="project.coverImage" height="180" cover class="rounded-t-lg" :alt="`${project.title} project cover image`"></v-img>
-                        <v-card-title class="font-weight-bold">{{ project.title }}</v-card-title>
-                        <v-card-text>
-                          <div class="text-body-2 mb-2">{{ project.description }}</div>
-                          <div class="mb-2" role="list" aria-label="Project tags">
-                            <v-chip v-for="tag in project.tags" :key="tag" class="mr-2 mb-2" size="small" role="listitem">{{ tag }}</v-chip>
-                          </div>
-                        </v-card-text>
-                        <v-card-actions>
-                          <v-btn color="primary" variant="text" :to="`/${userProfile.username}/${project.id}`" :aria-label="`View project: ${project.title}`">
-                            <v-icon left aria-hidden="true">mdi-eye</v-icon> View
-                          </v-btn>
-                          <v-btn v-if="isOwner" color="primary" variant="text" @click="editProject(project)" :aria-label="`Edit project: ${project.title}`">
-                            <v-icon left aria-hidden="true">mdi-pencil</v-icon> Edit
-                          </v-btn>
-                          <v-btn v-if="isOwner" color="error" variant="text" @click="deleteProject(project)" :aria-label="`Delete project: ${project.title}`">
-                            <v-icon left aria-hidden="true">mdi-delete</v-icon> Delete
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
+                      <project-card
+                        :project="project"
+                        :show-edit-button="isOwner"
+                        :show-delete-button="isOwner"
+                        @view="viewProject"
+                        @edit="editProject"
+                        @delete="deleteProject"
+                      />
                     </article>
                   </v-col>
                 </v-row>
@@ -75,114 +60,107 @@
             </section>
           </v-col>
         </v-row>
-      </section>
+      </section>      <!-- Edit Profile Dialog -->
+      <app-dialog
+        v-model="showEditProfile"
+        title="Edit Profile"
+        :fullscreen="true"
+        :scrollable="true"
+        transition="dialog-bottom-transition"
+        card-class="pa-0"
+        content-class="py-6 px-2 px-md-12"
+        @close="showEditProfile = false"
+      >
+        <v-container style="max-width:600px; margin:auto;">
+          <div class="d-flex flex-column align-center mb-4">
+            <v-avatar size="96" class="mb-2">
+              <v-img :src="userProfile.avatar" :alt="`Current profile picture`" cover></v-img>
+            </v-avatar>
+            <app-button
+              size="small"
+              color="primary"
+              variant="text"
+              prepend-icon="mdi-camera"
+              aria-label="Change profile photo. Click to upload a new profile picture"
+              @click="$refs.avatarInput.click()"
+            >
+              Change Photo
+            </app-button>
+            <input ref="avatarInput" type="file" accept="image/*" style="display:none" @change="onAvatarChange" aria-label="Choose profile picture file" />
+          </div>
 
-      <!-- Edit Profile Dialog -->
-      <v-dialog v-model="showEditProfile" fullscreen scrollable transition="dialog-bottom-transition">
-        <v-card class="pa-0" style="max-width:100vw;">
-          <v-toolbar color="primary" dark flat>
-            <v-toolbar-title id="edit-profile-heading">Edit Profile</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="showEditProfile = false" aria-label="Close edit profile dialog">
-              <v-icon aria-hidden="true">mdi-close</v-icon>
-            </v-btn>
-          </v-toolbar>
-          <v-container class="py-6 px-2 px-md-12" style="max-width:600px; margin:auto;">
-            <div class="d-flex flex-column align-center mb-4">
-              <v-avatar size="96" class="mb-2">
-                <v-img :src="userProfile.avatar" :alt="`Current profile picture`" cover></v-img>
-              </v-avatar>
-              <v-btn small color="primary" variant="text" @click="$refs.avatarInput.click()" aria-label="Change profile photo. Click to upload a new profile picture">
-                <v-icon left aria-hidden="true">mdi-camera</v-icon> Change Photo
-              </v-btn>
-              <input ref="avatarInput" type="file" accept="image/*" style="display:none" @change="onAvatarChange" aria-label="Choose profile picture file" />
-            </div>
-            <v-form @submit.prevent="handleProfileUpdate" class="w-100" aria-labelledby="edit-profile-heading">
-              <v-text-field v-model="editForm.firstName" label="First Name" required autocomplete="given-name"></v-text-field>
-              <v-text-field v-model="editForm.lastName" label="Last Name" required autocomplete="family-name"></v-text-field>
-              <v-text-field v-model="editForm.email" label="Email" required disabled autocomplete="email" aria-label="Email address (cannot be changed for security reasons)"></v-text-field>
-              <v-textarea v-model="editForm.bio" label="Bio" rows="3" aria-label="Bio - Write a brief description about yourself"></v-textarea>
-              <v-alert v-if="errorMessage" type="error" class="mt-2" role="alert">{{ errorMessage }}</v-alert>
-              <v-alert v-if="successMessage" type="success" class="mt-2" role="alert">{{ successMessage }}</v-alert>
-              <v-btn color="primary" class="mt-4" type="submit" block :loading="loading" :aria-label="loading ? 'Saving changes...' : 'Save profile changes'">Save Changes</v-btn>
-            </v-form>
-          </v-container>
-        </v-card>
-      </v-dialog>
+          <app-form
+            :loading="loading"
+            :error-message="errorMessage"
+            :success-message="successMessage"
+            submit-button-text="Save Changes"
+            :submit-button-block="true"
+            submit-button-class="mt-4"
+            :submit-aria-label="loading ? 'Saving changes...' : 'Save profile changes'"
+            aria-labelled-by="edit-profile-heading"
+            @submit="handleProfileUpdate"
+          >
+            <v-text-field v-model="editForm.firstName" label="First Name" required autocomplete="given-name"></v-text-field>
+            <v-text-field v-model="editForm.lastName" label="Last Name" required autocomplete="family-name"></v-text-field>
+            <v-text-field v-model="editForm.email" label="Email" required disabled autocomplete="email" aria-label="Email address (cannot be changed for security reasons)"></v-text-field>
+            <v-textarea v-model="editForm.bio" label="Bio" rows="3" aria-label="Bio - Write a brief description about yourself"></v-textarea>
+          </app-form>
+        </v-container>
+      </app-dialog>      <!-- New Project Dialog -->
+      <app-dialog
+        v-model="showNewProject"
+        title="Add New Project"
+        max-width="800"
+        @close="closeProjectDialog"
+      >
+        <app-form
+          :loading="loading"
+          submit-button-text="Save Project"
+          :submit-aria-label="loading ? 'Saving project...' : 'Save project'"
+          aria-labelled-by="new-project-heading"
+          :show-submit-button="false"
+          @submit="saveProject"
+        >
+          <v-text-field v-model="projectForm.title" label="Project Title" required aria-label="Enter a descriptive title for your project"></v-text-field>
+          <v-textarea v-model="projectForm.description" label="Project Description" required aria-label="Provide a brief description of what your project does"></v-textarea>
+          
+          <!-- Quill Editor for Project Content -->
+          <div class="mb-4">
+            <quill-editor
+              v-model="projectForm.content"
+              placeholder="Write detailed content about your project, including features and implementation details..."
+              min-height="200px"
+            />
+          </div>
+          
+          <v-file-input v-model="projectForm.coverImage" label="Project Cover Image" accept="image/*" prepend-icon="mdi-image" aria-label="Upload a cover image that represents your project"></v-file-input>
+          <v-combobox v-model="projectForm.tags" label="Tags" multiple chips small-chips aria-label="Add tags to help categorize your project. You can create new tags by typing and pressing enter."></v-combobox>
+          <v-text-field v-model="projectForm.githubUrl" label="GitHub Repository URL" prepend-icon="mdi-github" type="url" aria-label="Enter the URL of your GitHub repository for this project"></v-text-field>
+          <v-select v-model="projectForm.type" :items="projectTypes" label="Project Type" required aria-label="Select the type of project you are adding"></v-select>
+        </app-form>
 
-      <!-- New Project Dialog -->
-      <v-dialog v-model="showNewProject" max-width="800">
-        <v-card>
-          <v-toolbar color="primary" dark flat>
-            <v-toolbar-title id="new-project-heading">Add New Project</v-toolbar-title>
-          </v-toolbar>
-          <v-card-text>
-            <v-form @submit.prevent="saveProject" aria-labelledby="new-project-heading">
-              <v-text-field v-model="projectForm.title" label="Project Title" required aria-label="Enter a descriptive title for your project"></v-text-field>
-              <v-textarea v-model="projectForm.description" label="Project Description" required aria-label="Provide a brief description of what your project does"></v-textarea>
-              <v-textarea v-model="projectForm.content" label="Project Content" required aria-label="Write detailed content about your project, including features and implementation details"></v-textarea>
-              <v-file-input v-model="projectForm.coverImage" label="Project Cover Image" accept="image/*" prepend-icon="mdi-image" aria-label="Upload a cover image that represents your project"></v-file-input>
-              <v-combobox v-model="projectForm.tags" label="Tags" multiple chips small-chips aria-label="Add tags to help categorize your project. You can create new tags by typing and pressing enter."></v-combobox>
-              <v-text-field v-model="projectForm.githubUrl" label="GitHub Repository URL" prepend-icon="mdi-github" type="url" aria-label="Enter the URL of your GitHub repository for this project"></v-text-field>
-              <v-select v-model="projectForm.type" :items="projectTypes" label="Project Type" required aria-label="Select the type of project you are adding"></v-select>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" @click="saveProject" :loading="loading" :aria-label="loading ? 'Saving project...' : 'Save project'">Save Project</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <!-- Password Reset Dialog -->
-      <v-dialog v-model="showResetPassword" max-width="420">
-        <v-card>
-          <v-toolbar color="warning" dark flat>
-            <v-toolbar-title>Reset Password</v-toolbar-title>
-          </v-toolbar>
-          <v-card-text>
-            <v-stepper v-model="resetStep" flat class="mb-2">
-              <v-stepper-header>
-                <v-stepper-step :complete="resetStep > 1" step="1">Send Code</v-stepper-step>
-                <v-divider></v-divider>
-                <v-stepper-step :complete="resetStep > 2" step="2">Verify Code</v-stepper-step>
-                <v-divider></v-divider>
-                <v-stepper-step step="3">New Password</v-stepper-step>
-              </v-stepper-header>
-            </v-stepper>
-
-            <v-form v-if="resetStep === 1" @submit.prevent="handleForgotPassword">
-              <p class="text-body-2 mb-4">A reset code will be sent to: <strong>{{ userProfile.email }}</strong></p>
-              <v-btn color="primary" type="submit" :loading="resetLoading" block>Send Reset Code</v-btn>
-            </v-form>
-
-            <v-form v-if="resetStep === 2" @submit.prevent="handleVerifyCode">
-              <v-text-field v-model="resetCode" label="6-digit Code" required aria-label="Enter the 6-digit verification code sent to your email" autocomplete="one-time-code"></v-text-field>
-              <v-btn color="primary" type="submit" :loading="resetLoading" block>Verify Code</v-btn>
-            </v-form>
-
-            <v-form v-if="resetStep === 3" @submit.prevent="handleResetPassword">
-              <v-text-field v-model="resetNewPassword" label="New Password" type="password" required aria-label="Enter your new password" autocomplete="new-password"></v-text-field>
-              <v-text-field v-model="resetConfirmPassword" label="Retype New Password" type="password" required aria-label="Confirm your new password by typing it again" autocomplete="new-password"></v-text-field>
-              <v-btn color="primary" type="submit" :loading="resetLoading" block>Set New Password</v-btn>
-            </v-form>
-
-            <v-alert v-if="resetMessage" type="success" class="mt-2">{{ resetMessage }}</v-alert>
-            <v-alert v-if="resetError" type="error" class="mt-2">{{ resetError }}</v-alert>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn text @click="showResetPassword = false">Close</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <v-alert v-if="errorMessage" type="error" class="mb-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;">
-        <template #prepend>
-          <v-icon color="error" size="24">mdi-alert-circle</v-icon>
+        <template #actions>
+          <v-spacer></v-spacer>
+          <app-button
+            color="primary"
+            :loading="loading"
+            :aria-label="loading ? 'Saving project...' : 'Save project'"
+            @click="saveProject"
+          >
+            Save Project
+          </app-button>
         </template>
-        {{ errorMessage }}
-      </v-alert>
+      </app-dialog>      <!-- Password Reset Dialog -->
+      <password-reset-dialog
+        v-model="showResetPassword"
+        :user-email="userProfile.email"
+        @success="handlePasswordResetSuccess"
+      /><app-alert
+        v-if="errorMessage"
+        type="error"
+        :message="errorMessage"
+        custom-class="mb-4"
+      />
     </v-container>
   </v-theme-provider>
 </template>
@@ -207,6 +185,7 @@
 .project-card:hover {
   box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
 }
+
 </style>
 <script>
 import {
@@ -215,10 +194,29 @@ import {
   fetchCurrentUser,
   getAccessToken
 } from '@/composables/user.js'
+import { useApi } from '@/composables/common.js'
 import axios from 'axios'
+
+// Import reusable components
+import AppDialog from '@/components/ui/AppDialog.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppForm from '@/components/ui/AppForm.vue'
+import AppAlert from '@/components/ui/AppAlert.vue'
+import ProjectCard from '@/components/ui/ProjectCard.vue'
+import QuillEditor from '@/components/ui/QuillEditor.vue'
+import PasswordResetDialog from '@/components/ui/PasswordResetDialog.vue'
+
 export default {
   name: 'ProfileView',
-  data() {
+  components: {
+    AppDialog,
+    AppButton,
+    AppForm,
+    AppAlert,
+    ProjectCard,
+    QuillEditor,
+    PasswordResetDialog
+  },data() {
     return {
       userProfile: {},
       userProjects: [],
@@ -243,20 +241,32 @@ export default {
         githubUrl: '',
         type: '',
       },
-      errorMessage: '',
-      projectTypes: [
+      errorMessage: '',      projectTypes: [
         'Web Development',
         'Mobile App',
         'API Development',
         'Other',
-      ],      showResetPassword: false,
-      resetCode: '',
-      resetNewPassword: '',
-      resetConfirmPassword: '',
-      resetStep: 1,
-      resetLoading: false,
-      resetMessage: '',
-      resetError: '',
+      ],
+      showResetPassword: false,
+    }
+  },
+  setup() {
+    const { 
+      uploadImage, 
+      updateUser, 
+      createPost, 
+      updatePost, 
+      deletePost,
+      handleError 
+    } = useApi()
+    
+    return {
+      uploadImage,
+      updateUser,
+      createPost,
+      updatePost,
+      deletePost,
+      handleError
     }
   },
   computed: {
@@ -302,47 +312,36 @@ export default {
         this.editForm.avatar = file
         this.editForm.avatarPreview = URL.createObjectURL(file)
       }
-    },
-
-    async handleProfileUpdate() {
+    },    async handleProfileUpdate() {
       this.errorMessage = '';
       this.successMessage = '';
       this.loading = true;
+      
       try {
         let avatarUri = this.editForm.avatar
         if (avatarUri && typeof avatarUri === 'object') {
-          const formData = new FormData()
-          formData.append('image', avatarUri)
-          const uploadRes = await axios.post('/api/upload/image/profile', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${this.accessToken}`
-            }
-          })
-          avatarUri = uploadRes.data.uri
+          avatarUri = await this.uploadImage(avatarUri, '/api/upload/image/profile', this.accessToken)
         } else {
           avatarUri = this.userProfile.avatar
         }
+        
         const payload = {
           firstName: this.editForm.firstName,
           lastName: this.editForm.lastName,
           bio: this.editForm.bio,
           avatar: avatarUri
         }
-        await axios.patch('/api/users', payload, {
-          headers: { Authorization: `Bearer ${this.accessToken}` }
-        })
+        
+        await this.updateUser(payload, this.accessToken)
         this.successMessage = 'Profile updated successfully!';
         this.fetchProfileAndProjects(this.$route.params.username)
+        
         setTimeout(() => {
           this.showEditProfile = false
           this.successMessage = ''
         }, 1200)
       } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          'Failed to update profile. Please try again.';
+        this.handleError(error, 'Failed to update profile. Please try again.')
       } finally {
         this.loading = false;
       }
@@ -354,17 +353,7 @@ export default {
         let imageUri = this.projectForm.coverImage
 
         if (imageUri && typeof imageUri === 'object') {
-          const formData = new FormData()
-          formData.append('image', imageUri)
-
-          const uploadRes = await axios.post('/api/upload/image/blog', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${this.accessToken}`
-            }
-          })
-
-          imageUri = uploadRes.data.uri
+          imageUri = await this.uploadImage(imageUri, '/api/upload/image/blog', this.accessToken)
         }
 
         const payload = {
@@ -377,30 +366,29 @@ export default {
           type: this.projectForm.type,
         }
 
-        let response
+        let result
         if (this.projectForm._id) {
-          response = await axios.patch(`/api/posts/${this.projectForm._id}`, payload, {
-            headers: { Authorization: `Bearer ${this.accessToken}` }
-          })
-          const updated = response.data.post
-          const index = this.userProjects.findIndex(p => p._id === updated._id)
+          result = await this.updatePost(this.projectForm._id, payload, this.accessToken)
+          const index = this.userProjects.findIndex(p => p._id === result._id)
           if (index !== -1) {
-            this.userProjects.splice(index, 1, updated)
+            this.userProjects.splice(index, 1, result)
           }
         } else {
-          response = await axios.post('/api/posts', payload, {
-            headers: { Authorization: `Bearer ${this.accessToken}` }
-          })
-          this.userProjects.push(response.data.post)
+          result = await this.createPost(payload, this.accessToken)
+          this.userProjects.push(result)
         }
 
         this.showNewProject = false
         this.resetProjectForm()
       } catch (error) {
-        console.error('Project save failed:', error)
+        this.handleError(error, 'Project save failed')
       } finally {
         this.loading = false
       }
+    },
+
+    viewProject(project) {
+      this.$router.push(`/${this.userProfile.username}/${project.id}`)
     },
 
     editProject(project) {
@@ -408,21 +396,29 @@ export default {
       this.showNewProject = true
     },
 
+    openNewProjectDialog() {
+      this.resetProjectForm()
+      this.showNewProject = true
+    },
+
+    closeProjectDialog() {
+      this.showNewProject = false
+      this.resetProjectForm()
+    },
+
     async deleteProject(project) {
       if (confirm('Are you sure you want to delete this project?')) {
         this.loading = true
         try {
-          await axios.delete(`/api/posts/${project._id}`, {
-            headers: { Authorization: `Bearer ${this.accessToken}` }
-          })
+          await this.deletePost(project._id, this.accessToken)
           this.userProjects = this.userProjects.filter(p => p._id !== project._id)
         } catch (error) {
-          console.error('Project deletion failed:', error)
+          this.handleError(error, 'Project deletion failed')
         } finally {
           this.loading = false
         }
       }
-    },    
+    },
     resetProjectForm() {
       this.projectForm = {
         title: '',
@@ -432,68 +428,14 @@ export default {
         tags: [],
         githubUrl: '',
         type: '', // Reset type
-      }
-    },
-    async handleForgotPassword() {
-      this.resetLoading = true;
-      this.resetError = '';
-      this.resetMessage = '';
-      try {
-        // Use the current user's email automatically
-        const token = sessionStorage.getItem('accessToken');
-        const res = await axios.post('/api/auth/forgot-password', {}, {headers: { Authorization: `Bearer ${token}` } });
-        this.resetMessage = res.data.message;
-        this.resetStep = 2;
-      } catch (err) {
-        this.resetError = err.response?.data?.message || err.message;
-      } finally {
-        this.resetLoading = false;
-      }
-    },
-    async handleVerifyCode() {
-      this.resetLoading = true;
-      this.resetError = '';
-      this.resetMessage = '';
-      try {
-        const token = sessionStorage.getItem('accessToken');
-        const res = await axios.post('/api/auth/verify-reset-code', { code: this.resetCode }, { headers: { Authorization: `Bearer ${token}` } });
-        this.resetMessage = res.data.message;
-        this.resetStep = 3;
-      } catch (err) {
-        this.resetError = err.response?.data?.message || err.message;
-      } finally {
-        this.resetLoading = false;
-      }
-    },
-    async handleResetPassword() {
-      this.resetLoading = true;
-      this.resetError = '';
-      this.resetMessage = '';
-      if (this.resetNewPassword !== this.resetConfirmPassword) {
-        this.resetError = 'Passwords do not match';
-        this.resetLoading = false;
-        return;
-      }
-      try {
-        const token = sessionStorage.getItem('accessToken');
-        const res = await axios.post('/api/auth/reset-password', { code: this.resetCode, newPassword: this.resetNewPassword } , { headers: { Authorization: `Bearer ${token}` } });
-        this.resetMessage = res.data.message;
-        this.resetStep = 1;
-        // Close the dialog after successful password reset
-        setTimeout(() => {
-          this.showResetPassword = false;
-          this.resetMessage = '';
-          this.resetCode = '';
-          this.resetNewPassword = '';
-          this.resetConfirmPassword = '';
-        }, 2000);
-      } catch (err) {
-        this.resetError = err.response?.data?.message || err.message;
-      } finally {
-        this.resetLoading = false;
-      }
-    },
-  },
+      }    },
+    
+    handlePasswordResetSuccess(message) {
+      this.successMessage = message;
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 3000);
+    },},
   mounted() {
     const username = this.$route.params.username
     this.fetchProfileAndProjects(username)

@@ -39,49 +39,21 @@
       <section>
         <v-row
           v-auto-animate
-        >
-          <v-col
+        >          <v-col
             v-for="project in paginatedProjects"
             :key="project._id"
             cols="12"
             md="4"
           >
             <article>
-              <v-card>
-                <v-card-title>{{ project.title }}</v-card-title>
-                <v-card-text>
-                  <p>{{ project.description }}</p>
-                  <div>
-                    <v-chip
-                      v-for="tag in project.tags"
-                      :key="tag"
-                      class="mr-2 mb-2"
-                      size="small"
-                    >
-                      {{ tag }}
-                    </v-chip>
-                  </div>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn
-                    color="primary"
-                    variant="text"
-                    :to="`${project.getFullPath}`"
-                    prepend-icon="mdi-eye"
-                  >
-                    View Project
-                  </v-btn>
-                  <v-spacer></v-spacer>                  <v-btn 
-                    icon 
-                    @click="toggleLike(project)"
-                    :aria-label="`${project.liked ? 'Unlike' : 'Like'} project: ${project.title}`"
-                  >
-                    <v-icon aria-hidden="true">
-                      {{ project.liked ? 'mdi-heart' : 'mdi-heart-outline' }}
-                    </v-icon>
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
+              <project-card
+                :project="project"
+                :show-edit-button="false"
+                :show-delete-button="false"
+                :show-like-button="true"
+                @view="viewProject"
+                @like="toggleLike"
+              />
             </article>
           </v-col>
         </v-row>
@@ -96,34 +68,32 @@
             ></v-pagination>
           </v-col>
         </v-row>
-      </section>
-
-      <v-alert
+      </section>      <app-alert
         v-if="errorMessage"
         type="error"
-        class="mb-4"
-        border="start"
-        colored-border
-        elevation="0"
-        density="comfortable"
-        style="background-color: #fff; color: #d32f2f; font-weight: 500;"
-        role="alert"
-        aria-live="polite"
-      >
-        <template #prepend>
-          <v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon>
-        </template>
-        {{ errorMessage }}
-      </v-alert>
+        :message="errorMessage"
+        custom-class="mb-4"
+      />
     </v-container>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import AppAlert from '@/components/ui/AppAlert.vue'
+import ProjectCard from '@/components/ui/ProjectCard.vue'
+import { useApi } from '@/composables/common.js'
 
 export default {
   name: 'ProjectsView',
+  components: {
+    AppAlert,
+    ProjectCard
+  },
+  setup() {
+    const { handleError } = useApi()
+    return { handleError }
+  },
   data() {
     return {
       projects: [],
@@ -184,37 +154,33 @@ export default {
       const start = (this.page - 1) * this.itemsPerPage
       return this.filteredProjects.slice(start, start + this.itemsPerPage)
     }
-  },
-  methods: {
+  },  methods: {
+    viewProject(project) {
+      this.$router.push(`/${project.author?.username || 'unknown'}/${project._id}`);
+    },
+    
     async toggleLike(project) {
       try {
         // Assume user must be logged in and backend handles authentication
         if (!project.liked) {
-          const res = await axios.post(`/api/posts/${project._id}/upvote`)
-          project.upvotes = res.data.upvotes
-          project.liked = true
+          const res = await axios.post(`/api/posts/${project._id}/upvote`);
+          project.upvotes = res.data.upvotes;
+          project.liked = true;
         } else {
-          const res = await axios.post(`/api/posts/${project._id}/downvote`)
-          project.downvotes = res.data.downvotes
-          project.liked = false
+          const res = await axios.post(`/api/posts/${project._id}/downvote`);
+          project.downvotes = res.data.downvotes;
+          project.liked = false;
         }
       } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          'Failed to update vote. Please try again.'
+        this.errorMessage = this.handleError(error, 'Failed to update vote. Please try again.');
       }
     },
     async handleCreatePost() {
       this.errorMessage = '';
-      this.loading = true;
-      try {
+      this.loading = true;      try {
         // ...post creation logic...
       } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          'Failed to create post. Please try again.';
+        this.errorMessage = this.handleError(error, 'Failed to create post. Please try again.');
       } finally {
         this.loading = false;
       }

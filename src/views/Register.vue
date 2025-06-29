@@ -1,11 +1,18 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" sm="8" md="6">
-        <v-card class="mt-8">
+      <v-col cols="12" sm="8" md="6">        <v-card class="mt-8">
           <v-card-title class="text-h4 text-center pt-6" id="register-heading">Create Account</v-card-title>
           <v-card-text>
-            <v-form @submit.prevent="handleRegister" aria-labelledby="register-heading">
+            <app-form
+              :loading="loading"
+              :error-message="errorMessage"
+              submit-button-text="Register"
+              :submit-button-block="true"
+              submit-button-class="mt-4"
+              aria-labelled-by="register-heading"
+              @submit="handleRegister"
+            >
               <v-row>
                 <v-col cols="6"><v-text-field v-model="form.firstName" label="First Name" type="text" required :rules="[rules.required, rules.name]" autocomplete="given-name"></v-text-field></v-col>
                 <v-col cols="6"><v-text-field v-model="form.lastName" label="Last Name" type="text" required :rules="[rules.required, rules.name]" autocomplete="family-name"></v-text-field></v-col>
@@ -13,9 +20,7 @@
               <v-text-field v-model="form.email" label="Email" type="email" required :rules="[rules.required, rules.email]" autocomplete="email"></v-text-field>
               <v-text-field v-model="form.username" label="Username" type="text" required :rules="[rules.required, rules.username]" autocomplete="username"></v-text-field>
               <v-text-field v-model="form.password" label="Password" type="password" required :rules="[rules.required, rules.password]" autocomplete="new-password"></v-text-field>
-              <v-btn type="submit" color="primary" block class="mt-4" :loading="loading">Register</v-btn>
-            </v-form>
-            <v-alert v-if="errorMessage" type="error" class="mt-4" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fff; color: #d32f2f; font-weight: 500;" role="alert" aria-live="polite"><template #prepend><v-icon color="error" size="24" aria-hidden="true">mdi-alert-circle</v-icon></template>{{ errorMessage }}</v-alert>
+            </app-form>
             <div class="mt-4 text-center">Already have an account? <router-link to="/login">Login</router-link></div>
           </v-card-text>
         </v-card>
@@ -27,12 +32,20 @@
 <script>
 import axios from 'axios'
 import { GoogleLogin, decodeCredential } from 'vue3-google-login'
+import AppForm from '@/components/ui/AppForm.vue'
+import { useApi } from '@/composables/common.js'
 
 export default {
   name: 'RegisterComponent',
   components: {
-    GoogleLogin
-  },  data() {
+    GoogleLogin,
+    AppForm
+  },
+  setup() {
+    const { handleError } = useApi()
+    return { handleError }
+  },
+  data() {
     return {
       loading: false,
       form: {
@@ -96,14 +109,10 @@ export default {
           username: this.form.username,
           password: this.form.password
         })
-        
-        this.$router.push('/')
+          this.$router.push('/')
 
       } catch (error) {
-        this.errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          'Registration failed. Please try again.';
+        this.errorMessage = this.handleError(error, 'Registration failed. Please try again.');
       } finally {
         this.loading = false
       }

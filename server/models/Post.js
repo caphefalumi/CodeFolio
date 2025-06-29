@@ -63,9 +63,9 @@ const postSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['web', 'mobile', 'game', 'design'],
+        enum: ['web', 'mobile', 'game', 'design', 'Other'],
         default: 'web',
-        required: true
+        // required: true
     },
     upvotes: {
         type: Number,
