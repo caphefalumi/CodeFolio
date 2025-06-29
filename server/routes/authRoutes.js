@@ -53,7 +53,7 @@ router.post('/token', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
     res.json({ accessToken })
   })
 })
@@ -117,7 +117,7 @@ router.post('/login/jwt', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
 
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     user.refreshToken = refreshToken
@@ -171,7 +171,7 @@ router.post('/login/google', async (req, res) => {
       }
     }
 
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     user.refreshToken = refreshToken
@@ -246,7 +246,7 @@ router.get('/login/github/callback', async (req, res) => {
       }
     }
 
-    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
     const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
     user.refreshToken = refreshToken

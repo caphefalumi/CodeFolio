@@ -4,14 +4,21 @@
       <!-- Hero Section -->
       <section aria-labelledby="hero-heading">
         <v-row class="mt-16 mb-8">
-          <v-col cols="12" md="6">
-            <h1 id="hero-heading" class="text-h2 font-weight-bold mb-4">Showcase Your Projects</h1>
+          <v-col cols="12">
+            <h1 id="hero-heading" class="text-h2 font-weight-bold mb-4">
+              Showcase Your Projects
+            </h1>
             <p class="text-h6 mb-6">
-              A platform for independent developers and creators to showcase their work.
-              Share your projects, get feedback, and connect with other creators.
+              A platform for independent developers and creators to showcase
+              their work. Share your projects, get feedback, and connect with
+              other creators.
             </p>
-            <v-btn color="primary" size="large" to="/projects" class="mr-4">Browse Projects</v-btn>
-            <v-btn variant="outlined" size="large" to="/login">Get Started</v-btn>
+            <v-btn color="primary" size="large" to="/projects" class="mr-4"
+              >Browse Projects</v-btn
+            >
+            <v-btn variant="outlined" size="large" to="/login"
+              >Get Started</v-btn
+            >
           </v-col>
           <v-col cols="12" md="6" class="d-flex align-center justify-center">
             <v-img
@@ -33,15 +40,24 @@
             </h2>
           </v-col>
           <v-col cols="12">
-            <DynamicScroller :items="featuredProjects" :min-item-size="120" page-mode v-slot="{ item }">
+            <DynamicScroller
+              :items="featuredProjects"
+              :min-item-size="120"
+              page-mode
+              v-slot="{ item }"
+            >
               <article class="mb-4">
                 <v-card>
                   <v-card-title>{{ item.title }}</v-card-title>
                   <v-card-text>
-                    <p>{{ item.description || 'No description provided.' }}</p>
+                    <p>{{ item.description || "No description provided." }}</p>
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn color="primary" variant="text" :to="`${item.getFullPath}`">
+                    <v-btn
+                      color="primary"
+                      variant="text"
+                      :to="`${item.getFullPath}`"
+                    >
                       View Project
                     </v-btn>
                   </v-card-actions>
@@ -56,27 +72,28 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { DynamicScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import axios from "axios";
+import { DynamicScroller } from "vue-virtual-scroller";
+import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 
 export default {
-  name: 'HomeView',
+  name: "HomeView",
   components: { DynamicScroller },
   data() {
     return {
-      featuredProjects: []
-    }
+      featuredProjects: [],
+    };
   },
   mounted() {
-    axios.get('/api/posts/')
-      .then(response => {
-        this.featuredProjects = response.data
-        console.log("Projects:", this.featuredProjects)
+    axios
+      .get("/api/posts/")
+      .then((response) => {
+        this.featuredProjects = response.data;
+        console.log("Projects:", this.featuredProjects);
       })
-      .catch(error => {
-        console.error('Error fetching featured projects:', error)
-      })
+      .catch((error) => {
+        console.error("Error fetching featured projects:", error);
+      });
   },
-}
+};
 </script>

@@ -6,38 +6,89 @@
         <v-col cols="12">
           <article>
             <v-card>
-              <v-img :src="project.image" height="400" cover :alt="`${project.title} project cover image`"></v-img>
-              <v-card-title class="text-h3"><h1>{{ project.title }}</h1></v-card-title>
-              <v-card-subtitle>By <span>{{ project.author }}</span></v-card-subtitle>
+              <v-img
+                :src="project.image"
+                height="400"
+                cover
+                :alt="`${project.title} project cover image`"
+              ></v-img>
+              <v-card-title class="text-h3">
+                <h1>{{ project.title }}</h1>
+              </v-card-title>
+              <v-card-subtitle>
+                <span>By {{ project.author }}</span>
+              </v-card-subtitle>
               <v-card-text>
                 <p class="text-body-1 mb-4">{{ project.description }}</p>
                 <div>
-                  <v-chip v-for="tag in project.tags" :key="tag" class="mr-2 mb-2">{{ tag }}</v-chip>
+                  <v-chip
+                    v-for="tag in project.tags"
+                    :key="tag"
+                    class="mr-2 mb-2"
+                    >{{ tag }}</v-chip
+                  >
                 </div>
               </v-card-text>
               <v-card-actions class="justify-center align-center">
-                <v-btn icon @click="upvoteProject" :disabled="project.upvoting" class="mr-2" :aria-label="`Upvote project. Current score: ${project.upvotes - project.downvotes}`">
-                  <v-icon :color="project.liked === true ? 'success' : 'grey'" aria-hidden="true">mdi-arrow-up-bold</v-icon>
+                <v-btn
+                  icon
+                  @click="upvoteProject"
+                  :disabled="project.upvoting"
+                  class="mr-2"
+                  :aria-label="`Upvote project. Current score: ${project.upvotes - project.downvotes}`"
+                >
+                  <v-icon
+                    :color="project.liked === true ? 'success' : 'grey'"
+                    aria-hidden="true"
+                    >mdi-arrow-up-bold</v-icon
+                  >
                 </v-btn>
-                <div class="text-h5 font-weight-bold mx-2" style="min-width: 32px; text-align: center;" aria-live="polite">
+                <div
+                  class="text-h5 font-weight-bold mx-2"
+                  style="min-width: 32px; text-align: center"
+                  aria-live="polite"
+                >
                   {{ project.upvotes - project.downvotes }}
                 </div>
-                <v-btn icon @click="downvoteProject" :disabled="project.downvoting" class="ml-2" :aria-label="`Downvote project. Current score: ${project.upvotes - project.downvotes}`">
-                  <v-icon :color="project.liked === false ? 'error' : 'grey'" aria-hidden="true">mdi-arrow-down-bold</v-icon>
+                <v-btn
+                  icon
+                  @click="downvoteProject"
+                  :disabled="project.downvoting"
+                  class="ml-2"
+                  :aria-label="`Downvote project. Current score: ${project.upvotes - project.downvotes}`"
+                >
+                  <v-icon
+                    :color="project.liked === false ? 'error' : 'grey'"
+                    aria-hidden="true"
+                    >mdi-arrow-down-bold</v-icon
+                  >
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" variant="text" :href="project.githubUrl" target="_blank" prepend-icon="mdi-github" rel="noopener noreferrer" aria-label="View project on GitHub (opens in new tab)">
+                <v-btn
+                  color="primary"
+                  variant="text"
+                  :href="project.githubUrl"
+                  target="_blank"
+                  prepend-icon="mdi-github"
+                  rel="noopener noreferrer"
+                  aria-label="View project on GitHub (opens in new tab)"
+                >
                   View on GitHub
                 </v-btn>
-              </v-card-actions>            </v-card>
+              </v-card-actions>
+            </v-card>
           </article>
         </v-col>
-        
+
         <!-- Project Content Section -->
         <v-col cols="12" v-if="project.content">
           <section aria-labelledby="project-content-heading">
             <v-card>
-              <v-card-title><h2 id="project-content-heading">Project Content</h2></v-card-title>
+              <v-card-title
+                ><h2 id="project-content-heading">
+                  Project Content
+                </h2></v-card-title
+              >
               <v-card-text>
                 <div class="project-content" v-html="project.content"></div>
               </v-card-text>
@@ -49,7 +100,9 @@
         <v-col cols="12" md="6" v-if="project.githubUrl">
           <section aria-labelledby="github-stats-heading">
             <v-card>
-              <v-card-title><h2 id="github-stats-heading">GitHub Stats</h2></v-card-title>
+              <v-card-title
+                ><h2 id="github-stats-heading">GitHub Stats</h2></v-card-title
+              >
               <v-card-text>
                 <v-row>
                   <v-col cols="4">
@@ -79,7 +132,11 @@
         <v-col cols="12" md="6">
           <section aria-labelledby="project-details-heading">
             <v-card>
-              <v-card-title><h2 id="project-details-heading">Project Details</h2></v-card-title>
+              <v-card-title
+                ><h2 id="project-details-heading">
+                  Project Details
+                </h2></v-card-title
+              >
               <v-card-text>
                 <v-list>
                   <v-list-item>
@@ -87,21 +144,27 @@
                       <v-icon aria-hidden="true">mdi-calendar</v-icon>
                     </template>
                     <v-list-item-title>Created</v-list-item-title>
-                    <v-list-item-subtitle>{{ project.createdAt }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{
+                      project.createdAt
+                    }}</v-list-item-subtitle>
                   </v-list-item>
                   <v-list-item>
                     <template v-slot:prepend>
                       <v-icon aria-hidden="true">mdi-update</v-icon>
                     </template>
                     <v-list-item-title>Last Updated</v-list-item-title>
-                    <v-list-item-subtitle>{{ project.updatedAt }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{
+                      project.updatedAt
+                    }}</v-list-item-subtitle>
                   </v-list-item>
                   <v-list-item>
                     <template v-slot:prepend>
                       <v-icon aria-hidden="true">mdi-eye</v-icon>
                     </template>
                     <v-list-item-title>Views</v-list-item-title>
-                    <v-list-item-subtitle>{{ project.views }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{
+                      project.views
+                    }}</v-list-item-subtitle>
                   </v-list-item>
                 </v-list>
               </v-card-text>
@@ -110,8 +173,11 @@
         </v-col>
         <!-- Comments Section -->
         <v-col cols="12">
-          <section aria-labelledby="comments-heading">            <v-card>
-              <v-card-title><h2 id="comments-heading">Comments</h2></v-card-title>
+          <section aria-labelledby="comments-heading">
+            <v-card>
+              <v-card-title>
+                <h2 id="comments-heading">Comments</h2>
+              </v-card-title>
               <v-card-text>
                 <app-alert
                   v-if="errorMessage"
@@ -125,13 +191,28 @@
                   :submit-button-disabled="!newComment.trim()"
                   @submit="addComment"
                 >
-                  <v-textarea v-model="newComment" label="Add a comment" rows="3" variant="outlined"></v-textarea>
+                  <v-textarea
+                    v-model="newComment"
+                    label="Add a comment"
+                    rows="3"
+                    variant="outlined"
+                  ></v-textarea>
                 </app-form>
               </v-card-text>
               <v-list v-auto-animate aria-label="Project comments">
-                <v-list-item v-for="comment in comments" :key="comment.id" :subtitle="comment.author + ' • ' + comment.date" role="article" :aria-label="`Comment by ${comment.author} on ${comment.date}`">
+                <v-list-item
+                  v-for="comment in comments"
+                  :key="comment.id"
+                  :subtitle="comment.author + ' • ' + comment.date"
+                  role="article"
+                  :aria-label="`Comment by ${comment.author} on ${comment.date}`"
+                >
                   <template v-slot:prepend>
-                    <v-avatar color="primary" :aria-label="`${comment.author} avatar`">{{ comment.author.charAt(0) }}</v-avatar>
+                    <v-avatar
+                      color="primary"
+                      :aria-label="`${comment.author} avatar`"
+                      >{{ comment.author.charAt(0) }}</v-avatar
+                    >
                   </template>
                   <v-list-item-title>{{ comment.content }}</v-list-item-title>
                 </v-list-item>
@@ -142,67 +223,87 @@
       </v-row>
     </v-container>
     <!-- Move the auth banner outside the comment section and make it fixed at the top -->
-    <v-alert v-if="showAuthBanner" type="warning" class="mb-4 fade-banner auth-banner-fixed text-center" border="start" colored-border elevation="0" density="comfortable" style="background-color: #fffbe7; color: #b26a00; font-weight: 500; transition: opacity 1s; z-index: 9999;">
+    <v-alert
+      v-if="showAuthBanner"
+      type="warning"
+      class="mb-4 fade-banner auth-banner-fixed text-center"
+      border="start"
+      colored-border
+      elevation="0"
+      density="comfortable"
+      style="
+        background-color: #fffbe7;
+        color: #b26a00;
+        font-weight: 500;
+        transition: opacity 1s;
+        z-index: 9999;
+      "
+    >
       <template #prepend>
         <v-icon color="warning" size="24">mdi-alert</v-icon>
       </template>
-      <div class="banner-center">You must be logged in to vote on projects.</div>
+      <div class="banner-center">
+        You must be logged in to vote on projects.
+      </div>
     </v-alert>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-import { getAccessToken } from '@/composables/user.js'
-import { useApi } from '@/composables/common.js'
-import AppAlert from '@/components/ui/AppAlert.vue'
-import AppForm from '@/components/ui/AppForm.vue'
+import axios from "axios";
+import { getAccessToken } from "@/composables/user.js";
+import { useApi } from "@/composables/common.js";
+import AppAlert from "@/components/AppAlert.vue";
+import AppForm from "@/components/AppForm.vue";
 
 export default {
-  name: 'ProjectDetailView',
+  name: "ProjectDetailView",
   components: {
     AppAlert,
-    AppForm
+    AppForm,
   },
   setup() {
-    const { handleError } = useApi()
-    return { handleError }
+    const { handleError } = useApi();
+    return { handleError };
   },
   data() {
-    return {      project: {
-        title: '',
-        description: '',
-        content: '',
-        image: '',
-        author: '',
+    return {
+      project: {
+        title: "",
+        description: "",
+        content: "",
+        image: "",
+        author: "",
         tags: [],
-        githubUrl: '',
-        createdAt: '',
-        updatedAt: '',
+        githubUrl: "",
+        createdAt: "",
+        updatedAt: "",
         views: 0,
         upvotes: 0,
         downvotes: 0,
         upvoting: false,
-        downvoting: false
+        downvoting: false,
       },
       githubStats: { stars: 0, forks: 0, issues: 0 },
       comments: [],
-      newComment: '',
-      errorMessage: '',
+      newComment: "",
+      errorMessage: "",
       showAuthBanner: false,
       authBannerTimeout: null,
-      loading: false
-    }
+      loading: false,
+    };
   },
   methods: {
     async fetchProjectDetail() {
       try {
-        const { username, id } = this.$route.params
-        let headers = {}
-        const token = getAccessToken && getAccessToken()
-        if (token) headers.Authorization = `Bearer ${token}`
-        const res = await axios.get(`/api/posts/${username}/${id}`, { headers })
-        const post = res.data        
+        const { username, id } = this.$route.params;
+        let headers = {};
+        const token = getAccessToken && getAccessToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const res = await axios.get(`/api/posts/${username}/${id}`, {
+          headers,
+        });
+        const post = res.data;
         this.project = {
           title: post.title,
           description: post.description,
@@ -218,60 +319,67 @@ export default {
           downvotes: post.downvotes || 0,
           upvoting: false,
           downvoting: false,
-          liked: post.liked // <-- set vote state from backend
-        }
+          liked: post.liked, // <-- set vote state from backend
+        };
 
-        this.comments = (post.comments || []).map(c => ({
+        this.comments = (post.comments || []).map((c) => ({
           id: c._id,
           author: c.user.username,
           date: new Date(c.createdAt).toLocaleDateString(),
-          content: c.content
-        }))
+          content: c.content,
+        }));
 
         if (this.project.githubUrl) {
-          this.fetchGitHubStats()
+          this.fetchGitHubStats();
         }
       } catch (err) {
-        console.error('Error fetching project detail:', err)
+        console.error("Error fetching project detail:", err);
       }
     },
     async fetchGitHubStats() {
       try {
-        const apiUrl = this.project.githubUrl
-          .replace('https://github.com/', 'https://api.github.com/repos/')
-        const res = await axios.get(apiUrl)
-        const { stargazers_count, forks_count, open_issues_count } = res.data
+        const apiUrl = this.project.githubUrl.replace(
+          "https://github.com/",
+          "https://api.github.com/repos/",
+        );
+        const res = await axios.get(apiUrl);
+        const { stargazers_count, forks_count, open_issues_count } = res.data;
         this.githubStats = {
           stars: stargazers_count,
           forks: forks_count,
-          issues: open_issues_count
-        }
+          issues: open_issues_count,
+        };
       } catch (err) {
-        console.error('Error fetching GitHub stats:', err)
+        console.error("Error fetching GitHub stats:", err);
       }
     },
     toggleLike() {
-      this.project.liked = !this.project.liked
+      this.project.liked = !this.project.liked;
       // TODO: Add API call to upvote/downvote
     },
     async addComment() {
-      this.errorMessage = '';
+      this.errorMessage = "";
       this.loading = true;
-      try {        if (!this.newComment.trim()) return;
-        const token = getAccessToken();const res = await axios.post(
+      try {
+        if (!this.newComment.trim()) return;
+        const token = getAccessToken();
+        const res = await axios.post(
           `/api/posts/${this.$route.params.id}/comments`,
           { content: this.newComment },
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         this.comments.unshift({
           id: `c${Date.now()}`,
-          author: 'You',
+          author: "You",
           date: new Date().toLocaleDateString(),
-          content: this.newComment
+          content: this.newComment,
         });
-        this.newComment = '';
+        this.newComment = "";
       } catch (error) {
-        this.errorMessage = this.handleError(error, 'Failed to post comment. Please try again.');
+        this.errorMessage = this.handleError(
+          error,
+          "Failed to post comment. Please try again.",
+        );
       } finally {
         this.loading = false;
       }
@@ -284,7 +392,7 @@ export default {
         const res = await axios.post(
           `/api/posts/${this.$route.params.id}/upvote`,
           {},
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         this.project.upvotes = res.data.upvotes;
         this.project.downvotes = res.data.downvotes;
@@ -303,7 +411,7 @@ export default {
         const res = await axios.post(
           `/api/posts/${this.$route.params.id}/downvote`,
           {},
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         this.project.upvotes = res.data.upvotes;
         this.project.downvotes = res.data.downvotes;
@@ -318,17 +426,18 @@ export default {
       if (error.response && error.response.status === 401) {
         this.showAuthBanner = true;
         clearTimeout(this.authBannerTimeout);
-        this.authBannerTimeout = setTimeout(() => {          this.showAuthBanner = false;
+        this.authBannerTimeout = setTimeout(() => {
+          this.showAuthBanner = false;
         }, 5000);
       } else {
-        this.errorMessage = this.handleError(error, 'Failed to vote.');
+        this.errorMessage = this.handleError(error, "Failed to vote.");
       }
-    }
+    },
   },
   mounted() {
-    this.fetchProjectDetail()
-  }
-}
+    this.fetchProjectDetail();
+  },
+};
 </script>
 
 <style scoped>
@@ -346,7 +455,7 @@ export default {
   transform: translateX(-50%);
   min-width: 320px;
   max-width: 90vw;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   pointer-events: none;
 }
 .banner-center {
@@ -397,7 +506,7 @@ export default {
   background-color: #f5f5f5;
   padding: 0.2em 0.4em;
   border-radius: 3px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .project-content img {
@@ -405,5 +514,4 @@ export default {
   height: auto;
   margin: 1em 0;
 }
-
 </style>
