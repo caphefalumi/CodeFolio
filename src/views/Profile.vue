@@ -165,6 +165,14 @@
             @submit="handleProfileUpdate"
           >
             <v-text-field
+              v-model="editForm.username"
+              label="Username"
+              required
+              autocomplete="username"
+              :error-messages="usernameError"
+              @blur="checkUsernameAvailability"
+            ></v-text-field>
+            <v-text-field
               v-model="editForm.firstName"
               label="First Name"
               required
@@ -352,6 +360,7 @@ export default {
         bio: "",
         avatar: null,
         avatarPreview: null,
+        username: ""
       },
       successMessage: "",
       projectForm: {
@@ -371,6 +380,7 @@ export default {
         "Other",
       ],
       showResetPassword: false,
+      usernameError: '',
     };
   },
   setup() {
@@ -421,6 +431,7 @@ export default {
         this.editForm.avatar = null;
         this.editForm.avatarPreview = profile.avatar;
         this.editForm.email = profile.email;
+        this.editForm.username = profile.username || "";
 
         // 4. Fetch user's projects
         this.userProjects = await fetchProjects(username);
@@ -436,42 +447,54 @@ export default {
         this.editForm.avatarPreview = URL.createObjectURL(file);
       }
     },
+    async checkUsernameAvailability() {
+      this.usernameError = ''
+      const newUsername = this.editForm.username?.trim()
+      if (!newUsername || newUsername === this.userProfile.username) return
+      const res = await axios.get(`/api/users/${newUsername}`)
+      if (res.status === 200 && res.data) {
+        this.usernameError = 'This username is already taken.'
+      }
+    },
     async handleProfileUpdate() {
-      this.errorMessage = "";
-      this.successMessage = "";
-      this.loading = true;
-
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.loading = true
+      this.usernameError = ''
+      await this.checkUsernameAvailability()
+      if (this.usernameError) {
+        this.loading = false
+        return
+      }
       try {
-        let avatarUri = this.editForm.avatar;
+        let avatarUri = this.editForm.avatar
         if (avatarUri && typeof avatarUri === "object") {
           avatarUri = await this.uploadImage(
             avatarUri,
             "/api/upload/image/profile",
             this.accessToken,
-          );
+          )
         } else {
-          avatarUri = this.userProfile.avatar;
+          avatarUri = this.userProfile.avatar
         }
-
         const payload = {
           firstName: this.editForm.firstName,
           lastName: this.editForm.lastName,
           bio: this.editForm.bio,
           avatar: avatarUri,
-        };
-
-        await this.updateUser(payload, this.accessToken);
-        this.successMessage = "Profile updated successfully!";
-        this.fetchProfileAndProjects(this.$route.params.username);
-
+          username: this.editForm.username
+        }
+        await this.updateUser(payload, this.accessToken)
+        this.successMessage = "Profile updated successfully!"
+        this.fetchProfileAndProjects(this.editForm.username)
         setTimeout(() => {
-          this.showEditProfile = false;
-          this.successMessage = "";
-        }, 1200);
+          this.showEditProfile = false
+          this.successMessage = ""
+        }, 1200)
       } catch (error) {
-        this.handleError(error, "Failed to update profile. Please try again.");
+        this.handleError(error, "Failed to update profile. Please try again.")
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 

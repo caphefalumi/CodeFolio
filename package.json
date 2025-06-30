@@ -1,76 +1,100 @@
 {
-  "name": "codefolio",
-  "version": "1.4.9",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "app": "concurrently \"npm run server\" \"npm run dev\" ",
-    "dev": "vite --host",
-    "build": "vite build",
-    "preview": "vite preview",
-    "server": "nodemon server/server.js",
-    "generate-data": "node seed.js"
-  },
-  "dependencies": {
-    "@formkit/auto-animate": "^0.8.2",
-    "@vitejs/plugin-basic-ssl": "^2.0.0",
-    "axios": "^1.10.0",
-    "bcrypt": "^6.0.0",
-    "bson": "^6.10.4",
-    "concurrently": "^9.1.2",
-    "cookie-parser": "^1.4.7",
-    "core-js": "^3.8.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "fs": "^0.0.1-security",
-    "google-auth-library": "^10.1.0",
-    "googleapis": "^150.0.1",
-    "image-resize-compress": "^2.1.1",
-    "image2uri": "^2.1.2",
-    "json-server": "^1.0.0-beta.3",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.15.2",
-    "multer": "^2.0.1",
-    "nodemailer": "^7.0.3",
-    "nodemon": "^3.1.10",
-    "quill": "^2.0.3",
-    "random-cat-img": "^1.1.8",
-    "sharp": "^0.34.2",
-    "vue": "^3.4.15",
-    "vue-router": "^4.2.5",
-    "vue-virtual-scroller": "^2.0.0-beta.8",
-    "vue3-google-login": "^2.0.33",
-    "vuetify": "^3.8.8"
-  },
-  "devDependencies": {
-    "@mdi/font": "^7.4.47",
-    "@mdi/js": "^7.4.47",
-    "@vitejs/plugin-vue": "^5.0.3",
-    "@vue/eslint-config-prettier": "^8.0.0",
-    "eslint": "^8.49.0",
-    "eslint-plugin-vue": "^9.17.0",
-    "prettier": "3.6.2",
-    "vite": "^6.3.5",
-    "vite-plugin-mkcert": "^1.10.1"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "@babel/eslint-parser"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
-  ]
+	"name": "codefolio",
+	"version": "1.4.9",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"app": "concurrently \"npm run server\" \"npm run dev\" ",
+		"dev": "vite --host",
+		"build": "vite build",
+		"preview": "vite preview",
+		"server": "nodemon server/server.js",
+		"generate-data": "node seed.js"
+	},
+	"dependencies": {
+		"@formkit/auto-animate": "^0.8.2",
+		"@vitejs/plugin-basic-ssl": "^2.0.0",
+		"axios": "^1.10.0",
+		"bcrypt": "^6.0.0",
+		"bson": "^6.10.4",
+		"concurrently": "^9.1.2",
+		"cookie-parser": "^1.4.7",
+		"core-js": "^3.8.3",
+		"cors": "^2.8.5",
+		"dotenv": "^16.5.0",
+		"express": "^5.1.0",
+		"fs": "^0.0.1-security",
+		"google-auth-library": "^10.1.0",
+		"googleapis": "^150.0.1",
+		"image-resize-compress": "^2.1.1",
+		"image2uri": "^2.1.2",
+		"json-server": "^1.0.0-beta.3",
+		"jsonwebtoken": "^9.0.2",
+		"mongoose": "^8.15.2",
+		"multer": "^2.0.1",
+		"nodemailer": "^7.0.3",
+		"nodemon": "^3.1.10",
+		"quill": "^2.0.3",
+		"random-cat-img": "^1.1.8",
+		"sharp": "^0.34.2",
+		"vue": "^3.4.15",
+		"vue-router": "^4.2.5",
+		"vue-virtual-scroller": "^2.0.0-beta.8",
+		"vue3-google-login": "^2.0.33",
+		"vuetify": "^3.8.8"
+	},
+	"devDependencies": {
+		"@mdi/font": "^7.4.47",
+		"@mdi/js": "^7.4.47",
+		"@vitejs/plugin-vue": "^5.0.3",
+		"@vue/eslint-config-prettier": "^8.0.0",
+		"eslint": "^8.57.1",
+		"eslint-plugin-vue": "^9.17.0",
+		"prettier": "^3.6.2",
+		"prettier-eslint": "^16.4.2",
+		"vite": "^6.3.5",
+		"vite-plugin-mkcert": "^1.10.1",
+		"vue-eslint-parser": "^8.3.0"
+	},
+	"eslintConfig": {
+		"root": true,
+		"env": {
+			"node": true,
+			"browser": true,
+			"es2021": true
+		},
+		"extends": [
+			"eslint:recommended",
+			"@vue/eslint-config-prettier",
+			"plugin:vue/vue3-essential"
+		],
+		"parserOptions": {
+			"ecmaVersion": 2021,
+			"sourceType": "module"
+		},
+		"rules": {
+			"indent": [
+				"error",
+				"tab"
+			],
+			"semi": [
+				"error",
+				"never"
+			],
+			"quotes": [
+				"error",
+				"double"
+			],
+			"no-console": "off",
+			"no-debugger": "warn",
+			"vue/multi-word-component-names": "off",
+			"vue/no-reserved-component-names": "off"
+		}
+	},
+	"browserslist": [
+		"> 1%",
+		"last 2 versions",
+		"not dead",
+		"not ie 11"
+	]
 }

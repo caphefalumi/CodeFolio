@@ -39,7 +39,7 @@ router.get("/:username", async (req, res) => {
 			avatar: user.avatar,
 		}
 		console.log("User data:", userData)
-		res.json(userData)
+		res.status(200).json(userData)
 	} catch (error) {
 		console.error("Error fetching user:", error)
 		res.status(500).json({ message: "Error fetching user", error })

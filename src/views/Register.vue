@@ -174,26 +174,6 @@ export default {
         this.loading = false;
       }
     },
-
-    async handleGoogleLogin(response) {
-      const userData = decodeCredential(response.credential);
-      console.log("Google user data:", userData);
-
-      try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/google/register`,
-          userData,
-        );
-
-        localStorage.setItem("user", JSON.stringify(response.data));
-        this.$router.push("/");
-      } catch (error) {
-        console.error(
-          "Google registration error:",
-          error.response?.data || error.message,
-        );
-      }
-    },
   },
 };
 </script>

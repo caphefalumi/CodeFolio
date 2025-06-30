@@ -2,7 +2,7 @@
 .cursor
 node_modules
 /dist
-
+vercel.json
 
 # local env files
 .env.local

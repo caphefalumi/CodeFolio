@@ -33,6 +33,12 @@ const routes = [
     component: () => import('@/views/Register.vue'),
     meta: { requiresGuest: true }
   },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('@/views/AdminDashboard.vue'),
+    meta: { requiresAuth: true }
+  },
 
   {
     path: '/404',

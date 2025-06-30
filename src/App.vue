@@ -1,183 +1,219 @@
 <template>
-  <v-app>
-    <v-app-bar app color="primary" dark role="banner" id="navigation">
-      <v-app-bar-title>
-        <router-link to="/" class="text-decoration-none text-white">
-          CodeFolio
-        </router-link>
-      </v-app-bar-title>
-      <v-spacer></v-spacer>
-      <v-btn 
-        icon 
-        @click="toggleTheme" 
-        :aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-      >
-        <v-icon>{{ isDark ? 'mdi-weather-night' : 'mdi-weather-sunny' }}</v-icon>
-      </v-btn>
-      <v-btn to="/" text>Home</v-btn>
-      <v-btn to="/projects" text>Projects</v-btn>
-      <v-menu v-if="isAuthenticated" offset-y>
-        <template #activator="{ props }">
-          <v-btn 
-            icon 
-            v-bind="props" 
-            :aria-label="`User menu for ${username}`"
-          >
-            <v-avatar size="32" v-if="avatar">
-              <v-img 
-                :src="avatar" 
-                :alt="`${username} profile picture`" 
-                cover
-              ></v-img>
-            </v-avatar>
-            <v-avatar v-else size="32" class="bg-grey lighten-2"></v-avatar>
-          </v-btn>        
-        </template>
-        <v-list role="menu">
-          <v-list-item :to="`/${username}`" role="menuitem">
-            <v-list-item-title>Profile</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="logout" role="menuitem">
-            <v-list-item-title>Log out</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-      <v-btn v-else to="/login" text>Login</v-btn>
-    </v-app-bar>
-    <v-main role="main" id="main-content" tabindex="-1">
-      <v-container>
-        <router-view></router-view>
-      </v-container>
-    </v-main>
-    <v-footer app color="primary" dark role="contentinfo">
-      <v-row justify="center" no-gutters>
-        <v-col class="text-center" cols="12">
-          {{ new Date().getFullYear() }} — <strong>CodeFolio</strong>
-        </v-col>
-      </v-row>
-    </v-footer>
-  </v-app>
+	<v-app>
+		<v-app-bar app color="primary" dark role="banner" id="navigation">
+			<v-app-bar-title>
+				<router-link to="/" class="text-decoration-none text-white">
+					CodeFolio
+				</router-link>
+			</v-app-bar-title>
+			<v-spacer></v-spacer>
+			<v-btn
+				icon
+				@click="toggleTheme"
+				:aria-label="
+					isDark ? 'Switch to light theme' : 'Switch to dark theme'
+				"
+			>
+				<v-icon>{{
+					isDark ? "mdi-weather-night" : "mdi-weather-sunny"
+				}}</v-icon>
+			</v-btn>
+			<v-btn to="/" text>Home</v-btn>
+			<v-btn to="/projects" text>Projects</v-btn>
+			<v-menu v-if="isAuthenticated" offset-y>
+				<template #activator="{ props }">
+					<v-btn
+						icon
+						v-bind="props"
+						:aria-label="`User menu for ${username}`"
+					>
+						<v-avatar size="32" v-if="avatar">
+							<v-img
+								:src="avatar"
+								:alt="`${username} profile picture`"
+								cover
+							></v-img>
+						</v-avatar>
+						<v-avatar
+							v-else
+							size="32"
+							class="bg-grey lighten-2"
+						></v-avatar>
+					</v-btn>
+				</template>
+				<v-list role="menu">
+					<v-list-item :to="`/${username}`" role="menuitem">
+						<v-list-item-title>Profile</v-list-item-title>
+					</v-list-item>
+					<v-list-item @click="logout" role="menuitem">
+						<v-list-item-title>Log out</v-list-item-title>
+					</v-list-item>
+				</v-list>
+			</v-menu>
+			<v-btn v-else to="/login" text>Login</v-btn>
+		</v-app-bar>
+		<v-main role="main" id="main-content" tabindex="-1">
+			<v-container>
+				<router-view></router-view>
+			</v-container>
+		</v-main>
+		<v-footer app color="primary" dark role="contentinfo">
+			<v-row justify="center" no-gutters>
+				<v-col class="text-center" cols="12">
+					{{ new Date().getFullYear() }} — <strong>CodeFolio</strong>
+				</v-col>
+			</v-row>
+		</v-footer>
+	</v-app>
 </template>
 
 <script>
-import axios from 'axios'
-import { fetchCurrentUser }from '@/composables/user.js'
+import axios from "axios"
+import { fetchCurrentUser } from "@/composables/user.js"
+
 export default {
-  name: 'App',
-  data() {
-    return {
-      isAuthenticated: false,
-      user: null,
-      username: '',
-      avatar: '',
-      isDark: false
-    }
-  },
-  mounted() {
-    this.fetchToken();
-    this.loadThemePreference();
-  },
-  methods: {
-    async fetchProfile() {
-      try {
-        this.user = await fetchCurrentUser();
-        this.username = this.user.username;
-        this.avatar = this.user.avatar;
-        console.log('User profile fetched:', this.avatar, this.username);
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    },
-    fetchToken() {
-      console.log('Checking for access token in sessionStorage...');
-      const token = sessionStorage.getItem('accessToken');
-      if (token) {
-        axios.post('/api/auth/validate', {}, { headers: { Authorization: `Bearer ${token}` } })
-          .then(response => {
-            if (response.data.valid) {
-              this.isAuthenticated = true;
-              this.fetchProfile();
-              console.log('Token is valid:', token);
-            } else {
-              console.warn('Token is invalid, fetching new token...');
-              this.getNewToken();
-            }
-          })
-          .catch(error => {
-            console.error('Error validating token:', error);
-            this.getNewToken();
-          });
-        console.log('Access token found in sessionStorage:', token);
-        return;
-      } else {
-        this.getNewToken();
-      }
+	name: "App",
+	data() {
+		return {
+			isAuthenticated: false,
+			user: null,
+			username: "",
+			avatar: "",
+			isDark: false,
+			tokenRefreshInterval: null, // interval ID for auto-refresh
+		}
+	},
+	mounted() {
+		this.fetchToken()
+		this.loadThemePreference()
+	},
+	methods: {
+		async fetchProfile() {
+			try {
+				this.user = await fetchCurrentUser()
+				this.username = this.user.username
+				this.avatar = this.user.avatar
+				console.log("User profile fetched:", this.avatar, this.username)
+			} catch (error) {
+				console.error("Error fetching user profile:", error)
+			}
+		},
 
-    },
-    getNewToken() {
-      axios.post('/api/auth/token', {}, { withCredentials: true })
-        .then(response => {
-          console.log('New access token fetched:', response.data.accessToken);
-          sessionStorage.setItem('accessToken', response.data.accessToken);
-          this.isAuthenticated = true;
-          this.fetchToken();
-        })
-        .catch(error => {
-          console.error('Error fetching new token:', error);
-          sessionStorage.removeItem('accessToken');
-          this.isAuthenticated = false;
-        });
-    },
-    toggleTheme() {
-      this.isDark = !this.isDark
-      this.$vuetify.theme.global.name = this.isDark ? 'dark' : 'light'
-      localStorage.setItem('theme', this.isDark ? 'dark' : 'light')
-    },
-    loadThemePreference() {
-      const savedTheme = localStorage.getItem('theme')
-      if (!savedTheme) {
-        this.isDark = false;
-        this.$vuetify.theme.global.name = 'light';
-        localStorage.setItem('theme', 'light');
-        return;
-      }
-      this.isDark = savedTheme === 'dark'
-      this.$vuetify.theme.global.name = this.isDark ? 'dark' : 'light'
-    },
-    logout() {
-      axios.post('/api/auth/logout', {}, { withCredentials: true })
-        .then(() => {
-          sessionStorage.removeItem('accessToken');
-          this.isAuthenticated = false;
-          this.user = null;
-          this.username = '';
-          this.avatar = '';
-          this.$router.push('/login');
-        })
-        .catch(error => {
-          console.error('Error logging out:', error);
-          sessionStorage.removeItem('accessToken');
-          this.isAuthenticated = false;
-          this.user = null;
-          this.username = '';
-          this.avatar = '';
-          this.$router.push('/login');
-        });
-    },
-  },
+		fetchToken() {
+			console.log("Checking for access token in sessionStorage...")
+			const token = sessionStorage.getItem("accessToken")
+			if (token) {
+				axios
+					.post(
+						"/api/auth/validate",
+						{},
+						{
+							headers: { Authorization: `Bearer ${token}` },
+						},
+					)
+					.then((response) => {
+						if (response.data.valid) {
+							this.isAuthenticated = true
+							this.fetchProfile()
+							this.startTokenRefreshTimer() // ✅ start auto-refresh
+							console.log("Token is valid:", token)
+						} else {
+							console.warn(
+								"Token is invalid, fetching new token...",
+							)
+							this.getNewToken()
+						}
+					})
+					.catch((error) => {
+						console.error("Error validating token:", error)
+						this.getNewToken()
+					})
+				return
+			} else {
+				this.getNewToken()
+			}
+		},
 
-  watch: {
-    '$route'() {
-      this.fetchToken();
-    }
-  }
+		getNewToken(silent = false) {
+			axios
+				.post("/api/auth/token", {}, { withCredentials: true })
+				.then((response) => {
+					const newToken = response.data.accessToken
+					sessionStorage.setItem("accessToken", newToken)
+					this.isAuthenticated = true
+					if (!silent) {
+						this.fetchToken() // trigger profile fetch and timer setup
+					}
+				})
+				.catch((error) => {
+					console.error("Error fetching new token:", error)
+					sessionStorage.removeItem("accessToken")
+					this.isAuthenticated = false
+					this.user = null
+					this.username = ""
+					this.avatar = ""
+				})
+		},
 
+		startTokenRefreshTimer() {
+			this.stopTokenRefreshTimer() // clear any existing interval
+			this.tokenRefreshInterval = setInterval(() => {
+				console.log("Auto refreshing token...")
+				this.getNewToken(true) // silent refresh
+			}, 270000) // refresh every 4.5 minutes (270,000 ms)
+		},
+
+		stopTokenRefreshTimer() {
+			if (this.tokenRefreshInterval) {
+				clearInterval(this.tokenRefreshInterval)
+				this.tokenRefreshInterval = null
+			}
+		},
+
+		toggleTheme() {
+			this.isDark = !this.isDark
+			this.$vuetify.theme.global.name = this.isDark ? "dark" : "light"
+			localStorage.setItem("theme", this.isDark ? "dark" : "light")
+		},
+
+		loadThemePreference() {
+			const savedTheme = localStorage.getItem("theme")
+			if (!savedTheme) {
+				this.isDark = false
+				this.$vuetify.theme.global.name = "light"
+				localStorage.setItem("theme", "light")
+				return
+			}
+			this.isDark = savedTheme === "dark"
+			this.$vuetify.theme.global.name = this.isDark ? "dark" : "light"
+		},
+
+		logout() {
+			axios
+				.post("/api/auth/logout", {}, { withCredentials: true })
+				.finally(() => {
+					sessionStorage.removeItem("accessToken")
+					this.isAuthenticated = false
+					this.user = null
+					this.username = ""
+					this.avatar = ""
+					this.stopTokenRefreshTimer()
+					this.$router.push("/login")
+				})
+		},
+	},
+
+	watch: {
+		$route() {
+			this.fetchToken()
+		},
+	},
 }
 </script>
 
 <style>
-  #app {
-    font-family: 'Roboto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
+#app {
+	font-family: "Roboto", sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
 </style>

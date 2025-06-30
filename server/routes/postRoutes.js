@@ -90,9 +90,10 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 				.json({ message: "Not authorized to delete this post" })
 		}
 
-		await post.remove()
+		await post.deleteOne
 		res.json({ message: "Post deleted successfully" })
 	} catch (error) {
+    console.error("Error deleting post:", error)
 		res.status(500).json({ message: "Error deleting post", error })
 	}
 })

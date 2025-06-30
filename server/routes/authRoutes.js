@@ -156,7 +156,8 @@ router.post("/login/jwt", async (req, res) => {
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "None",
+			maxAge: 7 * 24 * 60 * 60 * 1000,
+
 		})
 		res.status(200).json({ accessToken })
 	} catch (err) {
@@ -222,7 +223,7 @@ router.post("/login/google", async (req, res) => {
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			secure: true,
-			sameSite: "None",
+			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
 		res.json({ accessToken })
@@ -311,11 +312,7 @@ router.get("/login/github/callback", async (req, res) => {
 			}
 		}
 
-		const accessToken = jwt.sign(
-			{ id: user._id },
-			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "10m" },
-		)
+
 		const refreshToken = jwt.sign(
 			{ id: user._id },
 			process.env.REFRESH_TOKEN_SECRET,
@@ -332,14 +329,14 @@ router.get("/login/github/callback", async (req, res) => {
 		})
 
 		res.send(`
-      <script>
-        window.opener.postMessage(
-          ${JSON.stringify({ accessToken })},
-          "http://localhost:3000"
-        );
-        window.close();
-      </script>
-    `)
+			<script>
+				window.opener.postMessage(
+				${JSON.stringify({ accessToken })},
+				"http://localhost:3000"
+				);
+				window.close();
+			</script>
+		`)
 	} catch (err) {
 		res.status(500).json({
 			message: "GitHub login failed",
@@ -360,7 +357,12 @@ router.post("/logout", async (req, res) => {
 		user.refreshToken = null
 		await user.save()
 
-		res.clearCookie("refreshToken", { httpOnly: true, secure: true })
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      maxAge: 0, // Clear the cookie immediately
+    })
 		res.sendStatus(204)
 	} catch (err) {
 		res.status(500).json({ message: "Server error", error: err })

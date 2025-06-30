@@ -175,7 +175,6 @@ export default {
 
     async toggleLike(project) {
       try {
-        // Assume user must be logged in and backend handles authentication
         if (!project.liked) {
           const res = await axios.post(`/api/posts/${project._id}/upvote`);
           project.upvotes = res.data.upvotes;
@@ -190,20 +189,6 @@ export default {
           error,
           "Failed to update vote. Please try again.",
         );
-      }
-    },
-    async handleCreatePost() {
-      this.errorMessage = "";
-      this.loading = true;
-      try {
-        // ...post creation logic...
-      } catch (error) {
-        this.errorMessage = this.handleError(
-          error,
-          "Failed to create post. Please try again.",
-        );
-      } finally {
-        this.loading = false;
       }
     },
   },
