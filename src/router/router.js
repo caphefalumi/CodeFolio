@@ -1,72 +1,93 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router"
+import { fetchCurrentUser } from "@/composables/user.js"
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('@/views/Home.vue')
-  },
-  {
-    path: '/projects',
-    name: 'Projects',
-    component: () => import('@/views/Projects.vue')
-  },
-  {
-    path: '/:username',
-    name: 'Profile',
-    component: () => import('@/views/Profile.vue'),
-  },
-  {
-    path: '/:username/:id',
-    name: 'ProjectDetail',
-    component: () => import('@/views/ProjectDetail.vue')
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/Login.vue'),
-    meta: { requiresGuest: true }
-  },
-  {
-    path: '/register',
-    name: 'Register',
-    component: () => import('@/views/Register.vue'),
-    meta: { requiresGuest: true }
-  },
-  {
-    path: '/admin',
-    name: 'Admin',
-    component: () => import('@/views/AdminDashboard.vue'),
-    meta: { requiresAuth: true }
-  },
+	{
+		path: "/",
+		name: "Home",
+		component: () => import("@/views/Home.vue"),
+	},
+	{
+		path: "/projects",
+		name: "Projects",
+		component: () => import("@/views/Projects.vue"),
+	},
+	{
+		path: "/:username",
+		name: "Profile",
+		component: () => import("@/views/Profile.vue"),
+	},
+	{
+		path: "/:username/:id",
+		name: "ProjectDetail",
+		component: () => import("@/views/ProjectDetail.vue"),
+	},
+	{
+		path: "/login",
+		name: "Login",
+		component: () => import("@/views/Login.vue"),
+		meta: { requiresGuest: true },
+	},
+	{
+		path: "/register",
+		name: "Register",
+		component: () => import("@/views/Register.vue"),
+		meta: { requiresGuest: true },
+	},
+	{
+		path: "/admin",
+		name: "Admin",
+		component: () => import("@/views/Admin.vue"),
+		meta: { requiresAdmin: true },
+	},
 
-  {
-    path: '/404',
-    name: 'NotFound',
-    component: () => import('@/views/NotFound.vue')
-  }
+	{
+		path: "/404",
+		name: "NotFound",
+		component: () => import("@/views/NotFound.vue"),
+	},
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+	history: createWebHistory(import.meta.env.BASE_URL),
+	routes,
 })
 
 // Navigation guard for protected routes
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = sessionStorage.getItem('accessToken')
-  
-  if (to.path === '/callback') {
-    next('/')
-  }
-  // If route requires guest (login/register) and user is authenticated
-  else if (to.meta.requiresGuest && isAuthenticated) {
-    next('/')
-  }
-  // Otherwise proceed normally
-  else {
-    next()
-  }
+router.beforeEach(async (to, from, next) => {
+	const isAuthenticated = sessionStorage.getItem("accessToken")
+
+	if (to.path === "/callback") {
+		next("/")
+	}
+	// If route requires guest (login/register) and user is authenticated
+	else if (to.meta.requiresGuest && isAuthenticated) {
+		next("/")
+	}
+	// If route requires admin
+	else if (to.meta.requiresAdmin) {
+		if (!isAuthenticated) {
+			next("/login")
+			return
+		}
+
+		try {
+			const currentUser = await fetchCurrentUser()
+			const isAdmin = currentUser?.email === "dangduytoan13l@gmail.com"
+
+			if (isAdmin) {
+				next()
+			} else {
+				next("/404")
+			}
+		} catch (error) {
+			next("/404")
+		}
+	}
+	// Otherwise proceed normally
+	else {
+		next()
+	}
 })
 
-export default router 
+export default router

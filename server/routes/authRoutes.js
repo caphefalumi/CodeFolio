@@ -62,7 +62,7 @@ router.post("/token", async (req, res) => {
 		const accessToken = jwt.sign(
 			{ id: user._id },
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "10m" },
+			{ expiresIn: "1h" },
 		)
 		res.json({ accessToken })
 	})
@@ -142,7 +142,7 @@ router.post("/login/jwt", async (req, res) => {
 		const accessToken = jwt.sign(
 			{ id: user._id },
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "10m" },
+			{ expiresIn: "1h" },
 		)
 		const refreshToken = jwt.sign(
 			{ id: user._id },
@@ -184,10 +184,14 @@ router.post("/login/google", async (req, res) => {
 		let user = await User.findOne({ email })
 
 		if (!user) {
+			let username = email.split("@")[0]
+			if (await User.findOne({ "username": username })) {
+				username += crypto.randomBytes(5).toString("hex")
+				console.log("Username already exists, generating new one:", username)
+			}
 			user = new User({
-				username:
-					email.split("@")[0] + crypto.randomBytes(5).toString("hex"),
-				email,
+				username: username,
+				email: email,
 				firstName: given_name,
 				lastName: family_name,
 				password: crypto.randomBytes(128).toString("hex"),
@@ -209,7 +213,7 @@ router.post("/login/google", async (req, res) => {
 		const accessToken = jwt.sign(
 			{ id: user._id },
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "10m" },
+			{ expiresIn: "1h" },
 		)
 		const refreshToken = jwt.sign(
 			{ id: user._id },
@@ -228,6 +232,7 @@ router.post("/login/google", async (req, res) => {
 
 		res.json({ accessToken })
 	} catch (err) {
+		console.error("Google login error:", err)
 		res.status(500).json({
 			message: "Google login failed",
 			error: err.message || err,
@@ -288,15 +293,21 @@ router.get("/login/github/callback", async (req, res) => {
 		let user = await User.findOne({ email })
 
 		if (!user) {
+			let username = email.split("@")[0]
+			if (await User.findOne({ "username": username })) {
+				username += crypto.randomBytes(5).toString("hex")
+				console.log("Username already exists, generating new one:", username)
+			}
 			user = new User({
-				username:
-					email.split("@")[0] + crypto.randomBytes(5).toString("hex"),
+				username,
 				email,
+				firstName: userProfile.name?.split(" ")[0] || "",
+				lastName: userProfile.name?.split(" ")[1] || "",
 				password: crypto.randomBytes(128).toString("hex"),
+				avatar: avatar_url,
 				oAuthProviders: [
 					{ provider: "github", providerId: userProfile.id },
 				],
-				avatar: avatar_url,
 			})
 		} else {
 			const exists = user.oAuthProviders.some(
@@ -312,7 +323,11 @@ router.get("/login/github/callback", async (req, res) => {
 			}
 		}
 
-
+		const accessToken = jwt.sign(
+			{ id: user._id },
+			process.env.ACCESS_TOKEN_SECRET,
+			{ expiresIn: "1h" },
+		)
 		const refreshToken = jwt.sign(
 			{ id: user._id },
 			process.env.REFRESH_TOKEN_SECRET,
