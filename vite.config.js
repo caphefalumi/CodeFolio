@@ -19,7 +19,8 @@ export default defineConfig({
     port: process.env.NODE_ENV === 'production' ? 'https://codefolio-phi.vercel.app/' : process.env.CLIENT_PORT,
     proxy: {
       '/api': {
-        target: process.env.NODE_ENV === 'production' ? 'https://server-codefolio.vercel.app/' : 'http://localhost:3001',
+				target: 'https://server-codefolio.vercel.app/',
+        // target: process.env.NODE_ENV === 'production' ? 'https://server-codefolio.vercel.app/' : 'http://localhost:3001',
         changeOrigin: true,
       }
     }
