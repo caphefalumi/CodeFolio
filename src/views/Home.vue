@@ -41,7 +41,6 @@
 					</v-col>
 					<v-col cols="12">
 						<RecycleScroller
-							class="scroller"
 							:items="featuredProjects"
 							:item-size="200"
 							key-field="_id"
@@ -100,10 +99,6 @@
 </script>
 
 <style scoped>
-	.scroller {
-		height: 400px; /* Set a fixed height for the virtual scroller */
-	}
-
 	.project-item {
 		height: 200px; /* Match the item-size prop */
 		padding: 8px;

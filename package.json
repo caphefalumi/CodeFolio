@@ -24,8 +24,6 @@
 		"dotenv": "^16.5.0",
 		"express": "^5.1.0",
 		"fs": "^0.0.1-security",
-		"google-auth-library": "^10.1.0",
-		"googleapis": "^150.0.1",
 		"image-resize-compress": "^2.1.1",
 		"image2uri": "^2.1.2",
 		"json-server": "^1.0.0-beta.3",
