@@ -451,7 +451,7 @@ export default {
       this.usernameError = ''
       const newUsername = this.editForm.username?.trim()
       if (!newUsername || newUsername === this.userProfile.username) return
-      const res = await axios.get(`/api/users/${newUsername}`)
+      const res = await axios.get(`https://server-codefolio.vercel.app/api/users/${newUsername}`)
       if (res.status === 200 && res.data) {
         this.usernameError = 'This username is already taken.'
       }
@@ -471,7 +471,7 @@ export default {
         if (avatarUri && typeof avatarUri === "object") {
           avatarUri = await this.uploadImage(
             avatarUri,
-            "/api/upload/image/profile",
+            "https://server-codefolio.vercel.app/api/upload/image/profile",
             this.accessToken,
           )
         } else {
@@ -506,7 +506,7 @@ export default {
         if (imageUri && typeof imageUri === "object") {
           imageUri = await this.uploadImage(
             imageUri,
-            "/api/upload/image/blog",
+            "https://server-codefolio.vercel.app/api/upload/image/blog",
             this.accessToken,
           );
         }

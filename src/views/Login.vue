@@ -129,7 +129,7 @@
 				this.loading = true
 				try {
 					const response = await axios.post(
-						"/api/auth/login/jwt",
+						"https://server-codefolio.vercel.app/api/auth/login/jwt",
 						{
 							email: this.form.email,
 							password: this.form.password,
@@ -152,7 +152,7 @@
 				this.errorMessage = ""
 				this.googleLoading = true
 				try {
-					const res = await axios.post("/api/auth/login/google", {
+					const res = await axios.post("https://server-codefolio.vercel.app/api/auth/login/google", {
 						token: response.access_token,
 					})
 					sessionStorage.setItem("accessToken", res.data.accessToken)
@@ -170,7 +170,7 @@
 				this.errorMessage = ""
 				this.githubLoading = true
 				const popup = window.open(
-					"/api/auth/login/github",
+					"https://server-codefolio.vercel.app/api/auth/login/github",
 					"GitHub Login",
 					"width=500,height=600"
 				)

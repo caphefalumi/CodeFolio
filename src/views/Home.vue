@@ -86,7 +86,7 @@
 		},
 		mounted() {
 			axios
-				.get("/api/posts/")
+				.get("https://server-codefolio.vercel.app/api/posts/")
 				.then(response => {
 					this.featuredProjects = response.data
 					console.log("Projects:", this.featuredProjects)

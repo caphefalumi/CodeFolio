@@ -300,7 +300,7 @@
 					let headers = {}
 					const token = getAccessToken && getAccessToken()
 					if (token) headers.Authorization = `Bearer ${token}`
-					const res = await axios.get(`/api/posts/${username}/${id}`, {
+					const res = await axios.get(`https://server-codefolio.vercel.app/api/posts/${username}/${id}`, {
 						headers,
 					})
 					const post = res.data
@@ -340,7 +340,7 @@
 				try {
 					const apiUrl = this.project.githubUrl.replace(
 						"https://github.com/",
-						"https://api.github.com/repos/"
+						"https:/https://server-codefolio.vercel.app/api.github.com/repos/"
 					)
 					const res = await axios.get(apiUrl)
 					const { stargazers_count, forks_count, open_issues_count } = res.data
@@ -364,7 +364,7 @@
 					if (!this.newComment.trim()) return
 					const token = getAccessToken()
 					await axios.post(
-						`/api/posts/${this.$route.params.id}/comments`,
+						`https://server-codefolio.vercel.app/api/posts/${this.$route.params.id}/comments`,
 						{ content: this.newComment },
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
@@ -390,7 +390,7 @@
 				try {
 					const token = getAccessToken()
 					const res = await axios.post(
-						`/api/posts/${this.$route.params.id}/upvote`,
+						`https://server-codefolio.vercel.app/api/posts/${this.$route.params.id}/upvote`,
 						{},
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
@@ -409,7 +409,7 @@
 				try {
 					const token = getAccessToken()
 					const res = await axios.post(
-						`/api/posts/${this.$route.params.id}/downvote`,
+						`https://server-codefolio.vercel.app/api/posts/${this.$route.params.id}/downvote`,
 						{},
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)

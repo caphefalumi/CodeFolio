@@ -6,7 +6,7 @@ export function getAccessToken() {
 
 export async function fetchCurrentUser() {
   try {
-    const res = await axios.get('/api/users/me', {
+    const res = await axios.get('https://server-codefolio.vercel.app/api/users/me', {
       headers: { Authorization: `Bearer ${getAccessToken()}` }
     })
     return res.data
@@ -18,7 +18,7 @@ export async function fetchCurrentUser() {
 
 export async function fetchProfile(username) {
   try {
-    const res = await axios.get(`/api/users/${username}`)
+    const res = await axios.get(`https://server-codefolio.vercel.app/api/users/${username}`)
     return res.data
   } catch (error) {
     console.error(`Error fetching profile for user "${username}":`, error)
@@ -28,7 +28,7 @@ export async function fetchProfile(username) {
 
 export async function fetchProjects(username) {
   try {
-    const res = await axios.get(`/api/posts/${username}`)
+    const res = await axios.get(`https://server-codefolio.vercel.app/api/posts/${username}`)
     console.log(`Fetched projects for user "${username}":`, res.data)
     return res.data
   } catch (error) {

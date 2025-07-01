@@ -157,7 +157,7 @@ export default {
       this.errorMessage = "";
       this.loading = true;
       try {
-        await axios.post(`/api/auth/register`, {
+        await axios.post(`https://server-codefolio.vercel.app/api/auth/register`, {
           firstName: this.form.firstName,
           lastName: this.form.lastName,
           email: this.form.email,

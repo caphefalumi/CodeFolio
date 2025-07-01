@@ -55,21 +55,21 @@ export function useApi() {
   }
 
   const createPost = async (payload, token) => {
-    const response = await axios.post('/api/posts', payload, getAuthHeaders(token))
+    const response = await axios.post('https://server-codefolio.vercel.app/api/posts', payload, getAuthHeaders(token))
     return response.data.post
   }
 
   const updatePost = async (id, payload, token) => {
-    const response = await axios.patch(`/api/posts/${id}`, payload, getAuthHeaders(token))
+    const response = await axios.patch(`https://server-codefolio.vercel.app/api/posts/${id}`, payload, getAuthHeaders(token))
     return response.data.post
   }
 
   const deletePost = async (id, token) => {
-    await axios.delete(`/api/posts/${id}`, getAuthHeaders(token))
+    await axios.delete(`https://server-codefolio.vercel.app/api/posts/${id}`, getAuthHeaders(token))
   }
 
   const updateUser = async (payload, token) => {
-    const response = await axios.patch('/api/users', payload, getAuthHeaders(token))
+    const response = await axios.patch('https://server-codefolio.vercel.app/api/users', payload, getAuthHeaders(token))
     return response.data
   }
 

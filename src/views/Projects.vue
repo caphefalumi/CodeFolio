@@ -176,11 +176,11 @@ export default {
     async toggleLike(project) {
       try {
         if (!project.liked) {
-          const res = await axios.post(`/api/posts/${project._id}/upvote`);
+          const res = await axios.post(`https://server-codefolio.vercel.app/api/posts/${project._id}/upvote`);
           project.upvotes = res.data.upvotes;
           project.liked = true;
         } else {
-          const res = await axios.post(`/api/posts/${project._id}/downvote`);
+          const res = await axios.post(`https://server-codefolio.vercel.app/api/posts/${project._id}/downvote`);
           project.downvotes = res.data.downvotes;
           project.liked = false;
         }
@@ -194,7 +194,7 @@ export default {
   },
   async mounted() {
     try {
-      const response = await axios.get("/api/posts/");
+      const response = await axios.get("https://server-codefolio.vercel.app/api/posts/");
       this.projects = response.data;
       console.log("Projects:", this.projects);
     } catch (error) {

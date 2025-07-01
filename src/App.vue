@@ -105,7 +105,7 @@ export default {
 			if (token) {
 				axios
 					.post(
-						"/api/auth/validate",
+						"https://server-codefolio.vercel.app/api/auth/validate",
 						{},
 						{
 							headers: { Authorization: `Bearer ${token}` },
@@ -136,7 +136,7 @@ export default {
 
 		getNewToken(silent = false) {
 			axios
-				.post("/api/auth/token", {}, { withCredentials: true })
+				.post("https://server-codefolio.vercel.app/api/auth/token", {}, { withCredentials: true })
 				.then((response) => {
 					const newToken = response.data.accessToken
 					sessionStorage.setItem("accessToken", newToken)
@@ -190,7 +190,7 @@ export default {
 
 		logout() {
 			axios
-				.post("/api/auth/logout", {}, { withCredentials: true })
+				.post("https://server-codefolio.vercel.app/api/auth/logout", {}, { withCredentials: true })
 				.finally(() => {
 					sessionStorage.removeItem("accessToken")
 					this.isAuthenticated = false

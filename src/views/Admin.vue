@@ -237,7 +237,7 @@
 		methods: {
 			fetchUsers() {
 				axios
-					.get("/api/users")
+					.get("https://server-codefolio.vercel.app/api/users")
 					.then(res => {
 						this.users = res.data
 					})
@@ -245,7 +245,7 @@
 			},
 			fetchPosts() {
 				axios
-					.get("/api/posts")
+					.get("https://server-codefolio.vercel.app/api/posts")
 					.then(res => {
 						this.posts = res.data
 					})
@@ -270,13 +270,13 @@
 			saveUser() {
 				if (this.editingUser) {
 					axios
-						.put(`/api/users/${this.editingUser._id}`, this.userForm)
+						.put(`https://server-codefolio.vercel.app/api/users/${this.editingUser._id}`, this.userForm)
 						.then(() => {
 							this.fetchUsers()
 							this.closeUserDialog()
 						})
 				} else {
-					axios.post("/api/users", this.userForm).then(() => {
+					axios.post("https://server-codefolio.vercel.app/api/users", this.userForm).then(() => {
 						this.fetchUsers()
 						this.closeUserDialog()
 					})
@@ -284,7 +284,7 @@
 			},
 			deleteUser(user) {
 				if (confirm("Delete this user?")) {
-					axios.delete(`/api/users/${user._id}`).then(() => this.fetchUsers())
+					axios.delete(`https://server-codefolio.vercel.app/api/users/${user._id}`).then(() => this.fetchUsers())
 				}
 			},
 			closeUserDialog() {
@@ -309,13 +309,13 @@
 			savePost() {
 				if (this.editingPost) {
 					axios
-						.put(`/api/posts/${this.editingPost._id}`, this.postForm)
+						.put(`https://server-codefolio.vercel.app/api/posts/${this.editingPost._id}`, this.postForm)
 						.then(() => {
 							this.fetchPosts()
 							this.closePostDialog()
 						})
 				} else {
-					axios.post("/api/posts", this.postForm).then(() => {
+					axios.post("https://server-codefolio.vercel.app/api/posts", this.postForm).then(() => {
 						this.fetchPosts()
 						this.closePostDialog()
 					})
@@ -323,7 +323,7 @@
 			},
 			deletePost(post) {
 				if (confirm("Delete this post?")) {
-					axios.delete(`/api/posts/${post._id}`).then(() => this.fetchPosts())
+					axios.delete(`https://server-codefolio.vercel.app/api/posts/${post._id}`).then(() => this.fetchPosts())
 				}
 			},
 			closePostDialog() {

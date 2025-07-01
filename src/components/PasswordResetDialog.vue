@@ -143,7 +143,7 @@ export default {
       
       try {
         const token = sessionStorage.getItem('accessToken')
-        const res = await axios.post('/api/auth/forgot-password', {}, {
+        const res = await axios.post('https://server-codefolio.vercel.app/api/auth/forgot-password', {}, {
           headers: { Authorization: `Bearer ${token}` }
         })
         this.successMessage = res.data.message
@@ -163,7 +163,7 @@ export default {
       
       try {
         const token = sessionStorage.getItem('accessToken')
-        const res = await axios.post('/api/auth/verify-reset-code', { 
+        const res = await axios.post('https://server-codefolio.vercel.app/api/auth/verify-reset-code', { 
           code: this.resetCode 
         }, {
           headers: { Authorization: `Bearer ${token}` }
@@ -189,7 +189,7 @@ export default {
       
       try {
         const token = sessionStorage.getItem('accessToken')
-        const res = await axios.post('/api/auth/reset-password', {
+        const res = await axios.post('https://server-codefolio.vercel.app/api/auth/reset-password', {
           code: this.resetCode,
           newPassword: this.newPassword
         }, {
