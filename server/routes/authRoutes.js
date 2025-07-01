@@ -156,8 +156,8 @@ router.post("/login/jwt", async (req, res) => {
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			secure: true,
+			sameSite: "None",
 			maxAge: 7 * 24 * 60 * 60 * 1000,
-
 		})
 		res.status(200).json({ accessToken })
 	} catch (err) {
@@ -227,6 +227,7 @@ router.post("/login/google", async (req, res) => {
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			secure: true,
+			sameSite: "None",
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
@@ -340,6 +341,7 @@ router.get("/login/github/callback", async (req, res) => {
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
 			secure: true,
+			sameSite: "None",
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
@@ -347,7 +349,7 @@ router.get("/login/github/callback", async (req, res) => {
 			<script>
 				window.opener.postMessage(
 				${JSON.stringify({ accessToken })},
-				"http://localhost:3000"
+				"${process.env.CLIENT_URL}"
 				);
 				window.close();
 			</script>
@@ -375,8 +377,8 @@ router.post("/logout", async (req, res) => {
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: true,
-      path: "/",
-      maxAge: 0, // Clear the cookie immediately
+      sameSite: "None",
+      maxAge: 0,
     })
 		res.sendStatus(204)
 	} catch (err) {
