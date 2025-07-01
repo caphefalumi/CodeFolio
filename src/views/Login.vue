@@ -129,7 +129,7 @@
 				this.loading = true
 				try {
 					const response = await axios.post(
-						"https://server-codefolio.vercel.app/api/auth/login/jwt",
+						`${import.meta.env.VITE_SERVER_URL}/api/auth/login/jwt`,
 						{
 							email: this.form.email,
 							password: this.form.password,
@@ -152,9 +152,12 @@
 				this.errorMessage = ""
 				this.googleLoading = true
 				try {
-					const res = await axios.post("https://server-codefolio.vercel.app/api/auth/login/google", {
-						token: response.access_token,
-					})
+					const res = await axios.post(
+						`${import.meta.env.VITE_SERVER_URL}/api/auth/login/google`,
+						{
+							token: response.access_token,
+						}
+					)
 					sessionStorage.setItem("accessToken", res.data.accessToken)
 					window.location.href = "/"
 				} catch (error) {
@@ -170,7 +173,7 @@
 				this.errorMessage = ""
 				this.githubLoading = true
 				const popup = window.open(
-					"https://server-codefolio.vercel.app/api/auth/login/github",
+					`${import.meta.env.VITE_SERVER_URL}/api/auth/login/github`,
 					"GitHub Login",
 					"width=500,height=600"
 				)
@@ -189,14 +192,18 @@
 				}, 1000)
 			},
 			receiveGithubToken(event) {
-				if (event.origin !== "http://localhost:3000" && event.origin !== "https://codefolio-phi.vercel.app") return
+				if (
+					event.origin !== "http://localhost:3000" &&
+					event.origin !== "https://codefolio-phi.vercel.app"
+				)
+					return
 				const { accessToken, error: githubError } = event.data || {}
 				if (accessToken) {
 					sessionStorage.setItem("accessToken", accessToken)
 					window.location.href = "/"
 				} else if (githubError) {
 					this.errorMessage = githubError
-					window.location.reload();
+					window.location.reload()
 				}
 				// Always reset loading state when we receive a message
 				this.githubLoading = false
@@ -225,4 +232,3 @@
 		color: #999 !important;
 	}
 </style>
-

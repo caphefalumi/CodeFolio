@@ -161,7 +161,7 @@
 
 <script>
 	import axios from "axios"
-	
+
 	export default {
 		name: "AdminDashboard",
 		data() {
@@ -238,7 +238,7 @@
 		methods: {
 			fetchUsers() {
 				axios
-					.get("https://server-codefolio.vercel.app/api/users")
+					.get(`${import.meta.env.VITE_SERVER_URL}/api/users`)
 					.then(res => {
 						this.users = res.data
 					})
@@ -246,7 +246,7 @@
 			},
 			fetchPosts() {
 				axios
-					.get("https://server-codefolio.vercel.app/api/posts")
+					.get(`${import.meta.env.VITE_SERVER_URL}/api/posts`)
 					.then(res => {
 						this.posts = res.data
 					})
@@ -271,21 +271,28 @@
 			saveUser() {
 				if (this.editingUser) {
 					axios
-						.put(`https://server-codefolio.vercel.app/api/users/${this.editingUser._id}`, this.userForm)
+						.put(
+							`${import.meta.env.VITE_SERVER_URL}/api/users/${this.editingUser._id}`,
+							this.userForm
+						)
 						.then(() => {
 							this.fetchUsers()
 							this.closeUserDialog()
 						})
 				} else {
-					axios.post("https://server-codefolio.vercel.app/api/users", this.userForm).then(() => {
-						this.fetchUsers()
-						this.closeUserDialog()
-					})
+					axios
+						.post(`${import.meta.env.VITE_SERVER_URL}/api/users`, this.userForm)
+						.then(() => {
+							this.fetchUsers()
+							this.closeUserDialog()
+						})
 				}
 			},
 			deleteUser(user) {
 				if (confirm("Delete this user?")) {
-					axios.delete(`https://server-codefolio.vercel.app/api/users/${user._id}`).then(() => this.fetchUsers())
+					axios
+						.delete(`${import.meta.env.VITE_SERVER_URL}/api/users/${user._id}`)
+						.then(() => this.fetchUsers())
 				}
 			},
 			closeUserDialog() {
@@ -310,21 +317,28 @@
 			savePost() {
 				if (this.editingPost) {
 					axios
-						.put(`https://server-codefolio.vercel.app/api/posts/${this.editingPost._id}`, this.postForm)
+						.put(
+							`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.editingPost._id}`,
+							this.postForm
+						)
 						.then(() => {
 							this.fetchPosts()
 							this.closePostDialog()
 						})
 				} else {
-					axios.post("https://server-codefolio.vercel.app/api/posts", this.postForm).then(() => {
-						this.fetchPosts()
-						this.closePostDialog()
-					})
+					axios
+						.post(`${import.meta.env.VITE_SERVER_URL}/api/posts`, this.postForm)
+						.then(() => {
+							this.fetchPosts()
+							this.closePostDialog()
+						})
 				}
 			},
 			deletePost(post) {
 				if (confirm("Delete this post?")) {
-					axios.delete(`https://server-codefolio.vercel.app/api/posts/${post._id}`).then(() => this.fetchPosts())
+					axios
+						.delete(`${import.meta.env.VITE_SERVER_URL}/api/posts/${post._id}`)
+						.then(() => this.fetchPosts())
 				}
 			},
 			closePostDialog() {
@@ -339,4 +353,3 @@
 		margin-bottom: 2rem;
 	}
 </style>
-

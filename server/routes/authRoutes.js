@@ -18,11 +18,9 @@ router.post("/validate", async (req, res) => {
 	}
 
 	try {
-		jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err) => {
+		jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, err => {
 			if (bearer !== "Bearer") {
-				return res
-					.status(403)
-					.json({ message: "Invalid access token format" })
+				return res.status(403).json({ message: "Invalid access token format" })
 			}
 			if (err) {
 				return res.status(403).json({ message: "Invalid access token" })
@@ -40,7 +38,7 @@ router.post("/token", async (req, res) => {
 		return res.sendStatus(401)
 	}
 
-	jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err) => {
+	jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async err => {
 		if (err) return res.sendStatus(403)
 
 		const user = await User.findOne({ refreshToken })
@@ -48,7 +46,7 @@ router.post("/token", async (req, res) => {
 		const newRefreshToken = jwt.sign(
 			{ id: user._id },
 			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" },
+			{ expiresIn: "7d" }
 		)
 		user.refreshToken = newRefreshToken
 		await user.save()
@@ -62,7 +60,7 @@ router.post("/token", async (req, res) => {
 		const accessToken = jwt.sign(
 			{ id: user._id },
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" },
+			{ expiresIn: "1h" }
 		)
 		res.json({ accessToken })
 	})
@@ -77,14 +75,14 @@ router.post("/register", async (req, res) => {
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
 		password: hashedPassword,
-		avatar: await getRandomCat().then((data) => data.message),
+		avatar: await getRandomCat().then(data => data.message),
 		bio: req.body.bio,
 		location: req.body.location,
 		githubUrl: req.body.githubUrl,
 		avatarUrl: req.body.avatarUrl,
 	})
 
-  try {
+	try {
 		if (!req.body.username || !req.body.email || !req.body.password) {
 			return res
 				.status(400)
@@ -127,27 +125,23 @@ router.post("/login/jwt", async (req, res) => {
 	try {
 		const user = await User.findOne({ email })
 		if (!user || !user.password) {
-			return res
-				.status(401)
-				.json({ message: "Invalid email or password" })
+			return res.status(401).json({ message: "Invalid email or password" })
 		}
 
 		const isMatch = await bcrypt.compare(password, user.password)
 		if (!isMatch) {
-			return res
-				.status(401)
-				.json({ message: "Invalid email or password" })
+			return res.status(401).json({ message: "Invalid email or password" })
 		}
 
 		const accessToken = jwt.sign(
 			{ id: user._id },
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" },
+			{ expiresIn: "1h" }
 		)
 		const refreshToken = jwt.sign(
 			{ id: user._id },
 			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" },
+			{ expiresIn: "7d" }
 		)
 
 		user.refreshToken = refreshToken
@@ -177,7 +171,7 @@ router.post("/login/google", async (req, res) => {
 			"https://www.googleapis.com/oauth2/v2/userinfo",
 			{
 				headers: { Authorization: `Bearer ${googleAccessToken}` },
-			},
+			}
 		)
 
 		const { id, email, picture, given_name, family_name } = googleUser
@@ -185,7 +179,7 @@ router.post("/login/google", async (req, res) => {
 
 		if (!user) {
 			let username = email.split("@")[0]
-			if (await User.findOne({ "username": username })) {
+			if (await User.findOne({ username: username })) {
 				username += crypto.randomBytes(5).toString("hex")
 				console.log("Username already exists, generating new one:", username)
 			}
@@ -200,7 +194,7 @@ router.post("/login/google", async (req, res) => {
 			})
 		} else {
 			const exists = user.oAuthProviders.some(
-				(p) => p.provider === "google" && p.providerId === String(id),
+				p => p.provider === "google" && p.providerId === String(id)
 			)
 			if (!exists) {
 				user.oAuthProviders.push({
@@ -213,12 +207,12 @@ router.post("/login/google", async (req, res) => {
 		const accessToken = jwt.sign(
 			{ id: user._id },
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" },
+			{ expiresIn: "1h" }
 		)
 		const refreshToken = jwt.sign(
 			{ id: user._id },
 			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" },
+			{ expiresIn: "7d" }
 		)
 
 		user.refreshToken = refreshToken
@@ -243,7 +237,7 @@ router.post("/login/google", async (req, res) => {
 
 router.get("/login/github", (req, res) => {
 	res.redirect(
-		`https://github.com/login/oauth/authorize?scope=user:email&client_id=${process.env.GITHUB_CLIENT_ID}`,
+		`https://github.com/login/oauth/authorize?scope=user:email&client_id=${process.env.GITHUB_CLIENT_ID}`
 	)
 })
 
@@ -260,7 +254,7 @@ router.get("/login/github/callback", async (req, res) => {
 			},
 			{
 				headers: { accept: "application/json" },
-			},
+			}
 		)
 
 		const access_token = resp.data.access_token
@@ -269,18 +263,18 @@ router.get("/login/github/callback", async (req, res) => {
 			"https://api.github.com/user",
 			{
 				headers: { Authorization: `Bearer ${access_token}` },
-			},
+			}
 		)
 
 		const { data: emails } = await axios.get(
 			"https://api.github.com/user/emails",
 			{
 				headers: { Authorization: `Bearer ${access_token}` },
-			},
+			}
 		)
 
 		const primaryEmailObj = emails.find(
-			(email) => email.primary && email.verified,
+			email => email.primary && email.verified
 		)
 		if (!primaryEmailObj) {
 			return res
@@ -295,7 +289,7 @@ router.get("/login/github/callback", async (req, res) => {
 
 		if (!user) {
 			let username = email.split("@")[0]
-			if (await User.findOne({ "username": username })) {
+			if (await User.findOne({ username: username })) {
 				username += crypto.randomBytes(5).toString("hex")
 				console.log("Username already exists, generating new one:", username)
 			}
@@ -306,15 +300,11 @@ router.get("/login/github/callback", async (req, res) => {
 				lastName: userProfile.name?.split(" ")[1] || "",
 				password: crypto.randomBytes(128).toString("hex"),
 				avatar: avatar_url,
-				oAuthProviders: [
-					{ provider: "github", providerId: userProfile.id },
-				],
+				oAuthProviders: [{ provider: "github", providerId: userProfile.id }],
 			})
 		} else {
 			const exists = user.oAuthProviders.some(
-				(p) =>
-					p.provider === "github" &&
-					p.providerId === String(userProfile.id),
+				p => p.provider === "github" && p.providerId === String(userProfile.id)
 			)
 			if (!exists) {
 				user.oAuthProviders.push({
@@ -327,12 +317,12 @@ router.get("/login/github/callback", async (req, res) => {
 		const accessToken = jwt.sign(
 			{ id: user._id },
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" },
+			{ expiresIn: "1h" }
 		)
 		const refreshToken = jwt.sign(
 			{ id: user._id },
 			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" },
+			{ expiresIn: "7d" }
 		)
 
 		user.refreshToken = refreshToken
@@ -374,12 +364,12 @@ router.post("/logout", async (req, res) => {
 		user.refreshToken = null
 		await user.save()
 
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      maxAge: 0,
-    })
+		res.clearCookie("refreshToken", {
+			httpOnly: true,
+			secure: true,
+			sameSite: "None",
+			maxAge: 0,
+		})
 		res.sendStatus(204)
 	} catch (err) {
 		res.status(500).json({ message: "Server error", error: err })
@@ -458,9 +448,7 @@ router.post("/change-password", async (req, res) => {
 	}
 	const isMatch = await bcrypt.compare(currentPassword, user.password)
 	if (!isMatch) {
-		return res
-			.status(401)
-			.json({ message: "Current password is incorrect" })
+		return res.status(401).json({ message: "Current password is incorrect" })
 	}
 	user.password = await bcrypt.hash(newPassword, 10)
 	await user.save()

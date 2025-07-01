@@ -16,7 +16,7 @@ const replySchema = new mongoose.Schema(
 			default: Date.now,
 		},
 	},
-	{ _id: false },
+	{ _id: false }
 )
 
 const commentSchema = new mongoose.Schema({

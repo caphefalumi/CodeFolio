@@ -78,7 +78,7 @@
 		},
 		mounted() {
 			axios
-				.get("https://server-codefolio.vercel.app/api/posts/")
+				.get(`${import.meta.env.VITE_SERVER_URL}/api/posts/`)
 				.then(response => {
 					this.featuredProjects = response.data
 					console.log("Projects:", this.featuredProjects)

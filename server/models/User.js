@@ -23,7 +23,7 @@ const oAuthProviderSchema = new mongoose.Schema(
 			required: true,
 		},
 	},
-	{ _id: false },
+	{ _id: false }
 )
 
 const userSchema = new mongoose.Schema({

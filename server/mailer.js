@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 	},
 })
 
-const sendEmail = async (mailOptions) => {
+const sendEmail = async mailOptions => {
 	try {
 		await transporter.sendMail(mailOptions)
 		console.log("Email sent successfully!")

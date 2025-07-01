@@ -46,10 +46,7 @@ function authenticateToken(req, res, next) {
 		console.error("Authentication middleware error:", error)
 		return res.status(500).json({
 			message: "Authentication server error",
-			error:
-				process.env.NODE_ENV === "development"
-					? error.message
-					: undefined,
+			error: process.env.NODE_ENV === "development" ? error.message : undefined,
 		})
 	}
 }

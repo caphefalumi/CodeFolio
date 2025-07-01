@@ -300,9 +300,12 @@
 					let headers = {}
 					const token = getAccessToken && getAccessToken()
 					if (token) headers.Authorization = `Bearer ${token}`
-					const res = await axios.get(`https://server-codefolio.vercel.app/api/posts/${username}/${id}`, {
-						headers,
-					})
+					const res = await axios.get(
+						`${import.meta.env.VITE_SERVER_URL}/api/posts/${username}/${id}`,
+						{
+							headers,
+						}
+					)
 					const post = res.data
 					this.project = {
 						title: post.title,
@@ -340,7 +343,7 @@
 				try {
 					const apiUrl = this.project.githubUrl.replace(
 						"https://github.com/",
-						"https:/https://server-codefolio.vercel.app/api.github.com/repos/"
+						"https:/${import.meta.env.VITE_SERVER_URL}/api.github.com/repos/"
 					)
 					const res = await axios.get(apiUrl)
 					const { stargazers_count, forks_count, open_issues_count } = res.data
@@ -364,7 +367,7 @@
 					if (!this.newComment.trim()) return
 					const token = getAccessToken()
 					await axios.post(
-						`https://server-codefolio.vercel.app/api/posts/${this.$route.params.id}/comments`,
+						`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.$route.params.id}/comments`,
 						{ content: this.newComment },
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
@@ -390,7 +393,7 @@
 				try {
 					const token = getAccessToken()
 					const res = await axios.post(
-						`https://server-codefolio.vercel.app/api/posts/${this.$route.params.id}/upvote`,
+						`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.$route.params.id}/upvote`,
 						{},
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
@@ -409,7 +412,7 @@
 				try {
 					const token = getAccessToken()
 					const res = await axios.post(
-						`https://server-codefolio.vercel.app/api/posts/${this.$route.params.id}/downvote`,
+						`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.$route.params.id}/downvote`,
 						{},
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
@@ -515,4 +518,3 @@
 		margin: 1em 0;
 	}
 </style>
-

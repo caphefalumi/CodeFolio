@@ -363,4 +363,3 @@ router.delete("/admin/:id", adminAuth, async (req, res) => {
 })
 
 export default router
-
