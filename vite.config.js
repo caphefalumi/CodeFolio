@@ -16,11 +16,11 @@ export default defineConfig({
   },
   base: process.env.NODE_ENV === 'production' ? '/CodeFolio/' : '/',
   server: {
-    port: 'https://server-codefolio.vercel.app/',
+    port: process.env.NODE_ENV === 'development' ? process.env.CLIENT_PORT : 'https://codefolio-phi.vercel.app/',
     proxy: {
       '/api': {
 				target: 'https://server-codefolio.vercel.app/',
-        // target: process.env.NODE_ENV === 'production' ? 'https://server-codefolio.vercel.app/' : 'http://localhost:3001',
+        // target: process.env.NODE_ENV === 'development' ? 'https://server-codefolio.vercel.app/' : 'http://localhost:3001',
         changeOrigin: true,
       }
     }
