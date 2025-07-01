@@ -14,14 +14,4 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  base: process.env.NODE_ENV === 'production' ? '/CodeFolio/' : '/',
-  server: {
-    proxy: {
-      '/api': {
-				target: 'https://server-codefolio.vercel.app/',
-        // target: process.env.NODE_ENV === 'development' ? 'https://server-codefolio.vercel.app/' : 'http://localhost:3001',
-        changeOrigin: true,
-      }
-    }
-  }
 }) 
