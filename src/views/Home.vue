@@ -20,14 +20,6 @@
 							>Get Started</v-btn
 						>
 					</v-col>
-					<v-col cols="12" md="6" class="d-flex align-center justify-center">
-						<v-img
-							src="https://via.placeholder.com/500x300"
-							max-width="500"
-							class="rounded-lg"
-							alt="CodeFolio platform showcase illustration"
-						></v-img>
-					</v-col>
 				</v-row>
 			</section>
 
