@@ -1,23 +1,20 @@
 import mongoose from "mongoose"
 import User from "./User.js"
-const replySchema = new mongoose.Schema(
-	{
-		user: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		},
-		content: {
-			type: String,
-			required: true,
-		},
-		createdAt: {
-			type: Date,
-			default: Date.now,
-		},
+const replySchema = new mongoose.Schema({
+	user: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "User",
+		required: true,
 	},
-	{ _id: false }
-)
+	content: {
+		type: String,
+		required: true,
+	},
+	createdAt: {
+		type: Date,
+		default: Date.now,
+	},
+})
 
 const commentSchema = new mongoose.Schema({
 	user: {
@@ -96,14 +93,13 @@ const postSchema = new mongoose.Schema({
 postSchema.statics.findByAuthor = async function (username) {
 	const user = await User.findOne({ username: new RegExp(username, "i") })
 	if (!user) return []
-	return this.find({ author: user._id }).populate("author", "username")
+	return this.find({ author: user._id }).populate("author", "username avatar")
 }
 
 postSchema.virtual("getAuthor").get(async function () {
 	return User.findById(this.author).select("username")
 })
 postSchema.virtual("getFullPath").get(function () {
-	console.log("Author:", this.author) // check this
 	if (!this.author || !this.author.username) return null
 	return `${this.author.username}/${this._id}`
 })

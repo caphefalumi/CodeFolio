@@ -12,7 +12,11 @@ import uploadRoutes from "./routes/uploadRoutes.js"
 const app = express()
 
 const corsOptions = {
-	origin: ["https://localhost:3000", "https://codefolio-phi.vercel.app"],
+	origin: [
+		"http://localhost:3000",
+		"https://localhost:3000",
+		"https://codefolio-phi.vercel.app",
+	],
 	credentials: true,
 }
 

@@ -185,37 +185,66 @@
 									:message="errorMessage"
 									custom-class="mb-4"
 								/>
+
+								<!-- Authentication Alert for Comments -->
+								<v-alert
+									v-if="showCommentAuthAlert"
+									type="warning"
+									class="mb-4"
+									border="start"
+									colored-border
+									density="compact"
+								>
+									<template #prepend>
+										<v-icon>mdi-account-alert</v-icon>
+									</template>
+									<div class="d-flex align-center justify-space-between">
+										<span>You must be logged in to post comments.</span>
+										<v-btn
+											size="small"
+											variant="outlined"
+											color="primary"
+											to="/login"
+											class="ml-3"
+										>
+											Login
+										</v-btn>
+									</div>
+								</v-alert>
 								<app-form
 									:loading="loading"
 									submit-button-text="Post Comment"
-									:submit-button-disabled="!newComment.trim()"
-									@submit="addComment"
+									:submit-button-disabled="
+										!newComment.trim() || !isAuthenticated
+									"
+									@submit="handleCommentSubmit"
 								>
-									<v-textarea
+									<mention-textarea
 										v-model="newComment"
 										label="Add a comment"
-										rows="3"
+										:rows="3"
 										variant="outlined"
-									></v-textarea>
+										:disabled="!isAuthenticated"
+										@focus="handleCommentFocus"
+									/>
 								</app-form>
 							</v-card-text>
 							<v-list v-auto-animate aria-label="Project comments">
-								<v-list-item
+								<comment-item
 									v-for="comment in comments"
-									:key="comment.id"
-									:subtitle="comment.author + ' • ' + comment.date"
-									role="article"
-									:aria-label="`Comment by ${comment.author} on ${comment.date}`"
+									:key="comment._id"
+									:comment="comment"
+									:post-id="$route.params.id"
+									@reply-added="fetchProjectDetail"
+									class="mb-2"
+								/>
+								<div
+									v-if="comments.length === 0"
+									class="text-center text-grey py-8"
 								>
-									<template v-slot:prepend>
-										<v-avatar
-											color="primary"
-											:aria-label="`${comment.author} avatar`"
-											>{{ comment.author.charAt(0) }}</v-avatar
-										>
-									</template>
-									<v-list-item-title>{{ comment.content }}</v-list-item-title>
-								</v-list-item>
+									<v-icon size="48" class="mb-2">mdi-comment-outline</v-icon>
+									<div>No comments yet. Be the first to comment!</div>
+								</div>
 							</v-list>
 						</v-card>
 					</section>
@@ -250,16 +279,19 @@
 
 <script>
 	import axios from "axios"
-	import { getAccessToken } from "@/composables/user.js"
-	import { useApi } from "@/composables/common.js"
+	import { getAccessToken, isLoggedIn } from "@/composables/user.js"
+	import { useApi } from "@/composables/common.js"	
 	import AppAlert from "@/components/AppAlert.vue"
 	import AppForm from "@/components/AppForm.vue"
+	import CommentItem from "@/components/CommentItem.vue"
+	import MentionTextarea from "@/components/MentionTextarea.vue"
 
 	export default {
-		name: "ProjectDetailView",
-		components: {
+		name: "ProjectDetailView",		components: {
 			AppAlert,
 			AppForm,
+			CommentItem,
+			MentionTextarea,
 		},
 		setup() {
 			const { handleError } = useApi()
@@ -280,7 +312,7 @@
 					views: 0,
 					upvotes: 0,
 					downvotes: 0,
-					liked: null, // ✅ Added this missing property
+					liked: null,
 					upvoting: false,
 					downvoting: false,
 				},
@@ -289,9 +321,15 @@
 				newComment: "",
 				errorMessage: "",
 				showAuthBanner: false,
+				showCommentAuthAlert: false,
 				authBannerTimeout: null,
 				loading: false,
 			}
+		},
+		computed: {
+			isAuthenticated() {
+				return isLoggedIn()
+			},
 		},
 		methods: {
 			async fetchProjectDetail() {
@@ -326,10 +364,16 @@
 					}
 
 					this.comments = (post.comments || []).map(c => ({
-						id: c._id,
-						author: c.user.username,
-						date: new Date(c.createdAt).toLocaleDateString(),
+						_id: c._id,
+						user: c.user, // This now includes username and avatar
+						createdAt: c.createdAt,
 						content: c.content,
+						replies: (c.replies || []).map(r => ({
+							_id: r._id,
+							user: r.user, // This now includes username and avatar
+							createdAt: r.createdAt,
+							content: r.content,
+						})),
 					}))
 
 					if (this.project.githubUrl) {
@@ -360,29 +404,55 @@
 				this.project.liked = !this.project.liked
 				// TODO: Add API call to upvote/downvote
 			},
+			handleCommentFocus() {
+				if (!this.isAuthenticated) {
+					this.showCommentAuthAlert = true
+				}
+			},
+			handleCommentSubmit() {
+				if (!this.isAuthenticated) {
+					this.showCommentAuthAlert = true
+					return
+				}
+				this.addComment()
+			},
 			async addComment() {
 				this.errorMessage = ""
 				this.loading = true
 				try {
 					if (!this.newComment.trim()) return
 					const token = getAccessToken()
-					await axios.post(
+					const response = await axios.post(
 						`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.$route.params.id}/comments`,
 						{ content: this.newComment },
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
-					this.comments.unshift({
-						id: `c${Date.now()}`,
-						author: "You",
-						date: new Date().toLocaleDateString(),
-						content: this.newComment,
-					})
+
+					// Refresh the comments from the response
+					this.comments = response.data.comments.map(c => ({
+						_id: c._id,
+						user: c.user,
+						createdAt: c.createdAt,
+						content: c.content,
+						replies: (c.replies || []).map(r => ({
+							_id: r._id,
+							user: r.user,
+							createdAt: r.createdAt,
+							content: r.content,
+						})),
+					}))
+
 					this.newComment = ""
+					this.showCommentAuthAlert = false
 				} catch (error) {
-					this.errorMessage = this.handleError(
-						error,
-						"Failed to post comment. Please try again."
-					)
+					if (error.response && error.response.status === 401) {
+						this.showCommentAuthAlert = true
+					} else {
+						this.errorMessage = this.handleError(
+							error,
+							"Failed to post comment. Please try again."
+						)
+					}
 				} finally {
 					this.loading = false
 				}

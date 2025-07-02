@@ -18,6 +18,7 @@
 			</v-btn>
 			<v-btn to="/" text>Home</v-btn>
 			<v-btn to="/projects" text>Projects</v-btn>
+			<v-btn to="/users" text>Users</v-btn>
 			<v-menu v-if="isAuthenticated" offset-y>
 				<template #activator="{ props }">
 					<v-btn icon v-bind="props" :aria-label="`User menu for ${username}`">
@@ -122,29 +123,27 @@
 				}
 			},
 
-			getNewToken(silent = false) {
-				axios
-					.post(
+			async getNewToken(silent = false) {
+				try {
+					const response = await axios.post(
 						`${import.meta.env.VITE_SERVER_URL}/api/auth/token`,
 						{},
 						{ withCredentials: true }
 					)
-					.then(response => {
-						const newToken = response.data.accessToken
-						sessionStorage.setItem("accessToken", newToken)
-						this.isAuthenticated = true
-						if (!silent) {
-							this.fetchToken() // trigger profile fetch and timer setup
-						}
-					})
-					.catch(error => {
+					const newToken = response.data.accessToken
+					sessionStorage.setItem("accessToken", newToken)
+					this.isAuthenticated = true
+					if (!silent) {
+						this.fetchToken()
+					}
+				} catch (error) {
 						console.error("Error fetching new token:", error)
 						sessionStorage.removeItem("accessToken")
 						this.isAuthenticated = false
 						this.user = null
 						this.username = ""
 						this.avatar = ""
-					})
+					}
 			},
 
 			startTokenRefreshTimer() {

@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"app": "concurrently \"npm run server\" \"npm run dev\" ",
-		"dev": "vite --host",
+		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
 		"server": "nodemon server/server.js",
@@ -28,6 +28,7 @@
 		"image2uri": "^2.1.2",
 		"json-server": "^1.0.0-beta.3",
 		"jsonwebtoken": "^9.0.2",
+		"lodash-es": "^4.17.21",
 		"mongoose": "^8.15.2",
 		"multer": "^2.0.1",
 		"nodemailer": "^7.0.3",

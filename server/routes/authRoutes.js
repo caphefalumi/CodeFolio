@@ -33,16 +33,35 @@ router.post("/validate", async (req, res) => {
 })
 
 router.post("/token", async (req, res) => {
+	console.log("=== /token endpoint called ===")
+	console.log("Request headers:", req.headers)
+	console.log("All cookies received:", req.cookies)
+
 	const refreshToken = req.cookies.refreshToken
+	console.log(
+		"Refresh token from cookies:",
+		refreshToken ? "Present" : "Not found"
+	)
+
 	if (!refreshToken) {
+		console.log("No refresh token provided")
 		return res.sendStatus(401)
 	}
 
 	jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async err => {
-		if (err) return res.sendStatus(403)
+		if (err) {
+			console.log("JWT verification error:", err.message)
+			return res.sendStatus(403)
+		}
 
 		const user = await User.findOne({ refreshToken })
-		if (!user) return res.sendStatus(403)
+		if (!user) {
+			console.log("No user found with this refresh token")
+			return res.sendStatus(403)
+		}
+
+		console.log("User found:", user.username)
+
 		const newRefreshToken = jwt.sign(
 			{ id: user._id },
 			process.env.REFRESH_TOKEN_SECRET,
@@ -54,6 +73,8 @@ router.post("/token", async (req, res) => {
 		res.cookie("refreshToken", newRefreshToken, {
 			httpOnly: true,
 			secure: true,
+			sameSite: "None",
+			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
@@ -62,6 +83,7 @@ router.post("/token", async (req, res) => {
 			process.env.ACCESS_TOKEN_SECRET,
 			{ expiresIn: "1h" }
 		)
+		console.log("New access token generated successfully")
 		res.json({ accessToken })
 	})
 })
@@ -151,6 +173,7 @@ router.post("/login/jwt", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
+			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 		res.status(200).json({ accessToken })
@@ -181,7 +204,6 @@ router.post("/login/google", async (req, res) => {
 			let username = email.split("@")[0]
 			if (await User.findOne({ username: username })) {
 				username += crypto.randomBytes(5).toString("hex")
-				console.log("Username already exists, generating new one:", username)
 			}
 			user = new User({
 				username: username,
@@ -222,6 +244,7 @@ router.post("/login/google", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
+			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
@@ -291,7 +314,6 @@ router.get("/login/github/callback", async (req, res) => {
 			let username = email.split("@")[0]
 			if (await User.findOne({ username: username })) {
 				username += crypto.randomBytes(5).toString("hex")
-				console.log("Username already exists, generating new one:", username)
 			}
 			user = new User({
 				username,
@@ -332,6 +354,7 @@ router.get("/login/github/callback", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
+			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
@@ -368,6 +391,7 @@ router.post("/logout", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
+			origin: process.env.CLIENT_URL,
 			maxAge: 0,
 		})
 		res.sendStatus(204)
@@ -379,9 +403,8 @@ router.post("/logout", async (req, res) => {
 // Forgot password: send 6-digit code to email
 router.post("/forgot-password", authenticateToken, async (req, res) => {
 	const user = await User.findOne({ _id: req.user.id })
-	console.log("User from token:", user)
+	console.log("User from token:", user.username)
 	if (!user) return res.status(404).json({ message: "User not found" })
-	console.log(req.body)
 	// Generate 6-digit code
 	const code = Math.floor(100000 + Math.random() * 900000).toString()
 	user.resetCode = code
@@ -407,15 +430,12 @@ router.post("/forgot-password", authenticateToken, async (req, res) => {
 // Verify reset code
 router.post("/verify-reset-code", authenticateToken, async (req, res) => {
 	const { code } = req.body
-	console.log(code)
 
 	const user = await User.findOne({ _id: req.user.id })
 	if (!user || !user.resetCode || !user.resetCodeExpires) {
-		console.log("1")
 		return res.status(400).json({ message: "Invalid or expired code" })
 	}
 	if (user.resetCode !== code || Date.now() > user.resetCodeExpires) {
-		console.log("2")
 		return res.status(400).json({ message: "Invalid or expired code" })
 	}
 	res.json({ message: "Code verified" })

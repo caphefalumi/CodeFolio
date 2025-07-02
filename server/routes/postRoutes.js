@@ -4,6 +4,7 @@ import authenticateToken from "../middleware/authenticateToken.js"
 import adminAuth from "../middleware/adminAuth.js"
 import Post from "../models/Post.js"
 import User from "../models/User.js"
+import { extractMentions, notifyMentionedUsers } from "../utils/mentions.js"
 const router = express.Router()
 
 // 🔹 Create a post
@@ -21,7 +22,7 @@ router.post("/", authenticateToken, async (req, res) => {
 // 🔹 Get all posts
 router.get("/", async (req, res) => {
 	try {
-		const posts = await Post.find().populate("author", "username")
+		const posts = await Post.find().populate("author", "username avatar")
 
 		// Check if user is authenticated and get their vote states
 		let user = null
@@ -61,10 +62,9 @@ router.get("/:username", async (req, res) => {
 	try {
 		const user = await User.findOne({ username: req.params.username })
 		if (!user) return res.status(404).json({ message: "User not found" })
-
 		const posts = await Post.find({ author: user.id }).populate(
 			"author",
-			"username"
+			"username avatar"
 		)
 		if (!posts) return res.status(404).json({ message: "Posts not found" })
 
@@ -103,9 +103,11 @@ router.get("/:username", async (req, res) => {
 // 🔹 Get a specific post
 router.get("/:username/:id", async (req, res) => {
 	try {
+		console.log("OK")
 		const post = await Post.findById(req.params.id)
-			.populate("author", "username")
-			.populate("comments.user", "username")
+			.populate("author", "username avatar firstName lastName")
+			.populate("comments.user", "username avatar firstName lastName")
+			.populate("comments.replies.user", "username avatar firstName lastName")
 		if (!post) return res.status(404).json({ message: "Not found" })
 
 		// Increment views by 1
@@ -126,7 +128,7 @@ router.get("/:username/:id", async (req, res) => {
 				liked = userVote ? userVote.upvoted : null
 			}
 		} else {
-			console.log("🚫 No authorization header found")
+			console.log("No authorization header found")
 		}
 
 		const postData = post.toJSON()
@@ -183,8 +185,22 @@ router.post("/:id/comments", authenticateToken, async (req, res) => {
 		const post = await Post.findById(req.params.id)
 		if (!post) return res.status(404).json({ message: "Post not found" })
 
-		post.comments.push({ user: req.user.id, content: req.body.content })
+		const commentContent = req.body.content
+
+		// Extract mentions from comment content
+		const mentions = extractMentions(commentContent)
+
+		// Add the comment
+		post.comments.push({ user: req.user.id, content: commentContent })
 		await post.save()
+		// Populate the new comment with user data before sending response
+		await post.populate("comments.user", "username avatar firstName lastName")
+
+		// Handle mentions if any exist
+		if (mentions.length > 0) {
+			const currentUser = await User.findById(req.user.id)
+			await notifyMentionedUsers(mentions, post._id, null, currentUser)
+		}
 
 		res.status(201).json({
 			message: "Comment added successfully",
@@ -195,6 +211,49 @@ router.post("/:id/comments", authenticateToken, async (req, res) => {
 		res.status(400).json({ message: "Error adding comment", error })
 	}
 })
+
+// 🔹 Add a reply to a comment
+router.post(
+	"/:id/comments/:commentId/replies",
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const post = await Post.findById(req.params.id)
+			if (!post) return res.status(404).json({ message: "Post not found" })
+
+			const comment = post.comments.id(req.params.commentId)
+			if (!comment)
+				return res.status(404).json({ message: "Comment not found" })
+
+			const replyContent = req.body.content // Extract mentions from reply content
+			const mentions = extractMentions(replyContent)
+
+			comment.replies.push({ user: req.user.id, content: replyContent })
+			await post.save()
+
+			// Re-populate the entire post with fresh user data to ensure consistency
+			await post.populate("comments.user", "username avatar firstName lastName")
+			await post.populate(
+				"comments.replies.user",
+				"username avatar firstName lastName"
+			)
+
+			// Handle mentions if any exist
+			if (mentions.length > 0) {
+				const currentUser = await User.findById(req.user.id)
+				await notifyMentionedUsers(mentions, post._id, comment._id, currentUser)
+			}
+
+			res.status(201).json({
+				message: "Reply added successfully",
+				comments: post.comments,
+			})
+		} catch (error) {
+			console.error("Error adding reply:", error)
+			res.status(400).json({ message: "Error adding reply", error })
+		}
+	}
+)
 
 router.post("/:id/upvote", authenticateToken, async (req, res) => {
 	try {
