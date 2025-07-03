@@ -74,7 +74,6 @@ router.post("/token", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
-			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
@@ -173,7 +172,6 @@ router.post("/login/jwt", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
-			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 		res.status(200).json({ accessToken })
@@ -244,9 +242,9 @@ router.post("/login/google", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
-			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
+		console.log("User logged in:", user.username)
 
 		res.json({ accessToken })
 	} catch (err) {
@@ -354,7 +352,6 @@ router.get("/login/github/callback", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
-			origin: process.env.CLIENT_URL,
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
@@ -391,7 +388,6 @@ router.post("/logout", async (req, res) => {
 			httpOnly: true,
 			secure: true,
 			sameSite: "None",
-			origin: process.env.CLIENT_URL,
 			maxAge: 0,
 		})
 		res.sendStatus(204)

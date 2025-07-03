@@ -156,7 +156,8 @@
 						`${import.meta.env.VITE_SERVER_URL}/api/auth/login/google`,
 						{
 							token: response.access_token,
-						}
+						},
+						{ withCredentials: true }
 					)
 					sessionStorage.setItem("accessToken", res.data.accessToken)
 					window.location.href = "/"
@@ -193,7 +194,7 @@
 			},
 			receiveGithubToken(event) {
 				if (
-					event.origin !== "http://localhost:3000" &&
+					event.origin !== "https://localhost:3000" &&
 					event.origin !== "https://codefolio-phi.vercel.app"
 				)
 					return

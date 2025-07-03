@@ -16,6 +16,7 @@ const corsOptions = {
 		"http://localhost:3000",
 		"https://localhost:3000",
 		"https://codefolio-phi.vercel.app",
+		"https://bechuotbedangyeu.vercel.app"
 	],
 	credentials: true,
 }
@@ -31,18 +32,15 @@ db.once("open", () =>
 	console.log(`MongoDB connected to ${process.env.MONGODB_URI} successfully`)
 )
 
-// Apply middleware in correct order
-app.use(cookieParser()) // Parse cookies first
-app.use(express.json({ limit: "50mb" })) // Parse JSON bodies
-app.use(express.urlencoded({ limit: "50mb", extended: true })) // Parse URL-encoded bodies
+app.use(cookieParser())
+app.use(express.json({ limit: "50mb" }))
+app.use(express.urlencoded({ limit: "50mb", extended: true }))
 
-// Apply routes
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
 app.use("/api/auth", authRoutes)
 app.use("/api/upload", uploadRoutes)
 
-// Start server
 app.listen(process.env.SERVER_PORT, () => {
 	console.log(`Server is running on port ${process.env.SERVER_PORT}`)
 })

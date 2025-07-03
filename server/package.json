@@ -20,7 +20,8 @@
     "nodemailer": "^7.0.4",
     "nodemon": "^3.1.10",
     "random-cat-img": "^1.1.8",
-    "sharp": "^0.34.2"
+    "sharp": "^0.34.2",
+    "vue-i18n": "^11.1.7"
   },
   "scripts": {
     "server": "nodemon server.js"

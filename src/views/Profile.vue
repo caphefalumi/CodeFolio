@@ -18,11 +18,9 @@
 							@{{ userProfile.username }}
 						</div>
 						<div class="text-body-1 mb-2">{{ userProfile.bio }}</div>
-						<div class="mb-2">
-							<v-icon size="18" class="mr-1" aria-hidden="true"
-								>mdi-email</v-icon
-							>
-							<span>{{ userProfile.email }}</span>
+						<div v-if="isOwner && currentUser?.email" class="mb-2">
+								<v-icon size="18" class="mr-1" aria-hidden="true">mdi-email</v-icon>
+								<span>{{ currentUser.email }}</span>
 						</div>
 						<div v-if="userProfile.githubUrl" class="mb-2">
 							<v-icon size="18" class="mr-1" aria-hidden="true"
@@ -183,14 +181,6 @@
 							label="Last Name"
 							required
 							autocomplete="family-name"
-						></v-text-field>
-						<v-text-field
-							v-model="editForm.email"
-							label="Email"
-							required
-							disabled
-							autocomplete="email"
-							aria-label="Email address (cannot be changed for security reasons)"
 						></v-text-field>
 						<v-textarea
 							v-model="editForm.bio"

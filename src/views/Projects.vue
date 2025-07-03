@@ -53,7 +53,6 @@
 								:show-delete-button="false"
 								:show-like-button="true"
 								@view="viewProject"
-								@like="toggleLike"
 							/>
 						</article>
 					</v-col>
@@ -175,29 +174,6 @@
 				this.$router.push(
 					`/${project.author?.username || "unknown"}/${project._id}`
 				)
-			},
-
-			async toggleLike(project) {
-				try {
-					if (!project.liked) {
-						const res = await axios.post(
-							`${import.meta.env.VITE_SERVER_URL}/api/posts/${project._id}/upvote`
-						)
-						project.upvotes = res.data.upvotes
-						project.liked = true
-					} else {
-						const res = await axios.post(
-							`${import.meta.env.VITE_SERVER_URL}/api/posts/${project._id}/downvote`
-						)
-						project.downvotes = res.data.downvotes
-						project.liked = false
-					}
-				} catch (error) {
-					this.errorMessage = this.handleError(
-						error,
-						"Failed to update vote. Please try again."
-					)
-				}
 			},
 		},
 		async mounted() {

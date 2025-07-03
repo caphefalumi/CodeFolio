@@ -18,7 +18,6 @@
 			</v-btn>
 			<v-btn to="/" text>Home</v-btn>
 			<v-btn to="/projects" text>Projects</v-btn>
-			<v-btn to="/users" text>Users</v-btn>
 			<v-menu v-if="isAuthenticated" offset-y>
 				<template #activator="{ props }">
 					<v-btn icon v-bind="props" :aria-label="`User menu for ${username}`">
@@ -44,6 +43,8 @@
 			<v-btn v-else to="/login" text>Login</v-btn>
 		</v-app-bar>
 		<v-main role="main" id="main-content" tabindex="-1">
+			<Analytics />
+			<SpeedInsights />
 			<v-container>
 				<router-view></router-view>
 			</v-container>
@@ -60,6 +61,8 @@
 
 <script>
 	import axios from "axios"
+	import { SpeedInsights } from '@vercel/speed-insights/vue';
+	import { Analytics } from '@vercel/analytics/vue'
 	import { fetchCurrentUser } from "@/composables/user.js"
 
 	export default {

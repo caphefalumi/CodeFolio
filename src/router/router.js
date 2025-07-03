@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
 import { fetchCurrentUser } from "@/composables/user.js"
-
 const routes = [
 	{
 		path: "/",
@@ -49,7 +48,7 @@ const routes = [
 ]
 
 const router = createRouter({
-	history: createWebHistory(import.meta.env.BASE_URL),
+	history: createWebHistory(),
 	routes,
 })
 
@@ -67,13 +66,13 @@ router.beforeEach(async (to, from, next) => {
 	// If route requires admin
 	else if (to.meta.requiresAdmin) {
 		if (!isAuthenticated) {
-			next("/login")
+			next("/404")
 			return
 		}
 
 		try {
 			const currentUser = await fetchCurrentUser()
-			const isAdmin = currentUser?.email === "dangduytoan13l@gmail.com"
+			const isAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL
 
 			if (isAdmin) {
 				next()
@@ -84,7 +83,6 @@ router.beforeEach(async (to, from, next) => {
 			next("/404")
 		}
 	}
-	// Otherwise proceed normally
 	else {
 		next()
 	}
