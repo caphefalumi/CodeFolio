@@ -1,5 +1,5 @@
 <template>
-	<v-card class="project-card elevation-1 mb-4" :class="cardClass">
+	<v-card class="project-card elevation-1 mb-4"  :class="cardClass">
 		<v-img
 			:src="project.coverImage"
 			:height="imageHeight"
@@ -27,7 +27,7 @@
 			</div>
 		</v-card-text>
 
-		<v-card-actions>
+		<v-card-actions class="px-0">
 			<app-button
 				color="primary"
 				variant="text"

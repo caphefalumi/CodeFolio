@@ -8,7 +8,7 @@
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
-		"server": "nodemon server/server.js",
+		"server": "cd server && npm run server",
 		"generate-data": "node seed.js"
 	},
 	"dependencies": {

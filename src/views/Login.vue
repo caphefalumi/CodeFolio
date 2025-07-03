@@ -193,11 +193,6 @@
 				}, 1000)
 			},
 			receiveGithubToken(event) {
-				if (
-					event.origin !== "https://localhost:3000" &&
-					event.origin !== "https://codefolio-phi.vercel.app"
-				)
-					return
 				const { accessToken, error: githubError } = event.data || {}
 				if (accessToken) {
 					sessionStorage.setItem("accessToken", accessToken)

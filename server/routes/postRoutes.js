@@ -1,10 +1,13 @@
 import express from "express"
 import jwt from "jsonwebtoken"
+import fs from "fs"
 import authenticateToken from "../middleware/authenticateToken.js"
 import adminAuth from "../middleware/adminAuth.js"
 import Post from "../models/Post.js"
 import User from "../models/User.js"
 import { extractMentions, notifyMentionedUsers } from "../utils/mentions.js"
+
+const publicKey = fs.readFileSync("./public.key")
 const router = express.Router()
 
 // 🔹 Create a post
@@ -29,7 +32,7 @@ router.get("/", async (req, res) => {
 		if (req.headers.authorization) {
 			try {
 				const token = req.headers.authorization.split(" ")[1]
-				const decoded = jwt.verify(token, process.env.JWT_SECRET)
+				const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
 				user = await User.findById(decoded.id)
 			} catch (tokenError) {
 				// Invalid token, continue without user vote states
@@ -73,7 +76,7 @@ router.get("/:username", async (req, res) => {
 		if (req.headers.authorization) {
 			try {
 				const token = req.headers.authorization.split(" ")[1]
-				const decoded = jwt.verify(token, process.env.JWT_SECRET)
+				const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
 				requestingUser = await User.findById(decoded.id)
 			} catch (tokenError) {
 				// Invalid token, continue without user vote states
@@ -114,11 +117,10 @@ router.get("/:username/:id", async (req, res) => {
 		post.views += 1
 		await post.save()
 
-		// Check if user is authenticated and get their vote state
-		let liked = null
+		// Check if user is authenticated and get their vote state		let liked = null
 		if (req.headers.authorization) {
 			const token = req.headers.authorization.split(" ")[1]
-			const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+			const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
 			const user = await User.findById(decoded.id)
 			if (user) {
 				console.log("📊 User votedPosts:", user.votedPosts)

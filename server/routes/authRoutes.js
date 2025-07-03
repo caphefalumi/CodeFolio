@@ -2,13 +2,16 @@ import express from "express"
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
-import "dotenv/config"
 import User from "../models/User.js"
 import axios from "axios"
 import getRandomCat from "random-cat-img"
 import sendEmail from "../mailer.js"
 import authenticateToken from "../middleware/authenticateToken.js"
+import fs from "fs"
+import "dotenv/config"
 
+const privateKey = fs.readFileSync("./private.key")
+const publicKey = fs.readFileSync("./public.key")
 const router = express.Router()
 
 router.post("/validate", async (req, res) => {
@@ -18,7 +21,7 @@ router.post("/validate", async (req, res) => {
 	}
 
 	try {
-		jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, err => {
+		jwt.verify(accessToken, publicKey, { algorithms: ["RS256"] }, err => {
 			if (bearer !== "Bearer") {
 				return res.status(403).json({ message: "Invalid access token format" })
 			}
@@ -47,8 +50,7 @@ router.post("/token", async (req, res) => {
 		console.log("No refresh token provided")
 		return res.sendStatus(401)
 	}
-
-	jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async err => {
+	jwt.verify(refreshToken, publicKey, { algorithms: ["RS256"] }, async err => {
 		if (err) {
 			console.log("JWT verification error:", err.message)
 			return res.sendStatus(403)
@@ -62,11 +64,10 @@ router.post("/token", async (req, res) => {
 
 		console.log("User found:", user.username)
 
-		const newRefreshToken = jwt.sign(
-			{ id: user._id },
-			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" }
-		)
+		const newRefreshToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "7d",
+			algorithm: "RS256",
+		})
 		user.refreshToken = newRefreshToken
 		await user.save()
 
@@ -77,11 +78,10 @@ router.post("/token", async (req, res) => {
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
-		const accessToken = jwt.sign(
-			{ id: user._id },
-			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" }
-		)
+		const accessToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "1h",
+			algorithm: "RS256",
+		})
 		console.log("New access token generated successfully")
 		res.json({ accessToken })
 	})
@@ -154,16 +154,14 @@ router.post("/login/jwt", async (req, res) => {
 			return res.status(401).json({ message: "Invalid email or password" })
 		}
 
-		const accessToken = jwt.sign(
-			{ id: user._id },
-			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" }
-		)
-		const refreshToken = jwt.sign(
-			{ id: user._id },
-			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" }
-		)
+		const accessToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "1h",
+			algorithm: "RS256",
+		})
+		const refreshToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "7d",
+			algorithm: "RS256",
+		})
 
 		user.refreshToken = refreshToken
 		await user.save()
@@ -223,17 +221,14 @@ router.post("/login/google", async (req, res) => {
 				})
 			}
 		}
-
-		const accessToken = jwt.sign(
-			{ id: user._id },
-			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" }
-		)
-		const refreshToken = jwt.sign(
-			{ id: user._id },
-			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" }
-		)
+		const accessToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "1h",
+			algorithm: "RS256",
+		})
+		const refreshToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "7d",
+			algorithm: "RS256",
+		})
 
 		user.refreshToken = refreshToken
 		await user.save()
@@ -333,17 +328,14 @@ router.get("/login/github/callback", async (req, res) => {
 				})
 			}
 		}
-
-		const accessToken = jwt.sign(
-			{ id: user._id },
-			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "1h" }
-		)
-		const refreshToken = jwt.sign(
-			{ id: user._id },
-			process.env.REFRESH_TOKEN_SECRET,
-			{ expiresIn: "7d" }
-		)
+		const accessToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "1h",
+			algorithm: "RS256",
+		})
+		const refreshToken = jwt.sign({ id: user._id }, privateKey, {
+			expiresIn: "7d",
+			algorithm: "RS256",
+		})
 
 		user.refreshToken = refreshToken
 		await user.save()

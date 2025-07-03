@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken"
+import fs from "fs"
 import User from "../models/User.js"
+
+const publicKey = fs.readFileSync("./public.key")
 
 const adminAuth = async (req, res, next) => {
 	try {
@@ -7,9 +10,8 @@ const adminAuth = async (req, res, next) => {
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
 			return res.status(401).json({ message: "Access token required" })
 		}
-
 		const token = authHeader.split(" ")[1]
-		const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+		const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
 
 		const user = await User.findById(decoded.id)
 		if (!user) {

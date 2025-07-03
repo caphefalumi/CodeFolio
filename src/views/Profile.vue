@@ -2,8 +2,9 @@
 	<v-theme-provider>
 		<v-container class="py-8">
 			<section aria-labelledby="profile-heading">
+				<!-- User Profile Section at Top -->
 				<v-row class="profile-header" align="center" justify="center">
-					<v-col cols="12" md="4" class="d-flex flex-column align-center">
+					<v-col cols="12" class="d-flex flex-column align-center">
 						<v-avatar size="120" class="profile-avatar elevation-4 mb-4">
 							<v-img
 								:src="userProfile.avatar"
@@ -17,10 +18,14 @@
 						<div class="text-subtitle-2 text-grey-darken-1 mb-2">
 							@{{ userProfile.username }}
 						</div>
-						<div class="text-body-1 mb-2">{{ userProfile.bio }}</div>
-						<div v-if="isOwner && currentUser?.email" class="mb-2">
-								<v-icon size="18" class="mr-1" aria-hidden="true">mdi-email</v-icon>
-								<span>{{ currentUser.email }}</span>
+						<div class="text-body-1 mb-2 text-center">
+							{{ userProfile.bio }}
+						</div>
+						<div v-if="isOwner && currentUser" class="mb-2">
+							<v-icon size="18" class="mr-1" aria-hidden="true"
+								>mdi-email</v-icon
+							>
+							<span>{{ currentUser.email }}</span>
 						</div>
 						<div v-if="userProfile.githubUrl" class="mb-2">
 							<v-icon size="18" class="mr-1" aria-hidden="true"
@@ -65,8 +70,11 @@
 							>
 						</div>
 					</v-col>
+				</v-row>
 
-					<v-col cols="12" md="8">
+				<!-- Projects Section Below -->
+				<v-row class="mt-8">
+					<v-col cols="12">
 						<section aria-labelledby="projects-section-heading">
 							<v-card class="elevation-2 pa-6 profile-projects-card">
 								<v-toolbar color="primary" dark flat class="rounded-lg mb-4">
@@ -90,7 +98,8 @@
 										v-for="project in userProjects"
 										:key="project._id"
 										cols="12"
-										md="6"
+										sm="6"
+										md="4"
 									>
 										<article>
 											<project-card
@@ -274,7 +283,7 @@
 			<!-- Password Reset Dialog -->
 			<password-reset-dialog
 				v-model="showResetPassword"
-				:user-email="userProfile.email"
+				:user-email="currentUser?.email"
 				@success="handlePasswordResetSuccess"
 			/><app-alert
 				v-if="errorMessage"
@@ -340,6 +349,7 @@
 			return {
 				userProfile: {},
 				userProjects: [],
+				currentUser: null,
 				showEditProfile: false,
 				showNewProject: false,
 				loading: false,
@@ -420,7 +430,6 @@
 					this.editForm.bio = profile.bio
 					this.editForm.avatar = null
 					this.editForm.avatarPreview = profile.avatar
-					this.editForm.email = profile.email
 					this.editForm.username = profile.username || ""
 
 					// 4. Fetch user's projects

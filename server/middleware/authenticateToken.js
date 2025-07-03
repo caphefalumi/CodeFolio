@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken"
+import fs from "fs"
 import "dotenv/config"
+
+const publicKey = fs.readFileSync("./public.key")
 
 function authenticateToken(req, res, next) {
 	// Try to get token from Authorization header first (preferred method)
@@ -23,10 +26,9 @@ function authenticateToken(req, res, next) {
 				"Access denied. No token provided in Authorization header or cookies.",
 		})
 	}
-
 	// Verify the token
 	try {
-		jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+		jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
 			if (err) {
 				console.error("Token verification error:", err.message)
 				return res.status(403).json({
