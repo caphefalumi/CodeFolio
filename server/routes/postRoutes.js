@@ -26,34 +26,7 @@ router.post("/", authenticateToken, async (req, res) => {
 router.get("/", async (req, res) => {
 	try {
 		const posts = await Post.find().populate("author", "username avatar")
-
-		// Check if user is authenticated and get their vote states
-		let user = null
-		if (req.headers.authorization) {
-			try {
-				const token = req.headers.authorization.split(" ")[1]
-				const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
-				user = await User.findById(decoded.id)
-			} catch (tokenError) {
-				// Invalid token, continue without user vote states
-			}
-		}
-
-		// Add vote states to posts if user is authenticated
-		const postsWithVoteStates = posts.map(post => {
-			const postData = post.toJSON()
-			if (user) {
-				const userVote = user.votedPosts.find(
-					vote => vote.postId.toString() === post._id.toString()
-				)
-				postData.liked = userVote ? userVote.upvoted : null
-			} else {
-				postData.liked = null
-			}
-			return postData
-		})
-
-		res.json(postsWithVoteStates)
+		res.json(posts)
 	} catch (error) {
 		console.error("Error fetching posts:", error)
 		res.status(500).json({ message: "Error fetching posts", error })
@@ -71,33 +44,7 @@ router.get("/:username", async (req, res) => {
 		)
 		if (!posts) return res.status(404).json({ message: "Posts not found" })
 
-		// Check if requesting user is authenticated and get their vote states
-		let requestingUser = null
-		if (req.headers.authorization) {
-			try {
-				const token = req.headers.authorization.split(" ")[1]
-				const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
-				requestingUser = await User.findById(decoded.id)
-			} catch (tokenError) {
-				// Invalid token, continue without user vote states
-			}
-		}
-
-		// Add vote states to posts if user is authenticated
-		const postsWithVoteStates = posts.map(post => {
-			const postData = post.toJSON()
-			if (requestingUser) {
-				const userVote = requestingUser.votedPosts.find(
-					vote => vote.postId.toString() === post._id.toString()
-				)
-				postData.liked = userVote ? userVote.upvoted : null
-			} else {
-				postData.liked = null
-			}
-			return postData
-		})
-
-		res.json(postsWithVoteStates)
+		res.json(posts)
 	} catch (error) {
 		console.error("Error fetching posts:", error)
 		res.status(500).json({ message: "Error fetching posts", error })
@@ -116,26 +63,7 @@ router.get("/:username/:id", async (req, res) => {
 		// Increment views by 1
 		post.views += 1
 		await post.save()
-
-		// Check if user is authenticated and get their vote state		let liked = null
-		if (req.headers.authorization) {
-			const token = req.headers.authorization.split(" ")[1]
-			const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
-			const user = await User.findById(decoded.id)
-			if (user) {
-				console.log("📊 User votedPosts:", user.votedPosts)
-				const userVote = user.votedPosts.find(
-					vote => vote.postId.toString() === req.params.id
-				)
-				liked = userVote ? userVote.upvoted : null
-			}
-		} else {
-			console.log("No authorization header found")
-		}
-
-		const postData = post.toJSON()
-		postData.liked = liked
-		res.json(postData)
+		res.json(post)
 	} catch (err) {
 		console.error("Error fetching post:", err)
 		res.status(500).json({ message: "Error", err })

@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken"
 import fs from "fs"
 import User from "../models/User.js"
 
-const publicKey = fs.readFileSync("./public.key")
+const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 
 const adminAuth = async (req, res, next) => {
 	try {

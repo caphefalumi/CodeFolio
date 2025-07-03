@@ -10,8 +10,8 @@ import authenticateToken from "../middleware/authenticateToken.js"
 import fs from "fs"
 import "dotenv/config"
 
-const privateKey = fs.readFileSync("./private.key")
-const publicKey = fs.readFileSync("./public.key")
+const privateKey = fs.readFileSync(process.cwd() + "/private.key", "utf8")
+const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 const router = express.Router()
 
 router.post("/validate", async (req, res) => {
@@ -19,12 +19,11 @@ router.post("/validate", async (req, res) => {
 	if (!accessToken) {
 		return res.status(401).json({ message: "Access token is required" })
 	}
-
+	if (bearer !== "Bearer") {
+			return res.status(403).json({ message: "Invalid access token format" })
+	}
 	try {
 		jwt.verify(accessToken, publicKey, { algorithms: ["RS256"] }, err => {
-			if (bearer !== "Bearer") {
-				return res.status(403).json({ message: "Invalid access token format" })
-			}
 			if (err) {
 				return res.status(403).json({ message: "Invalid access token" })
 			}
