@@ -13,7 +13,7 @@
 							></v-img>
 						</v-avatar>
 						<h1 id="profile-heading" class="text-h4 font-weight-bold mb-1">
-							{{ userProfile.firstName + " " + userProfile.lastName }}
+							{{ userProfile.firstName + " " + userProfile.lastName || "Loading..." }}
 						</h1>
 						<div class="text-subtitle-2 text-grey-darken-1 mb-2">
 							@{{ userProfile.username }}

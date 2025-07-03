@@ -387,7 +387,7 @@
 				try {
 					const apiUrl = this.project.githubUrl.replace(
 						"https://github.com/",
-						"https:/${import.meta.env.VITE_SERVER_URL}/api.github.com/repos/"
+						`https://api.github.com/repos/`
 					)
 					const res = await axios.get(apiUrl)
 					const { stargazers_count, forks_count, open_issues_count } = res.data
