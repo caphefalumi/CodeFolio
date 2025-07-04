@@ -82,8 +82,7 @@ export function useApi() {
 				`${import.meta.env.VITE_SERVER_URL}/api/posts/${id}`,
 				getAuthHeaders(token)
 			)
-		}
-		catch {
+		} catch {
 			console.error(`Failed to delete post with ID: ${id}`)
 		}
 	}

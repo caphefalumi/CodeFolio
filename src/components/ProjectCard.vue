@@ -1,5 +1,5 @@
 <template>
-	<v-card class="project-card elevation-1 mb-4"  :class="cardClass">
+	<v-card class="project-card elevation-1 mb-4" :class="cardClass">
 		<v-img
 			:src="project.coverImage"
 			:height="imageHeight"

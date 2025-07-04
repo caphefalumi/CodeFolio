@@ -10,7 +10,10 @@ import authenticateToken from "../middleware/authenticateToken.js"
 import fs from "fs"
 import "dotenv/config"
 
-const privateKey = fs.readFileSync(process.cwd() + "/private_encrypted.key", "utf8")
+const privateKey = fs.readFileSync(
+	process.cwd() + "/private_encrypted.key",
+	"utf8"
+)
 const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 const router = express.Router()
 
@@ -20,7 +23,7 @@ router.post("/validate", async (req, res) => {
 		return res.status(401).json({ message: "Access token is required" })
 	}
 	if (bearer !== "Bearer") {
-			return res.status(403).json({ message: "Invalid access token format" })
+		return res.status(403).json({ message: "Invalid access token format" })
 	}
 	try {
 		jwt.verify(accessToken, publicKey, { algorithms: ["RS256"] }, err => {
@@ -55,10 +58,14 @@ router.post("/token", async (req, res) => {
 
 		console.log("User found:", user.username)
 
-		const newRefreshToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "7d",
-			algorithm: "RS256",
-		})
+		const newRefreshToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "7d",
+				algorithm: "RS256",
+			}
+		)
 		user.refreshToken = newRefreshToken
 		await user.save()
 
@@ -69,10 +76,14 @@ router.post("/token", async (req, res) => {
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		})
 
-		const accessToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "1h",
-			algorithm: "RS256",
-		})
+		const accessToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "1h",
+				algorithm: "RS256",
+			}
+		)
 		console.log("New access token generated successfully")
 		res.json({ accessToken })
 	})
@@ -145,14 +156,22 @@ router.post("/login/jwt", async (req, res) => {
 			return res.status(401).json({ message: "Invalid email or password" })
 		}
 
-		const accessToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "1h",
-			algorithm: "RS256",
-		})
-		const refreshToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "7d",
-			algorithm: "RS256",
-		})
+		const accessToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "1h",
+				algorithm: "RS256",
+			}
+		)
+		const refreshToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "7d",
+				algorithm: "RS256",
+			}
+		)
 		user.refreshToken = refreshToken
 		await user.save()
 
@@ -211,14 +230,22 @@ router.post("/login/google", async (req, res) => {
 				})
 			}
 		}
-		const accessToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "1h",
-			algorithm: "RS256",
-		})
-		const refreshToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "7d",
-			algorithm: "RS256",
-		})
+		const accessToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "1h",
+				algorithm: "RS256",
+			}
+		)
+		const refreshToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "7d",
+				algorithm: "RS256",
+			}
+		)
 		user.refreshToken = refreshToken
 		await user.save()
 
@@ -317,14 +344,22 @@ router.get("/login/github/callback", async (req, res) => {
 				})
 			}
 		}
-		const accessToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "1h",
-			algorithm: "RS256",
-		})
-		const refreshToken = jwt.sign({ id: user._id }, { key: privateKey, passphrase: process.env.JWT_PASSPHRASE }, {
-			expiresIn: "7d",
-			algorithm: "RS256",
-		})
+		const accessToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "1h",
+				algorithm: "RS256",
+			}
+		)
+		const refreshToken = jwt.sign(
+			{ id: user._id },
+			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
+			{
+				expiresIn: "7d",
+				algorithm: "RS256",
+			}
+		)
 		user.refreshToken = refreshToken
 		await user.save()
 

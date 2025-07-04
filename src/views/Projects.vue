@@ -138,11 +138,8 @@
 						)
 					} else if (this.search.startsWith("@")) {
 						const usernameQuery = this.search.slice(1).toLowerCase()
-						filtered = filtered.filter(
-							project =>
-								project.author?.username
-									.toLowerCase()
-									.includes(usernameQuery)
+						filtered = filtered.filter(project =>
+							project.author?.username.toLowerCase().includes(usernameQuery)
 						)
 					} else {
 						filtered = filtered.filter(

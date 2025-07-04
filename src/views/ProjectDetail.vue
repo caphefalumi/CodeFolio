@@ -280,14 +280,15 @@
 <script>
 	import axios from "axios"
 	import { getAccessToken, isLoggedIn } from "@/composables/user.js"
-	import { useApi } from "@/composables/common.js"	
+	import { useApi } from "@/composables/common.js"
 	import AppAlert from "@/components/AppAlert.vue"
 	import AppForm from "@/components/AppForm.vue"
 	import CommentItem from "@/components/CommentItem.vue"
 	import MentionTextarea from "@/components/MentionTextarea.vue"
 
 	export default {
-		name: "ProjectDetailView",		components: {
+		name: "ProjectDetailView",
+		components: {
 			AppAlert,
 			AppForm,
 			CommentItem,

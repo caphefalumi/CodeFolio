@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken"
 import fs from "fs"
 import "dotenv/config"
 
-const publicKey = fs.readFileSync(process.cwd() + '/public.key', 'utf8')
+const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 
 function authenticateToken(req, res, next) {
 	// Try to get token from Authorization header first (preferred method)

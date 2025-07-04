@@ -82,8 +82,7 @@ router.beforeEach(async (to, from, next) => {
 		} catch (error) {
 			next("/404")
 		}
-	}
-	else {
+	} else {
 		next()
 	}
 })
