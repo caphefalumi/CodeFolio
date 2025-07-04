@@ -77,6 +77,53 @@ const userSchema = new mongoose.Schema({
 		},
 	],
 	votedPosts: [votedPostsSchema],
+	notificationPreferences: {
+		emailNotifications: {
+			type: Boolean,
+			default: true,
+		},
+		emailMentions: {
+			type: Boolean,
+			default: true,
+		},
+		emailComments: {
+			type: Boolean,
+			default: true,
+		},
+		emailLikes: {
+			type: Boolean,
+			default: false,
+		},
+		pushNotifications: {
+			type: Boolean,
+			default: false,
+		},
+		pushMentions: {
+			type: Boolean,
+			default: true,
+		},
+		pushComments: {
+			type: Boolean,
+			default: true,
+		},
+		inAppMentions: {
+			type: Boolean,
+			default: true,
+		},
+		inAppComments: {
+			type: Boolean,
+			default: true,
+		},
+		inAppLikes: {
+			type: Boolean,
+			default: true,
+		},
+		emailFrequency: {
+			type: String,
+			enum: ["immediate", "daily", "weekly", "never"],
+			default: "immediate",
+		},
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now,

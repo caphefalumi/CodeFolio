@@ -90,6 +90,74 @@ export function useApi() {
 		return response.data
 	}
 
+	// Notification operations
+	const fetchNotifications = async token => {
+		const response = await axios.get(
+			`${import.meta.env.VITE_SERVER_URL}/api/notifications`,
+			getAuthHeaders(token)
+		)
+		return response.data
+	}
+
+	const fetchUnreadCount = async token => {
+		const response = await axios.get(
+			`${import.meta.env.VITE_SERVER_URL}/api/notifications/unread-count`,
+			getAuthHeaders(token)
+		)
+		return response.data.unreadCount
+	}
+
+	const markNotificationAsRead = async (notificationId, token) => {
+		const response = await axios.patch(
+			`${import.meta.env.VITE_SERVER_URL}/api/notifications/${notificationId}/read`,
+			{},
+			getAuthHeaders(token)
+		)
+		return response.data
+	}
+
+	const markAllNotificationsAsRead = async token => {
+		const response = await axios.patch(
+			`${import.meta.env.VITE_SERVER_URL}/api/notifications/read-all`,
+			{},
+			getAuthHeaders(token)
+		)
+		return response.data
+	}
+
+	const deleteNotification = async (notificationId, token) => {
+		const response = await axios.delete(
+			`${import.meta.env.VITE_SERVER_URL}/api/notifications/${notificationId}`,
+			getAuthHeaders(token)
+		)
+		return response.data
+	}
+
+	const deleteAllNotifications = async token => {
+		const response = await axios.delete(
+			`${import.meta.env.VITE_SERVER_URL}/api/notifications`,
+			getAuthHeaders(token)
+		)
+		return response.data
+	}
+
+	const fetchNotificationPreferences = async token => {
+		const response = await axios.get(
+			`${import.meta.env.VITE_SERVER_URL}/api/users/me/notification-preferences`,
+			getAuthHeaders(token)
+		)
+		return response.data.preferences
+	}
+
+	const updateNotificationPreferences = async (preferences, token) => {
+		const response = await axios.patch(
+			`${import.meta.env.VITE_SERVER_URL}/api/users/me/notification-preferences`,
+			{ preferences },
+			getAuthHeaders(token)
+		)
+		return response.data
+	}
+
 	return {
 		loading: computed(() => loading.value),
 		error: computed(() => error.value),
@@ -104,6 +172,15 @@ export function useApi() {
 		updatePost,
 		deletePost,
 		updateUser,
+		// Notification functions
+		fetchNotifications,
+		fetchUnreadCount,
+		markNotificationAsRead,
+		markAllNotificationsAsRead,
+		deleteNotification,
+		deleteAllNotifications,
+		fetchNotificationPreferences,
+		updateNotificationPreferences,
 	}
 }
 

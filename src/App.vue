@@ -18,6 +18,23 @@
 			</v-btn>
 			<v-btn to="/" text>Home</v-btn>
 			<v-btn to="/projects" text>Projects</v-btn>
+			<!-- Notification Bell Button Only -->
+			<v-btn
+				v-if="isAuthenticated"
+				icon
+				@click="toggleNotifications"
+				:aria-label="`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`"
+				id="notification-trigger"
+			>
+				<v-badge
+					:content="unreadCount"
+					:value="unreadCount > 0"
+					color="error"
+					overlap
+				>
+					<v-icon>mdi-bell{{ unreadCount > 0 ? "" : "-outline" }}</v-icon>
+				</v-badge>
+			</v-btn>
 			<v-menu v-if="isAuthenticated" offset-y>
 				<template #activator="{ props }">
 					<v-btn icon v-bind="props" :aria-label="`User menu for ${username}`">
@@ -42,9 +59,16 @@
 			</v-menu>
 			<v-btn v-else to="/login" text>Login</v-btn>
 		</v-app-bar>
+
+		<!-- Notification Dropdown Positioned Outside App Bar -->
+		<notification-dropdown
+			v-if="isAuthenticated"
+			:show="showNotifications"
+			@close="showNotifications = false"
+			@update-unread-count="updateUnreadCount"
+		/>
+
 		<v-main role="main" id="main-content" tabindex="-1">
-			<Analytics />
-			<SpeedInsights />
 			<v-container>
 				<router-view></router-view>
 			</v-container>
@@ -61,12 +85,14 @@
 
 <script>
 	import axios from "axios"
-	import { SpeedInsights } from '@vercel/speed-insights/vue';
-	import { Analytics } from '@vercel/analytics/vue'
 	import { fetchCurrentUser } from "@/composables/user.js"
+	import NotificationDropdown from "@/components/NotificationDropdown.vue"
 
 	export default {
 		name: "App",
+		components: {
+			NotificationDropdown,
+		},
 		data() {
 			return {
 				isAuthenticated: false,
@@ -75,11 +101,14 @@
 				avatar: "",
 				isDark: false,
 				tokenRefreshInterval: null, // interval ID for auto-refresh
+				showNotifications: false,
+				unreadCount: 0,
 			}
 		},
 		mounted() {
 			this.fetchToken()
 			this.loadThemePreference()
+			this.loadUnreadCount()
 		},
 		methods: {
 			async fetchProfile() {
@@ -88,6 +117,8 @@
 					this.username = this.user.username
 					this.avatar = this.user.avatar
 					console.log("User profile fetched:", this.avatar, this.username)
+					// Load unread count after profile is fetched
+					this.loadUnreadCount()
 				} catch (error) {
 					console.error("Error fetching user profile:", error)
 				}
@@ -140,13 +171,13 @@
 						this.fetchToken()
 					}
 				} catch (error) {
-						console.error("Error fetching new token:", error)
-						sessionStorage.removeItem("accessToken")
-						this.isAuthenticated = false
-						this.user = null
-						this.username = ""
-						this.avatar = ""
-					}
+					console.error("Error fetching new token:", error)
+					sessionStorage.removeItem("accessToken")
+					this.isAuthenticated = false
+					this.user = null
+					this.username = ""
+					this.avatar = ""
+				}
 			},
 
 			startTokenRefreshTimer() {
@@ -195,8 +226,40 @@
 						this.username = ""
 						this.avatar = ""
 						this.stopTokenRefreshTimer()
+						this.showNotifications = false
+						this.unreadCount = 0
 						this.$router.push("/login")
 					})
+			},
+
+			toggleNotifications() {
+				this.showNotifications = !this.showNotifications
+			},
+			updateUnreadCount(count) {
+				this.unreadCount = count
+			},
+
+			async loadUnreadCount() {
+				if (!this.isAuthenticated) {
+					this.unreadCount = 0
+					return
+				}
+
+				try {
+					const token = sessionStorage.getItem("accessToken")
+					if (!token) return
+
+					const response = await axios.get(
+						`${import.meta.env.VITE_SERVER_URL}/api/notifications/unread-count`,
+						{
+							headers: { Authorization: `Bearer ${token}` },
+						}
+					)
+					this.unreadCount = response.data.unreadCount
+				} catch (error) {
+					console.error("Error loading unread count:", error)
+					this.unreadCount = 0
+				}
 			},
 		},
 
@@ -212,5 +275,13 @@
 	#app {
 		font-family: "Roboto", sans-serif;
 		-webkit-font-smoothing: antialiased;
+	}
+
+	/* Ensure notification dropdown appears above all content */
+	.notification-wrapper {
+		position: fixed !important;
+		top: 64px !important; /* Below the app bar */
+		right: 16px !important;
+		z-index: 9999 !important;
 	}
 </style>

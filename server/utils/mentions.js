@@ -23,18 +23,58 @@ export async function notifyMentionedUsers(
 	commentId,
 	mentionerUser
 ) {
-	// For now, just log the mentions
-	// In the future, this could send email notifications or push notifications
-	console.log(
-		`User ${mentionerUser.username} mentioned users:`,
-		mentions,
-		`in post ${postId}`
-	)
+	// Import here to avoid circular dependency
+	const User = (await import("../models/User.js")).default
+	const Notification = (await import("../models/Notification.js")).default
+	const Post = (await import("../models/Post.js")).default
 
-	// TODO: Add notification logic here
-	// - Create notification records in database
-	// - Send email notifications
-	// - Send push notifications
+	try {
+		// Get the post details for the notification message
+		const post = await Post.findById(postId).populate("author", "username")
+		if (!post) {
+			return mentions
+		}
 
-	return mentions
+		// Find users by username from mentions
+		const mentionedUsers = await User.find({
+			username: { $in: mentions },
+		}).select("_id username")
+
+		if (mentionedUsers.length === 0) {
+			return mentions
+		}
+
+		// Create notifications for each mentioned user
+		const notifications = mentionedUsers
+			.map(user => {
+				// Don't notify if user mentions themselves
+				if (user._id.toString() === mentionerUser._id.toString()) {
+					return null
+				}
+
+				const isComment = commentId !== null
+				const message = isComment
+					? `@${mentionerUser.username} mentioned you in a comment on "${post.title}"`
+					: `@${mentionerUser.username} mentioned you in the post "${post.title}"`
+
+				return {
+					recipient: user._id,
+					sender: mentionerUser._id,
+					type: "mention",
+					message: message,
+					relatedPost: postId,
+					relatedComment: commentId,
+				}
+			})
+			.filter(notification => notification !== null)
+
+		if (notifications.length > 0) {
+			await Notification.insertMany(notifications)
+		}
+
+		return mentions
+	} catch (error) {
+		console.error("Error creating mention notifications:", error)
+		return mentions
+	}
 }

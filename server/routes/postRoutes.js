@@ -15,6 +15,16 @@ router.post("/", authenticateToken, async (req, res) => {
 	try {
 		const post = new Post({ ...req.body, author: req.user.id })
 		await post.save()
+
+		// Extract mentions from post content
+		const mentions = extractMentions(req.body.content)
+
+		// Handle mentions if any exist
+		if (mentions.length > 0) {
+			const currentUser = await User.findById(req.user.id)
+			await notifyMentionedUsers(mentions, post._id, null, currentUser)
+		}
+
 		res.status(201).json({ message: "Post created successfully", post })
 	} catch (error) {
 		console.error("Error creating post:", error)
@@ -114,22 +124,33 @@ router.post("/:id/comments", authenticateToken, async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
 		if (!post) return res.status(404).json({ message: "Post not found" })
-
 		const commentContent = req.body.content
 
 		// Extract mentions from comment content
 		const mentions = extractMentions(commentContent)
-
+		console.log("🔍 Extracted mentions from comment:", {
+			commentContent,
+			mentions,
+		})
 		// Add the comment
 		post.comments.push({ user: req.user.id, content: commentContent })
 		await post.save()
+
+		// Get the newly created comment ID
+		const newComment = post.comments[post.comments.length - 1]
+
 		// Populate the new comment with user data before sending response
 		await post.populate("comments.user", "username avatar firstName lastName")
 
 		// Handle mentions if any exist
 		if (mentions.length > 0) {
 			const currentUser = await User.findById(req.user.id)
-			await notifyMentionedUsers(mentions, post._id, null, currentUser)
+			await notifyMentionedUsers(
+				mentions,
+				post._id,
+				newComment._id,
+				currentUser
+			)
 		}
 
 		res.status(201).json({

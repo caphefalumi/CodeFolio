@@ -8,15 +8,15 @@ import userRoutes from "./routes/userRoutes.js"
 import postRoutes from "./routes/postRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
 import uploadRoutes from "./routes/uploadRoutes.js"
+import notificationRoutes from "./routes/notificationRoutes.js"
 
 const app = express()
 
 const corsOptions = {
 	origin: [
-		"http://localhost:3000",
 		"https://localhost:3000",
 		"https://codefolio-phi.vercel.app",
-		"https://bechuotbedangyeu.vercel.app"
+		"https://bechuotbedangyeu.vercel.app",
 	],
 	credentials: true,
 }
@@ -40,6 +40,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
 app.use("/api/auth", authRoutes)
 app.use("/api/upload", uploadRoutes)
+app.use("/api/notifications", notificationRoutes)
 
 app.listen(process.env.SERVER_PORT, () => {
 	console.log(`Server is running on port ${process.env.SERVER_PORT}`)

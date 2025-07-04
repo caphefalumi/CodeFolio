@@ -81,6 +81,62 @@ router.patch("/", authenticateToken, async (req, res) => {
 	}
 })
 
+// Get notification preferences
+router.get(
+	"/me/notification-preferences",
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const user = await User.findById(req.user.id).select(
+				"notificationPreferences"
+			)
+			if (!user) {
+				return res.status(404).json({ message: "User not found" })
+			}
+			res.json({ preferences: user.notificationPreferences })
+		} catch (error) {
+			console.error("Error fetching notification preferences:", error)
+			res
+				.status(500)
+				.json({ message: "Error fetching notification preferences", error })
+		}
+	}
+)
+
+// Update notification preferences
+router.patch(
+	"/me/notification-preferences",
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const { preferences } = req.body
+			if (!preferences) {
+				return res.status(400).json({ message: "Preferences are required" })
+			}
+
+			const user = await User.findByIdAndUpdate(
+				req.user.id,
+				{ notificationPreferences: preferences },
+				{ new: true }
+			).select("notificationPreferences")
+
+			if (!user) {
+				return res.status(404).json({ message: "User not found" })
+			}
+
+			res.json({
+				message: "Notification preferences updated successfully",
+				preferences: user.notificationPreferences,
+			})
+		} catch (error) {
+			console.error("Error updating notification preferences:", error)
+			res
+				.status(500)
+				.json({ message: "Error updating notification preferences", error })
+		}
+	}
+)
+
 router.delete("/", authenticateToken, async (req, res) => {
 	const userId = req.user.id
 	if (!userId) {
