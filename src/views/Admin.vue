@@ -161,6 +161,7 @@
 
 <script>
 	import axios from "axios"
+	import { getAccessToken } from "@/composables/user.js"
 
 	export default {
 		name: "AdminDashboard",
@@ -230,6 +231,10 @@
 							: false)
 				)
 			},
+			authHeaders() {
+				const token = getAccessToken()
+				return token ? { Authorization: `Bearer ${token}` } : {}
+			},
 		},
 		mounted() {
 			this.fetchUsers()
@@ -271,28 +276,45 @@
 			saveUser() {
 				if (this.editingUser) {
 					axios
-						.put(
+						.patch(
 							`${import.meta.env.VITE_SERVER_URL}/api/users/${this.editingUser._id}`,
-							this.userForm
+							this.userForm,
+							{ headers: this.authHeaders }
 						)
 						.then(() => {
 							this.fetchUsers()
 							this.closeUserDialog()
 						})
+						.catch(error => {
+							console.error("Error updating user:", error)
+						})
 				} else {
 					axios
-						.post(`${import.meta.env.VITE_SERVER_URL}/api/users`, this.userForm)
+						.post(
+							`${import.meta.env.VITE_SERVER_URL}/api/users`,
+							this.userForm,
+							{ headers: this.authHeaders }
+						)
 						.then(() => {
 							this.fetchUsers()
 							this.closeUserDialog()
+						})
+						.catch(error => {
+							console.error("Error creating user:", error)
 						})
 				}
 			},
 			deleteUser(user) {
 				if (confirm("Delete this user?")) {
 					axios
-						.delete(`${import.meta.env.VITE_SERVER_URL}/api/users/${user._id}`)
+						.delete(
+							`${import.meta.env.VITE_SERVER_URL}/api/users/${user._id}`,
+							{ headers: this.authHeaders }
+						)
 						.then(() => this.fetchUsers())
+						.catch(error => {
+							console.error("Error deleting user:", error)
+						})
 				}
 			},
 			closeUserDialog() {
@@ -317,28 +339,45 @@
 			savePost() {
 				if (this.editingPost) {
 					axios
-						.put(
+						.patch(
 							`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.editingPost._id}`,
-							this.postForm
+							this.postForm,
+							{ headers: this.authHeaders }
 						)
 						.then(() => {
 							this.fetchPosts()
 							this.closePostDialog()
 						})
+						.catch(error => {
+							console.error("Error updating post:", error)
+						})
 				} else {
 					axios
-						.post(`${import.meta.env.VITE_SERVER_URL}/api/posts`, this.postForm)
+						.post(
+							`${import.meta.env.VITE_SERVER_URL}/api/posts`,
+							this.postForm,
+							{ headers: this.authHeaders }
+						)
 						.then(() => {
 							this.fetchPosts()
 							this.closePostDialog()
+						})
+						.catch(error => {
+							console.error("Error creating post:", error)
 						})
 				}
 			},
 			deletePost(post) {
 				if (confirm("Delete this post?")) {
 					axios
-						.delete(`${import.meta.env.VITE_SERVER_URL}/api/posts/${post._id}`)
+						.delete(
+							`${import.meta.env.VITE_SERVER_URL}/api/posts/${post._id}`,
+							{ headers: this.authHeaders }
+						)
 						.then(() => this.fetchPosts())
+						.catch(error => {
+							console.error("Error deleting post:", error)
+						})
 				}
 			},
 			closePostDialog() {

@@ -1,13 +1,11 @@
 import express from "express"
-import jwt from "jsonwebtoken"
 import fs from "fs"
 import authenticateToken from "../middleware/authenticateToken.js"
-import adminAuth from "../middleware/adminAuth.js"
 import Post from "../models/Post.js"
 import User from "../models/User.js"
 import { extractMentions, notifyMentionedUsers } from "../utils/mentions.js"
+import { isAuthorizedUser } from "../utils/adminCheck.js"
 
-const publicKey = fs.readFileSync("./public.key")
 const router = express.Router()
 
 // 🔹 Create a post
@@ -63,7 +61,6 @@ router.get("/:username", async (req, res) => {
 // 🔹 Get a specific post
 router.get("/:username/:id", async (req, res) => {
 	try {
-		console.log("OK")
 		const post = await Post.findById(req.params.id)
 			.populate("author", "username avatar firstName lastName")
 			.populate("comments.user", "username avatar firstName lastName")
@@ -85,7 +82,14 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
 		if (!post) return res.status(404).json({ message: "Post not found" })
-		if (post.author.toString() !== req.user.id) {
+
+		// Check if current user is authorized (is the author or is admin)
+		const isAuthorized = await isAuthorizedUser(
+			req.user.id,
+			post.author.toString()
+		)
+
+		if (!isAuthorized) {
 			return res
 				.status(403)
 				.json({ message: "Not authorized to update this post" })
@@ -96,6 +100,7 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 
 		res.json({ message: "Post updated successfully", post })
 	} catch (error) {
+		console.error("Error updating post:", error)
 		res.status(400).json({ message: "Error updating post", error })
 	}
 })
@@ -104,14 +109,27 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
-		if (!post) return res.status(404).json({ message: "Post not found" })
-		if (post.author.toString() !== req.user.id) {
+		if (!post) {
+			return res.status(404).json({ message: "Post not found" })
+		}
+
+		// Check if current user is authorized (is the author or is admin)
+		const isAuthorized = await isAuthorizedUser(
+			req.user.id,
+			post.author.toString()
+		)
+
+		if (!isAuthorized) {
+			console.error("Unauthorized delete attempt:", {
+				userId: req.user.id,
+				postId: post._id,
+			})
 			return res
 				.status(403)
 				.json({ message: "Not authorized to delete this post" })
 		}
 
-		await post.deleteOne
+		await Post.findByIdAndDelete(req.params.id)
 		res.json({ message: "Post deleted successfully" })
 	} catch (error) {
 		console.error("Error deleting post:", error)
@@ -128,10 +146,7 @@ router.post("/:id/comments", authenticateToken, async (req, res) => {
 
 		// Extract mentions from comment content
 		const mentions = extractMentions(commentContent)
-		console.log("🔍 Extracted mentions from comment:", {
-			commentContent,
-			mentions,
-		})
+
 		// Add the comment
 		post.comments.push({ user: req.user.id, content: commentContent })
 		await post.save()
@@ -322,53 +337,6 @@ router.post("/:id/downvote", authenticateToken, async (req, res) => {
 	} catch (error) {
 		console.error("Error downvoting post:", error)
 		res.status(400).json({ message: "Error downvoting post", error })
-	}
-})
-
-// Admin routes for managing any post
-router.put("/admin/:id", adminAuth, async (req, res) => {
-	try {
-		const postId = req.params.id
-		const updatedPost = req.body
-
-		const post = await Post.findByIdAndUpdate(postId, updatedPost, {
-			new: true,
-			runValidators: true,
-		}).populate("author", "username")
-
-		if (!post) {
-			return res.status(404).json({ message: "Post not found" })
-		}
-
-		res.json({ message: "Post updated successfully", post })
-	} catch (error) {
-		console.error("Error updating post:", error)
-		res
-			.status(400)
-			.json({ message: "Error updating post", error: error.message })
-	}
-})
-
-router.delete("/admin/:id", adminAuth, async (req, res) => {
-	try {
-		const postId = req.params.id
-
-		if (!postId) {
-			return res.status(400).json({ message: "Post ID is required" })
-		}
-
-		const post = await Post.findByIdAndDelete(postId)
-
-		if (!post) {
-			return res.status(404).json({ message: "Post not found" })
-		}
-
-		res.json({ message: `Post with ID: ${postId} deleted successfully` })
-	} catch (error) {
-		console.error("Error deleting post:", error)
-		res
-			.status(500)
-			.json({ message: "Error deleting post", error: error.message })
 	}
 })
 

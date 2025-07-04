@@ -76,10 +76,16 @@ export function useApi() {
 	}
 
 	const deletePost = async (id, token) => {
-		await axios.delete(
-			`${import.meta.env.VITE_SERVER_URL}/api/posts/${id}`,
-			getAuthHeaders(token)
-		)
+		try {
+			console.log("Attempting to delete post with ID:", id)
+			await axios.delete(
+				`${import.meta.env.VITE_SERVER_URL}/api/posts/${id}`,
+				getAuthHeaders(token)
+			)
+		}
+		catch {
+			console.error(`Failed to delete post with ID: ${id}`)
+		}
 	}
 	const updateUser = async (payload, token) => {
 		const response = await axios.patch(
@@ -132,27 +138,9 @@ export function useApi() {
 		)
 		return response.data
 	}
-
 	const deleteAllNotifications = async token => {
 		const response = await axios.delete(
 			`${import.meta.env.VITE_SERVER_URL}/api/notifications`,
-			getAuthHeaders(token)
-		)
-		return response.data
-	}
-
-	const fetchNotificationPreferences = async token => {
-		const response = await axios.get(
-			`${import.meta.env.VITE_SERVER_URL}/api/users/me/notification-preferences`,
-			getAuthHeaders(token)
-		)
-		return response.data.preferences
-	}
-
-	const updateNotificationPreferences = async (preferences, token) => {
-		const response = await axios.patch(
-			`${import.meta.env.VITE_SERVER_URL}/api/users/me/notification-preferences`,
-			{ preferences },
 			getAuthHeaders(token)
 		)
 		return response.data
@@ -179,8 +167,6 @@ export function useApi() {
 		markAllNotificationsAsRead,
 		deleteNotification,
 		deleteAllNotifications,
-		fetchNotificationPreferences,
-		updateNotificationPreferences,
 	}
 }
 

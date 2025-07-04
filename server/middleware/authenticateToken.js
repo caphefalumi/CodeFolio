@@ -8,7 +8,6 @@ function authenticateToken(req, res, next) {
 	// Try to get token from Authorization header first (preferred method)
 	let token = null
 	const authHeader = req.headers["authorization"]
-	console.log("Authorization header:", authHeader)
 
 	if (authHeader && authHeader.startsWith("Bearer ")) {
 		token = authHeader.split(" ")[1]
@@ -48,7 +47,6 @@ function authenticateToken(req, res, next) {
 		console.error("Authentication middleware error:", error)
 		return res.status(500).json({
 			message: "Authentication server error",
-			error: process.env.NODE_ENV === "development" ? error.message : undefined,
 		})
 	}
 }

@@ -295,26 +295,6 @@
 	</v-theme-provider>
 </template>
 
-<style scoped>
-	.profile-header {
-		margin-bottom: 32px;
-	}
-	.profile-avatar {
-		border: 4px solid #fff;
-		box-shadow: 0 4px 24px rgba(44, 62, 80, 0.15);
-	}
-	.profile-projects-card {
-		border-radius: 18px;
-		background: var(--v-theme-surface);
-	}
-	.project-card {
-		border-radius: 12px;
-		transition: box-shadow 0.2s;
-	}
-	.project-card:hover {
-		box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
-	}
-</style>
 <script>
 	import {
 		fetchProfile,
@@ -606,3 +586,24 @@
 		},
 	}
 </script>
+
+<style scoped>
+	.profile-header {
+		margin-bottom: 32px;
+	}
+	.profile-avatar {
+		border: 4px solid #fff;
+		box-shadow: 0 4px 24px rgba(44, 62, 80, 0.15);
+	}
+	.profile-projects-card {
+		border-radius: 18px;
+		background: var(--v-theme-surface);
+	}
+	.project-card {
+		border-radius: 12px;
+		transition: box-shadow 0.2s;
+	}
+	.project-card:hover {
+		box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
+	}
+</style>

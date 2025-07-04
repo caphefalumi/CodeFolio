@@ -51,3 +51,8 @@ export async function fetchProjects(username) {
 		// throw error
 	}
 }
+
+export function isAdmin() {
+	const userInfo = getCurrentUserInfo()
+	return userInfo && userInfo.email === "dangduytoan13l@gmail.com"
+}
