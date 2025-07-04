@@ -14,13 +14,30 @@ router.post("/", authenticateToken, async (req, res) => {
 		const post = new Post({ ...req.body, author: req.user.id })
 		await post.save()
 
+		// Get current user for notifications
+		const currentUser = await User.findById(req.user.id)
+
 		// Extract mentions from post content
 		const mentions = extractMentions(req.body.content)
 
 		// Handle mentions if any exist
 		if (mentions.length > 0) {
-			const currentUser = await User.findById(req.user.id)
 			await notifyMentionedUsers(mentions, post._id, null, currentUser)
+		}
+
+		// Notify followers about new post
+		if (currentUser.followers && currentUser.followers.length > 0) {
+			const Notification = (await import("../models/Notification.js")).default
+
+			const followerNotifications = currentUser.followers.map(followerId => ({
+				recipient: followerId,
+				sender: req.user.id,
+				type: "follow",
+				message: `${currentUser.firstName} ${currentUser.lastName} posted a new project: ${post.title}`,
+				relatedPost: post._id,
+			}))
+
+			await Notification.insertMany(followerNotifications)
 		}
 
 		res.status(201).json({ message: "Post created successfully", post })

@@ -62,26 +62,33 @@ router.beforeEach(async (to, from, next) => {
 	// If route requires guest (login/register) and user is authenticated
 	else if (to.meta.requiresGuest && isAuthenticated) {
 		next("/")
-	}
-	// If route requires admin
+	}	// If route requires admin
 	else if (to.meta.requiresAdmin) {
 		if (!isAuthenticated) {
 			next("/404")
 			return
 		}
 
-		try {
-			const currentUser = await fetchCurrentUser()
-			const isAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL
+		fetchCurrentUser()
+			.then((currentUser) => {
+				if (!currentUser) {
+					next("/404")
+					return
+				}
 
-			if (isAdmin) {
-				next()
-			} else {
+				// Check if the current user is an admin
+				const isAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL
+
+				if (isAdmin) {
+					next()
+				} else {
+					next("/404")
+				}
+			})
+			.catch((error) => {
+				console.error("Error fetching current user:", error)
 				next("/404")
-			}
-		} catch (error) {
-			next("/404")
-		}
+			})
 	} else {
 		next()
 	}

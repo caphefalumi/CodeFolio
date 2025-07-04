@@ -80,7 +80,7 @@ router.post("/token", async (req, res) => {
 			{ id: user._id },
 			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
 			{
-				expiresIn: "1h",
+				expiresIn: "15m",
 				algorithm: "RS256",
 			}
 		)
@@ -160,7 +160,7 @@ router.post("/login/jwt", async (req, res) => {
 			{ id: user._id },
 			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
 			{
-				expiresIn: "1h",
+				expiresIn: "15m",
 				algorithm: "RS256",
 			}
 		)
@@ -234,7 +234,7 @@ router.post("/login/google", async (req, res) => {
 			{ id: user._id },
 			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
 			{
-				expiresIn: "1h",
+				expiresIn: "15m",
 				algorithm: "RS256",
 			}
 		)
@@ -348,7 +348,7 @@ router.get("/login/github/callback", async (req, res) => {
 			{ id: user._id },
 			{ key: privateKey, passphrase: process.env.JWT_PASSPHRASE },
 			{
-				expiresIn: "1h",
+				expiresIn: "15m",
 				algorithm: "RS256",
 			}
 		)

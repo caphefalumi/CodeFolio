@@ -27,6 +27,7 @@
 	},
 	"devDependencies": {
 		"@mdi/font": "^7.4.47",
+		"@tauri-apps/cli": "^2.6.2",
 		"@vitejs/plugin-vue": "^5.0.3",
 		"@vue/eslint-config-prettier": "^8.0.0",
 		"eslint": "^8.57.1",

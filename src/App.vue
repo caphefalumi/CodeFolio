@@ -185,7 +185,7 @@
 				this.tokenRefreshInterval = setInterval(() => {
 					console.log("Auto refreshing token...")
 					this.getNewToken(true) // silent refresh
-				}, 270000) // refresh every 4.5 minutes (270,000 ms)
+				}, 840000) //14 minuetes
 			},
 
 			stopTokenRefreshTimer() {

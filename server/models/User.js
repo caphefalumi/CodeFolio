@@ -63,16 +63,15 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		default: "",
 	},
-	followed: [
+	following: [
 		{
-			type: String,
+			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 		},
 	],
-
 	followers: [
 		{
-			type: String,
+			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 		},
 	],
@@ -97,20 +96,33 @@ const userSchema = new mongoose.Schema({
 	},
 })
 
-userSchema.set("toJSON", {
-	transform: (_, ret) => {
-		delete ret.password
-		delete ret.__v
-		return ret
-	},
-})
-
 userSchema.statics.findByUsername = function (username) {
 	return this.findOne({ username: username })
 }
 
 userSchema.virtual("name").get(function () {
 	return this.firstName + " " + this.lastName
+})
+
+userSchema.virtual("followersCount").get(function () {
+	return this.followers ? this.followers.length : 0
+})
+
+userSchema.virtual("followingCount").get(function () {
+	return this.following ? this.following.length : 0
+})
+
+// Enable virtual fields in JSON
+userSchema.set("toJSON", {
+	virtuals: true,
+	transform: (_, ret) => {
+		delete ret.password
+		delete ret.__v
+		delete ret.refreshToken
+		delete ret.resetCode
+		delete ret.resetCodeExpires
+		return ret
+	},
 })
 
 userSchema.pre("save", function (next) {

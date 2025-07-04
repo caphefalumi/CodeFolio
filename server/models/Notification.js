@@ -39,7 +39,6 @@ const notificationSchema = new mongoose.Schema({
 	},
 })
 
-// Index for efficient queries
 notificationSchema.index({ recipient: 1, createdAt: -1 })
 notificationSchema.index({ recipient: 1, isRead: 1 })
 

@@ -26,7 +26,7 @@
 		emits: ["mention-click"],
 		computed: {
 			renderedContent() {
-				if (!this.content) return [] // Regex to match @username (alphanumeric + underscore + dot)
+				if (!this.content) return []
 				const mentionRegex = /@([a-zA-Z0-9_.]+)/g
 				const parts = []
 				let lastIndex = 0

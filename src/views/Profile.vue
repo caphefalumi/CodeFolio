@@ -43,17 +43,28 @@
 							>
 						</div>
 						<div class="d-flex gap-2 mb-2">
-							<v-chip color="primary" class="mr-2" label>
+							<v-chip
+								color="primary"
+								class="mr-2"
+								label
+								@click="openFollowersDialog('followers')"
+								style="cursor: pointer"
+							>
 								<v-icon left size="18" aria-hidden="true"
 									>mdi-account-multiple</v-icon
 								>
-								<span>{{ userProfile.followers?.length || 0 }} Followers</span>
+								<span>{{ userProfile.followersCount || 0 }} Followers</span>
 							</v-chip>
-							<v-chip color="secondary" label>
+							<v-chip
+								color="secondary"
+								label
+								@click="openFollowersDialog('following')"
+								style="cursor: pointer"
+							>
 								<v-icon left size="18" aria-hidden="true"
 									>mdi-account-plus</v-icon
 								>
-								<span>{{ userProfile.followed?.length || 0 }} Following</span>
+								<span>{{ userProfile.followingCount || 0 }} Following</span>
 							</v-chip>
 						</div>
 						<div class="d-flex gap-2 mt-2">
@@ -71,6 +82,12 @@
 								@click="showResetPassword = true"
 								>Reset Password</v-btn
 							>
+							<follow-button
+								v-if="!isOwner && currentUser"
+								:user-id="userProfile._id"
+								:initial-following="userProfile.isFollowing"
+								@follow-changed="handleFollowChanged"
+							/>
 						</div>
 					</v-col>
 				</v-row>
@@ -212,6 +229,7 @@
 			>
 				<app-form
 					:loading="loading"
+					:error-message="projectErrorMessage"
 					submit-button-text="Save Project"
 					:submit-aria-label="loading ? 'Saving project...' : 'Save project'"
 					aria-labelled-by="new-project-heading"
@@ -221,23 +239,29 @@
 					<v-text-field
 						v-model="projectForm.title"
 						label="Project Title"
+						:rules="projectValidationRules.title"
 						required
 						aria-label="Enter a descriptive title for your project"
 					></v-text-field>
 					<v-textarea
 						v-model="projectForm.description"
 						label="Project Description"
+						:rules="projectValidationRules.description"
 						required
 						aria-label="Provide a brief description of what your project does"
 					></v-textarea>
 
 					<!-- Quill Editor for Project Content -->
 					<div class="mb-4">
+						<label class="v-label v-field-label">Project Content *</label>
 						<quill-editor
 							v-model="projectForm.content"
 							placeholder="Write detailed content about your project, including features and implementation details..."
 							min-height="200px"
 						/>
+						<div v-if="contentError" class="text-error text-caption mt-1">
+							{{ contentError }}
+						</div>
 					</div>
 
 					<v-file-input
@@ -258,6 +282,7 @@
 					<v-text-field
 						v-model="projectForm.githubUrl"
 						label="GitHub Repository URL"
+						:rules="projectValidationRules.githubUrl"
 						prepend-icon="mdi-github"
 						type="url"
 						aria-label="Enter the URL of your GitHub repository for this project"
@@ -266,6 +291,7 @@
 						v-model="projectForm.type"
 						:items="projectTypes"
 						label="Project Type"
+						:rules="projectValidationRules.type"
 						required
 						aria-label="Select the type of project you are adding"
 					></v-select>
@@ -276,6 +302,7 @@
 					<app-button
 						color="primary"
 						:loading="loading"
+						:disabled="!isProjectFormValid"
 						:aria-label="loading ? 'Saving project...' : 'Save project'"
 						@click="saveProject"
 					>
@@ -288,7 +315,17 @@
 				v-model="showResetPassword"
 				:user-email="currentUser?.email"
 				@success="handlePasswordResetSuccess"
-			/><app-alert
+			/>
+
+			<!-- Followers Dialog -->
+			<followers-dialog
+				v-model="showFollowersDialog"
+				:user-id="userProfile._id"
+				:dialog-type="followersDialogType"
+				@close="showFollowersDialog = false"
+			/>
+
+			<app-alert
 				v-if="errorMessage"
 				type="error"
 				:message="errorMessage"
@@ -307,7 +344,6 @@
 	} from "@/composables/user.js"
 	import { useApi } from "@/composables/common.js"
 	import axios from "axios"
-
 	// Import reusable components
 	import AppDialog from "@/components/AppDialog.vue"
 	import AppButton from "@/components/AppButton.vue"
@@ -316,6 +352,8 @@
 	import ProjectCard from "@/components/ProjectCard.vue"
 	import QuillEditor from "@/components/QuillEditor.vue"
 	import PasswordResetDialog from "@/components/PasswordResetDialog.vue"
+	import FollowButton from "@/components/FollowButton.vue"
+	import FollowersDialog from "@/components/FollowersDialog.vue"
 
 	export default {
 		name: "ProfileView",
@@ -327,6 +365,8 @@
 			ProjectCard,
 			QuillEditor,
 			PasswordResetDialog,
+			FollowButton,
+			FollowersDialog,
 		},
 		data() {
 			return {
@@ -364,6 +404,32 @@
 				],
 				showResetPassword: false,
 				usernameError: "",
+				showFollowersDialog: false,
+				followersDialogType: "followers", // 'followers' or 'following'
+				projectErrorMessage: "",
+				contentError: "",
+				projectValidationRules: {
+					title: [
+						v => !!v || "Project title is required",
+						v => (v && v.length >= 3) || "Title must be at least 3 characters",
+						v =>
+							(v && v.length <= 100) ||
+							"Title must be less than 100 characters",
+					],
+					description: [
+						v => !!v || "Project description is required",
+						v =>
+							(v && v.length >= 10) ||
+							"Description must be at least 10 characters",
+						v =>
+							(v && v.length <= 500) ||
+							"Description must be less than 500 characters",
+					],
+					type: [v => !!v || "Project type is required"],
+					githubUrl: [
+						v => !v || this.isValidUrl(v) || "Please enter a valid URL",
+					],
+				},
 			}
 		},
 		setup() {
@@ -388,6 +454,35 @@
 		computed: {
 			accessToken() {
 				return getAccessToken()
+			},
+			isProjectFormValid() {
+				// Check if all required fields are filled and valid
+				const titleValid =
+					this.projectForm.title &&
+					this.projectForm.title.length >= 3 &&
+					this.projectForm.title.length <= 100
+
+				const descriptionValid =
+					this.projectForm.description &&
+					this.projectForm.description.length >= 10 &&
+					this.projectForm.description.length <= 500
+
+				const typeValid = !!this.projectForm.type
+
+				const contentValid =
+					this.projectForm.content && this.projectForm.content.trim().length > 0
+
+				const githubUrlValid =
+					!this.projectForm.githubUrl ||
+					this.isValidUrl(this.projectForm.githubUrl)
+
+				return (
+					titleValid &&
+					descriptionValid &&
+					typeValid &&
+					contentValid &&
+					githubUrlValid
+				)
 			},
 		},
 		methods: {
@@ -481,8 +576,16 @@
 					this.loading = false
 				}
 			},
-
 			async saveProject() {
+				// Clear previous errors
+				this.projectErrorMessage = ""
+				this.contentError = ""
+
+				// Validate the form
+				if (!this.validateProjectForm()) {
+					return
+				}
+
 				this.loading = true
 				try {
 					let imageUri = this.projectForm.coverImage
@@ -575,12 +678,63 @@
 					type: "", // Reset type
 				}
 			},
-
 			handlePasswordResetSuccess(message) {
 				this.successMessage = message
 				setTimeout(() => {
 					this.successMessage = ""
 				}, 3000)
+			},
+
+			openFollowersDialog(type) {
+				this.followersDialogType = type
+				this.showFollowersDialog = true
+			},
+
+			handleFollowChanged(isFollowing) {
+				// Update the follow counts when follow status changes
+				if (isFollowing) {
+					this.userProfile.followersCount =
+						(this.userProfile.followersCount || 0) + 1
+				} else {
+					this.userProfile.followersCount = Math.max(
+						(this.userProfile.followersCount || 0) - 1,
+						0
+					)
+				}
+				this.userProfile.isFollowing = isFollowing
+			},
+
+			// Validation helper methods
+			validateProjectForm() {
+				let isValid = true
+
+				// Validate content (since it's not using v-text-field rules)
+				if (
+					!this.projectForm.content ||
+					this.projectForm.content.trim().length === 0
+				) {
+					this.contentError = "Project content is required"
+					isValid = false
+				} else {
+					this.contentError = ""
+				}
+
+				// Set general error message if form is invalid
+				if (!isValid) {
+					this.projectErrorMessage =
+						"Please fill in all required fields correctly."
+				}
+
+				return isValid
+			},
+
+			isValidUrl(string) {
+				try {
+					new URL(string)
+					return true
+				} catch (_) {
+					return false
+				}
 			},
 		},
 		mounted() {

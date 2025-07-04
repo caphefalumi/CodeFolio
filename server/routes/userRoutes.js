@@ -124,6 +124,9 @@ router.get("/:username", async (req, res) => {
 			lastName: user.lastName,
 			bio: user.bio,
 			avatar: user.avatar,
+			followersCount: user.followersCount,
+			followingCount: user.followingCount,
+			createdAt: user.createdAt,
 		}
 		res.status(200).json(userData)
 	} catch (error) {
@@ -202,6 +205,165 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 	} catch (error) {
 		console.error("Error deleting user:", error)
 		res.status(500).json({ message: "Error deleting user", error })
+	}
+})
+
+// Follow a user
+router.post("/:userId/follow", authenticateToken, async (req, res) => {
+	try {
+		const currentUserId = req.user.id
+		const targetUserId = req.params.userId
+
+		if (currentUserId === targetUserId) {
+			return res.status(400).json({ message: "You cannot follow yourself" })
+		}
+
+		const currentUser = await User.findById(currentUserId)
+		const targetUser = await User.findById(targetUserId)
+
+		if (!targetUser) {
+			return res.status(404).json({ message: "User not found" })
+		}
+
+		// Check if already following
+		if (currentUser.following.includes(targetUserId)) {
+			return res.status(400).json({ message: "Already following this user" })
+		}
+
+		// Add to following/followers lists
+		currentUser.following.push(targetUserId)
+		targetUser.followers.push(currentUserId)
+
+		await currentUser.save()
+		await targetUser.save()
+
+		// Create notification for the followed user
+		const Notification = (await import("../models/Notification.js")).default
+		await Notification.create({
+			recipient: targetUserId,
+			sender: currentUserId,
+			type: "follow",
+			message: `${currentUser.firstName} ${currentUser.lastName} started following you`,
+		})
+
+		res.json({
+			message: "Successfully followed user",
+			isFollowing: true,
+			followersCount: targetUser.followersCount,
+			followingCount: currentUser.followingCount,
+		})
+	} catch (error) {
+		console.error("Error following user:", error)
+		res.status(500).json({ message: "Error following user", error })
+	}
+})
+
+// Unfollow a user
+router.delete("/:userId/follow", authenticateToken, async (req, res) => {
+	try {
+		const currentUserId = req.user.id
+		const targetUserId = req.params.userId
+
+		if (currentUserId === targetUserId) {
+			return res.status(400).json({ message: "You cannot unfollow yourself" })
+		}
+
+		const currentUser = await User.findById(currentUserId)
+		const targetUser = await User.findById(targetUserId)
+
+		if (!targetUser) {
+			return res.status(404).json({ message: "User not found" })
+		}
+
+		// Check if not following
+		if (!currentUser.following.includes(targetUserId)) {
+			return res.status(400).json({ message: "Not following this user" })
+		}
+
+		// Remove from following/followers lists
+		currentUser.following = currentUser.following.filter(
+			id => id.toString() !== targetUserId
+		)
+		targetUser.followers = targetUser.followers.filter(
+			id => id.toString() !== currentUserId
+		)
+
+		await currentUser.save()
+		await targetUser.save()
+
+		res.json({
+			message: "Successfully unfollowed user",
+			isFollowing: false,
+			followersCount: targetUser.followersCount,
+			followingCount: currentUser.followingCount,
+		})
+	} catch (error) {
+		console.error("Error unfollowing user:", error)
+		res.status(500).json({ message: "Error unfollowing user", error })
+	}
+})
+
+// Check if current user is following a specific user
+router.get("/:userId/follow-status", authenticateToken, async (req, res) => {
+	try {
+		const currentUserId = req.user.id
+		const targetUserId = req.params.userId
+
+		if (currentUserId === targetUserId) {
+			return res.json({ isFollowing: false, canFollow: false })
+		}
+
+		const currentUser = await User.findById(currentUserId)
+		const isFollowing = currentUser.following.includes(targetUserId)
+
+		res.json({ isFollowing, canFollow: true })
+	} catch (error) {
+		console.error("Error checking follow status:", error)
+		res.status(500).json({ message: "Error checking follow status", error })
+	}
+})
+
+// Get user's followers
+router.get("/:userId/followers", async (req, res) => {
+	try {
+		const user = await User.findById(req.params.userId).populate(
+			"followers",
+			"username firstName lastName avatar"
+		)
+
+		if (!user) {
+			return res.status(404).json({ message: "User not found" })
+		}
+
+		res.json({
+			followers: user.followers,
+			count: user.followers.length,
+		})
+	} catch (error) {
+		console.error("Error fetching followers:", error)
+		res.status(500).json({ message: "Error fetching followers", error })
+	}
+})
+
+// Get user's following
+router.get("/:userId/following", async (req, res) => {
+	try {
+		const user = await User.findById(req.params.userId).populate(
+			"following",
+			"username firstName lastName avatar"
+		)
+
+		if (!user) {
+			return res.status(404).json({ message: "User not found" })
+		}
+
+		res.json({
+			following: user.following,
+			count: user.following.length,
+		})
+	} catch (error) {
+		console.error("Error fetching following:", error)
+		res.status(500).json({ message: "Error fetching following", error })
 	}
 })
 

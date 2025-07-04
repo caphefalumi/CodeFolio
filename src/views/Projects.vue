@@ -39,7 +39,7 @@
 			</section>
 			<!-- Projects Grid -->
 			<section>
-				<v-row v-auto-animate>
+				<v-row v-if="paginatedProjects.length > 0" v-auto-animate>
 					<v-col
 						v-for="project in paginatedProjects"
 						:key="project._id"
@@ -55,6 +55,42 @@
 								@view="viewProject"
 							/>
 						</article>
+					</v-col>
+				</v-row>
+
+				<!-- No Results Message -->
+				<v-row v-else-if="projects.length > 0">
+					<v-col cols="12" class="text-center">
+						<v-card class="pa-8" color="grey-lighten-5">
+							<v-icon size="64" color="grey-lighten-1" class="mb-4"
+								>mdi-magnify</v-icon
+							>
+							<h3 class="text-h5 mb-2">No projects found</h3>
+							<p class="text-body-1 mb-4">
+								Try adjusting your search terms or filters.
+							</p>
+							<v-btn
+								color="primary"
+								variant="outlined"
+								@click="
+									search = '',
+									selectedType = 'all'
+								"
+							>
+								Clear Filters
+							</v-btn>
+						</v-card>
+					</v-col>
+				</v-row>
+
+				<!-- Loading State -->
+				<v-row v-else>
+					<v-col cols="12" class="text-center">
+						<v-progress-circular
+							indeterminate
+							color="primary"
+						></v-progress-circular>
+						<p class="mt-4">Loading projects...</p>
 					</v-col>
 				</v-row>
 			</section>
@@ -127,30 +163,34 @@
 						project => project.type === this.selectedType
 					)
 				}
-				if (this.search) {
+				if (this.search && this.search.trim()) {
+					const searchTerm = this.search.trim()
 					// If search starts with #, filter by tag
-					if (this.search.startsWith("#")) {
-						const tagQuery = this.search.slice(1).toLowerCase()
+					if (searchTerm.startsWith("#")) {
+						const tagQuery = searchTerm.slice(1).toLowerCase()
 						filtered = filtered.filter(
 							project =>
 								Array.isArray(project.tags) &&
-								project.tags.some(tag => tag.toLowerCase().includes(tagQuery))
+								project.tags.some(
+									tag => tag && tag.toLowerCase().includes(tagQuery)
+								)
 						)
-					} else if (this.search.startsWith("@")) {
-						const usernameQuery = this.search.slice(1).toLowerCase()
+					} else if (searchTerm.startsWith("@")) {
+						const usernameQuery = searchTerm.slice(1).toLowerCase()
 						filtered = filtered.filter(project =>
-							project.author?.username.toLowerCase().includes(usernameQuery)
+							project.author?.username?.toLowerCase().includes(usernameQuery)
 						)
 					} else {
-						filtered = filtered.filter(
-							project =>
-								project.title
-									.toLowerCase()
-									.includes(this.search.toLowerCase()) ||
-								project.description
-									?.toLowerCase()
-									.includes(this.search.toLowerCase())
-						)
+						// Regular text search with proper null checks
+						const searchLower = searchTerm.toLowerCase()
+						filtered = filtered.filter(project => {
+							const title = project.title || ""
+							const description = project.description || ""
+							return (
+								title.toLowerCase().includes(searchLower) ||
+								description.toLowerCase().includes(searchLower)
+							)
+						})
 					}
 				}
 				if (this.sortBy === "newest") {
@@ -174,6 +214,15 @@
 				return this.filteredProjects.slice(start, start + this.itemsPerPage)
 			},
 		},
+		watch: {
+			search(newVal, oldVal) {
+				console.log("Search changed from:", oldVal, "to:", newVal)
+				console.log("Filtered results count:", this.filteredProjects.length)
+				if (this.filteredProjects.length === 0 && this.projects.length > 0) {
+					console.warn("Search returned no results! Debug info:")
+				}
+			},
+		},
 		methods: {
 			viewProject(project) {
 				this.$router.push(
@@ -187,9 +236,24 @@
 					`${import.meta.env.VITE_SERVER_URL}/api/posts/`
 				)
 				this.projects = response.data
-				console.log("Projects:", this.projects)
+				console.log("Projects loaded:", this.projects.length)
+
+				// Debug: Log the structure of the first project
+				if (this.projects.length > 0) {
+					console.log("Sample project structure:", {
+						title: this.projects[0].title,
+						description: this.projects[0].description,
+						author: this.projects[0].author,
+						tags: this.projects[0].tags,
+						type: this.projects[0].type,
+					})
+				}
 			} catch (error) {
 				console.error("Error fetching projects:", error)
+				this.errorMessage = this.handleError(
+					error,
+					"Failed to load projects. Please try again."
+				)
 			}
 		},
 	}
