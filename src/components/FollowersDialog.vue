@@ -144,7 +144,6 @@
 					this.currentUserId = null
 				}
 			},
-
 			async fetchUsers() {
 				this.loading = true
 				try {

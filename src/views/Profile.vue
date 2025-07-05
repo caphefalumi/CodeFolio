@@ -316,12 +316,11 @@
 				:user-email="currentUser?.email"
 				@success="handlePasswordResetSuccess"
 			/>
-
 			<!-- Followers Dialog -->
 			<followers-dialog
 				v-model="showFollowersDialog"
 				:user-id="userProfile._id"
-				:dialog-type="followersDialogType"
+				:type="followersDialogType"
 				@close="showFollowersDialog = false"
 			/>
 
