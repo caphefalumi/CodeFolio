@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+PROJECT_REPORT.md
+VIDEO_DEMONSTRATION_SCRIPT.md
+.env
+
+dist
+build
+.DS_Store
+Thumbs.db
+src-tauri
+*.log
