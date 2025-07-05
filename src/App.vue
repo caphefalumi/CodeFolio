@@ -16,8 +16,9 @@
 					isDark ? "mdi-weather-night" : "mdi-weather-sunny"
 				}}</v-icon>
 			</v-btn>
-			<v-btn to="/" text>Home</v-btn>
-			<v-btn to="/projects" text>Projects</v-btn>
+			<language-switcher />
+			<v-btn to="/" text>{{ $t("navHome") }}</v-btn>
+			<v-btn to="/projects" text>{{ $t("navProjects") }}</v-btn>
 			<!-- Notification Bell Button Only -->
 			<v-btn
 				v-if="isAuthenticated"
@@ -50,14 +51,14 @@
 				</template>
 				<v-list role="menu">
 					<v-list-item :to="`/${username}`" role="menuitem">
-						<v-list-item-title>Profile</v-list-item-title>
+						<v-list-item-title>{{ $t("navProfile") }}</v-list-item-title>
 					</v-list-item>
 					<v-list-item @click="logout" role="menuitem">
-						<v-list-item-title>Log out</v-list-item-title>
+						<v-list-item-title>{{ $t("navLogout") }}</v-list-item-title>
 					</v-list-item>
 				</v-list>
 			</v-menu>
-			<v-btn v-else to="/login" text>Login</v-btn>
+			<v-btn v-else to="/login" text>{{ $t("navLogin") }}</v-btn>
 		</v-app-bar>
 
 		<!-- Notification Dropdown Positioned Outside App Bar -->
@@ -87,11 +88,13 @@
 	import axios from "axios"
 	import { fetchCurrentUser } from "@/composables/user.js"
 	import NotificationDropdown from "@/components/NotificationDropdown.vue"
+	import LanguageSwitcher from "@/components/LanguageSwitcher.vue"
 
 	export default {
 		name: "App",
 		components: {
 			NotificationDropdown,
+			LanguageSwitcher,
 		},
 		data() {
 			return {
@@ -140,7 +143,7 @@
 							if (response.data.valid) {
 								this.isAuthenticated = true
 								this.fetchProfile()
-								this.startTokenRefreshTimer() // ✅ start auto-refresh
+								this.startTokenRefreshTimer()
 								console.log("Token is valid:", token)
 							} else {
 								console.warn("Token is invalid, fetching new token...")

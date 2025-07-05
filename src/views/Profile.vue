@@ -53,7 +53,10 @@
 								<v-icon left size="18" aria-hidden="true"
 									>mdi-account-multiple</v-icon
 								>
-								<span>{{ userProfile.followersCount || 0 }} Followers</span>
+								<span
+									>{{ userProfile.followersCount || 0 }}
+									{{ $t("followers") }}</span
+								>
 							</v-chip>
 							<v-chip
 								color="secondary"
@@ -64,7 +67,10 @@
 								<v-icon left size="18" aria-hidden="true"
 									>mdi-account-plus</v-icon
 								>
-								<span>{{ userProfile.followingCount || 0 }} Following</span>
+								<span
+									>{{ userProfile.followingCount || 0 }}
+									{{ $t("following") }}</span
+								>
 							</v-chip>
 						</div>
 						<div class="d-flex gap-2 mt-2">
@@ -73,14 +79,14 @@
 								color="primary"
 								variant="outlined"
 								@click="showEditProfile = true"
-								>Edit Profile</v-btn
+								>{{ $t("editProfile") }}</v-btn
 							>
 							<v-btn
 								v-if="isOwner"
 								color="warning"
 								variant="outlined"
 								@click="showResetPassword = true"
-								>Reset Password</v-btn
+								>{{ $t("profileResetPassword") }}</v-btn
 							>
 							<follow-button
 								v-if="!isOwner && currentUser"
@@ -98,8 +104,10 @@
 						<section aria-labelledby="projects-section-heading">
 							<v-card class="elevation-2 pa-6 profile-projects-card">
 								<v-toolbar color="primary" dark flat class="rounded-lg mb-4">
-									<v-toolbar-title id="projects-section-heading" class="text-h5"
-										>My Projects</v-toolbar-title
+									<v-toolbar-title
+										id="projects-section-heading"
+										class="text-h5"
+										>{{ $t("myProjects") }}</v-toolbar-title
 									>
 									<v-spacer></v-spacer>
 									<v-btn
@@ -109,8 +117,8 @@
 										@click="openNewProjectDialog"
 										aria-label="Add a new project"
 									>
-										<v-icon left aria-hidden="true">mdi-plus</v-icon> Add New
-										Project
+										<v-icon left aria-hidden="true">mdi-plus</v-icon>
+										{{ $t("addProject") }}
 									</v-btn>
 								</v-toolbar>
 								<v-row v-auto-animate>
@@ -138,10 +146,11 @@
 					</v-col>
 				</v-row>
 			</section>
+
 			<!-- Edit Profile Dialog -->
 			<app-dialog
 				v-model="showEditProfile"
-				title="Edit Profile"
+				:title="$t('editProfile')"
 				:fullscreen="true"
 				:scrollable="true"
 				transition="dialog-bottom-transition"
@@ -166,7 +175,7 @@
 							aria-label="Change profile photo. Click to upload a new profile picture"
 							@click="$refs.avatarInput.click()"
 						>
-							Change Photo
+							{{ $t("changePhoto") }}
 						</app-button>
 						<input
 							ref="avatarInput"
@@ -182,7 +191,7 @@
 						:loading="loading"
 						:error-message="errorMessage"
 						:success-message="successMessage"
-						submit-button-text="Save Changes"
+						:submit-button-text="$t('saveChanges')"
 						:submit-button-block="true"
 						submit-button-class="mt-4"
 						:submit-aria-label="
@@ -193,7 +202,7 @@
 					>
 						<v-text-field
 							v-model="editForm.username"
-							label="Username"
+							:label="$t('username')"
 							required
 							autocomplete="username"
 							:error-messages="usernameError"
@@ -201,36 +210,37 @@
 						></v-text-field>
 						<v-text-field
 							v-model="editForm.firstName"
-							label="First Name"
+							:label="$t('firstName')"
 							required
 							autocomplete="given-name"
 						></v-text-field>
 						<v-text-field
 							v-model="editForm.lastName"
-							label="Last Name"
+							:label="$t('lastName')"
 							required
 							autocomplete="family-name"
 						></v-text-field>
 						<v-textarea
 							v-model="editForm.bio"
-							label="Bio"
+							:label="$t('bio')"
 							rows="3"
 							aria-label="Bio - Write a brief description about yourself"
 						></v-textarea>
 					</app-form>
 				</v-container>
 			</app-dialog>
+
 			<!-- New Project Dialog -->
 			<app-dialog
 				v-model="showNewProject"
-				title="Add New Project"
+				:title="$t('addNewProject')"
 				max-width="800"
 				@close="closeProjectDialog"
 			>
 				<app-form
 					:loading="loading"
 					:error-message="projectErrorMessage"
-					submit-button-text="Save Project"
+					:submit-button-text="$t('saveProject')"
 					:submit-aria-label="loading ? 'Saving project...' : 'Save project'"
 					aria-labelled-by="new-project-heading"
 					:show-submit-button="false"
@@ -238,14 +248,14 @@
 				>
 					<v-text-field
 						v-model="projectForm.title"
-						label="Project Title"
+						:label="$t('projectTitle')"
 						:rules="projectValidationRules.title"
 						required
 						aria-label="Enter a descriptive title for your project"
 					></v-text-field>
 					<v-textarea
 						v-model="projectForm.description"
-						label="Project Description"
+						:label="$t('projectDescription')"
 						:rules="projectValidationRules.description"
 						required
 						aria-label="Provide a brief description of what your project does"
@@ -266,14 +276,14 @@
 
 					<v-file-input
 						v-model="projectForm.coverImage"
-						label="Project Cover Image"
+						:label="$t('coverImage')"
 						accept="image/*"
 						prepend-icon="mdi-image"
 						aria-label="Upload a cover image that represents your project"
 					></v-file-input>
 					<v-combobox
 						v-model="projectForm.tags"
-						label="Tags"
+						:label="$t('tags')"
 						multiple
 						chips
 						small-chips
@@ -281,7 +291,7 @@
 					></v-combobox>
 					<v-text-field
 						v-model="projectForm.githubUrl"
-						label="GitHub Repository URL"
+						:label="$t('githubUrl')"
 						:rules="projectValidationRules.githubUrl"
 						prepend-icon="mdi-github"
 						type="url"
@@ -290,7 +300,7 @@
 					<v-select
 						v-model="projectForm.type"
 						:items="projectTypes"
-						label="Project Type"
+						:label="$t('projectType')"
 						:rules="projectValidationRules.type"
 						required
 						aria-label="Select the type of project you are adding"
@@ -306,16 +316,18 @@
 						:aria-label="loading ? 'Saving project...' : 'Save project'"
 						@click="saveProject"
 					>
-						Save Project
+						{{ $t("saveProject") }}
 					</app-button>
 				</template>
 			</app-dialog>
+
 			<!-- Password Reset Dialog -->
 			<password-reset-dialog
 				v-model="showResetPassword"
 				:user-email="currentUser?.email"
 				@success="handlePasswordResetSuccess"
 			/>
+
 			<!-- Followers Dialog -->
 			<followers-dialog
 				v-model="showFollowersDialog"
@@ -395,40 +407,14 @@
 					type: "",
 				},
 				errorMessage: "",
-				projectTypes: [
-					"Web Development",
-					"Mobile App",
-					"API Development",
-					"Other",
-				],
+				projectTypes: [],
 				showResetPassword: false,
 				usernameError: "",
 				showFollowersDialog: false,
 				followersDialogType: "followers", // 'followers' or 'following'
 				projectErrorMessage: "",
 				contentError: "",
-				projectValidationRules: {
-					title: [
-						v => !!v || "Project title is required",
-						v => (v && v.length >= 3) || "Title must be at least 3 characters",
-						v =>
-							(v && v.length <= 100) ||
-							"Title must be less than 100 characters",
-					],
-					description: [
-						v => !!v || "Project description is required",
-						v =>
-							(v && v.length >= 10) ||
-							"Description must be at least 10 characters",
-						v =>
-							(v && v.length <= 500) ||
-							"Description must be less than 500 characters",
-					],
-					type: [v => !!v || "Project type is required"],
-					githubUrl: [
-						v => !v || this.isValidUrl(v) || "Please enter a valid URL",
-					],
-				},
+				projectValidationRules: {},
 			}
 		},
 		setup() {
@@ -485,6 +471,31 @@
 			},
 		},
 		methods: {
+			initializeTranslatedData() {				// Initialize project types
+				this.projectTypes = [
+					this.$t('projectTypeWebDevelopment'),
+					this.$t('projectTypeMobileApp'),
+					this.$t('projectTypeApiDevelopment'),
+					this.$t('projectTypeOther'),
+				]				// Initialize validation rules
+				this.projectValidationRules = {
+					title: [
+						v => !!v || this.$t('validationRequired'),
+						v => (v && v.length >= 3) || this.$t('validationTitleMinLength'),
+						v => (v && v.length <= 100) || this.$t('validationTitleMaxLength'),
+					],
+					description: [
+						v => !!v || this.$t('validationRequired'),
+						v => (v && v.length >= 10) || this.$t('validationDescriptionMinLength'),
+						v => (v && v.length <= 500) || this.$t('validationDescriptionMaxLength'),
+					],
+					type: [v => !!v || this.$t('validationRequired')],
+					githubUrl: [
+						v => !v || this.isValidUrl(v) || this.$t('validationUrlInvalid'),
+					],
+				}
+			},
+
 			async fetchProfileAndProjects(username) {
 				try {
 					// 1. Get public user profile by username
@@ -523,17 +534,26 @@
 					this.editForm.avatarPreview = URL.createObjectURL(file)
 				}
 			},
+
 			async checkUsernameAvailability() {
 				this.usernameError = ""
 				const newUsername = this.editForm.username?.trim()
 				if (!newUsername || newUsername === this.userProfile.username) return
-				const res = await axios.get(
+
+				try {				const res = await axios.get(
 					`${import.meta.env.VITE_SERVER_URL}/api/users/${newUsername}`
 				)
 				if (res.status === 200 && res.data) {
-					this.usernameError = "This username is already taken."
+					this.usernameError = this.$t('usernameExists')
+				}
+				} catch (error) {
+					// Username is available if we get a 404
+					if (error.response?.status !== 404) {
+						console.error('Error checking username:', error)
+					}
 				}
 			},
+
 			async handleProfileUpdate() {
 				this.errorMessage = ""
 				this.successMessage = ""
@@ -561,9 +581,9 @@
 						bio: this.editForm.bio,
 						avatar: avatarUri,
 						username: this.editForm.username,
-					}
+					}					
 					await this.updateUser(payload, this.accessToken)
-					this.successMessage = "Profile updated successfully!"
+					this.successMessage = this.$t('profileUpdated')
 					this.fetchProfileAndProjects(this.editForm.username)
 					setTimeout(() => {
 						this.showEditProfile = false
@@ -575,6 +595,7 @@
 					this.loading = false
 				}
 			},
+
 			async saveProject() {
 				// Clear previous errors
 				this.projectErrorMessage = ""
@@ -652,7 +673,7 @@
 			},
 
 			async deleteProject(project) {
-				if (confirm("Are you sure you want to delete this project?")) {
+				if (confirm(this.$t('deleteConfirm'))) {
 					this.loading = true
 					try {
 						await this.deletePost(project._id, this.accessToken)
@@ -666,6 +687,7 @@
 					}
 				}
 			},
+
 			resetProjectForm() {
 				this.projectForm = {
 					title: "",
@@ -674,9 +696,10 @@
 					coverImage: null,
 					tags: [],
 					githubUrl: "",
-					type: "", // Reset type
+					type: "",
 				}
 			},
+
 			handlePasswordResetSuccess(message) {
 				this.successMessage = message
 				setTimeout(() => {
@@ -711,8 +734,7 @@
 				if (
 					!this.projectForm.content ||
 					this.projectForm.content.trim().length === 0
-				) {
-					this.contentError = "Project content is required"
+				) {					this.contentError = this.$t('validationRequired')
 					isValid = false
 				} else {
 					this.contentError = ""
@@ -720,8 +742,7 @@
 
 				// Set general error message if form is invalid
 				if (!isValid) {
-					this.projectErrorMessage =
-						"Please fill in all required fields correctly."
+					this.projectErrorMessage = this.$t('requiredFields')
 				}
 
 				return isValid
@@ -736,10 +757,16 @@
 				}
 			},
 		},
+
 		mounted() {
+			// Initialize translated data after component is mounted
+			this.initializeTranslatedData()
+
+			// Load profile data
 			const username = this.$route.params.username
 			this.fetchProfileAndProjects(username)
 		},
+
 		watch: {
 			$route(to, from) {
 				// When the route changes, reload the profile data

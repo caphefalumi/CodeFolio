@@ -3,14 +3,16 @@
 		<v-row justify="center">
 			<v-col cols="12" sm="8" md="6">
 				<v-card class="mt-8">
-					<v-card-title class="text-h4 text-center pt-6" id="register-heading"
-						>Create Account</v-card-title
+					<v-card-title
+						class="text-h4 text-center pt-6"
+						id="register-heading"
+						>{{ $t("registerTitle") }}</v-card-title
 					>
 					<v-card-text>
 						<app-form
 							:loading="loading"
 							:error-message="errorMessage"
-							submit-button-text="Register"
+							:submit-button-text="$t('register')"
 							:submit-button-block="true"
 							submit-button-class="mt-4"
 							aria-labelled-by="register-heading"
@@ -20,7 +22,7 @@
 								<v-col cols="6"
 									><v-text-field
 										v-model="form.firstName"
-										label="First Name"
+										:label="$t('firstName')"
 										type="text"
 										required
 										:rules="[rules.required, rules.name]"
@@ -30,7 +32,7 @@
 								<v-col cols="6"
 									><v-text-field
 										v-model="form.lastName"
-										label="Last Name"
+										:label="$t('lastName')"
 										type="text"
 										required
 										:rules="[rules.required, rules.name]"
@@ -40,7 +42,7 @@
 							</v-row>
 							<v-text-field
 								v-model="form.email"
-								label="Email"
+								:label="$t('email')"
 								type="email"
 								required
 								:rules="[rules.required, rules.email]"
@@ -48,7 +50,7 @@
 							></v-text-field>
 							<v-text-field
 								v-model="form.username"
-								label="Username"
+								:label="$t('username')"
 								type="text"
 								required
 								:rules="[rules.required, rules.username]"
@@ -56,7 +58,7 @@
 							></v-text-field>
 							<v-text-field
 								v-model="form.password"
-								label="Password"
+								:label="$t('password')"
 								type="password"
 								required
 								:rules="[rules.required, rules.password]"
@@ -64,8 +66,8 @@
 							></v-text-field>
 						</app-form>
 						<div class="mt-4 text-center">
-							Already have an account?
-							<router-link to="/login">Login</router-link>
+							{{ $t("alreadyHaveAccount") }}
+							<router-link to="/login">{{ $t("login") }}</router-link>
 						</div>
 					</v-card-text>
 				</v-card>
@@ -101,38 +103,42 @@
 					password: "",
 					confirmPassword: "",
 				},
-				rules: {
-					required: v => !!v || "This field is required",
+				errorMessage: "",
+			}
+		},
+		computed: {
+			rules() {
+				return {
+					required: v => !!v || this.$t("validationRequired"),
 					name: v => {
-						if (!v) return "This field is required"
-						if (v.length < 2) return "Name must be at least 2 characters"
-						if (v.length > 50) return "Name must be less than 50 characters"
+						if (!v) return this.$t("validationRequired")
+						if (v.length < 2) return this.$t("validationNameMinLength")
+						if (v.length > 50) return this.$t("validationNameMaxLength")
 						if (!/^[a-zA-Z\s'-]+$/.test(v))
-							return "Name can only contain letters, spaces, hyphens, and apostrophes"
+							return this.$t("validationNameInvalid")
 						return true
 					},
-					email: v => /.+@.+\..+/.test(v) || "Email must be valid",
-					username: v =>
-						/^[a-zA-Z0-9_]{3,20}$/.test(v) ||
-						"Username must be 3-20 characters, letters, numbers, or underscores",
+					email: v => /.+@.+\..+/.test(v) || this.$t("validationEmailInvalid"),
+					username: v => {
+						if (!v) return this.$t("validationRequired")
+						if (v.length < 3) return this.$t("validationUsernameMinLength")
+						if (v.length > 30) return this.$t("validationUsernameMaxLength")
+						if (!/^[a-zA-Z0-9_]+$/.test(v))
+							return this.$t("validationUsernameInvalid")
+						return true
+					},
 					password: v => {
-						if (!v) return "Password is required"
-						if (v.length < 8) return "Password must be at least 8 characters"
-						if (!/(?=.*[a-z])/.test(v))
-							return "Password must contain at least one lowercase letter"
-						if (!/(?=.*[A-Z])/.test(v))
-							return "Password must contain at least one uppercase letter"
-						if (!/(?=.*\d)/.test(v))
-							return "Password must contain at least one number"
-						if (!/(?=.*[@$!%*?&])/.test(v))
-							return "Password must contain at least one special character (@$!%*?&)"
+						if (!v) return this.$t("validationRequired")
+						if (v.length < 8) return this.$t("validationPasswordMinLength")
+						if (v.length > 128) return this.$t("validationPasswordMaxLength")
+						if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(v))
+							return this.$t("validationPasswordRequirements")
 						return true
 					},
 					confirmPassword: v =>
-						v === this.form.password || "Passwords must match",
-				},
-				errorMessage: "",
-			}
+						v === this.form.password || this.$t("validationPasswordsNotMatch"),
+				}
+			},
 		},
 		computed: {
 			isFormValid() {

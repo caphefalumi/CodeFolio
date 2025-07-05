@@ -46,7 +46,6 @@
 						</template>
 					</v-list-item>
 				</v-list>
-
 				<v-card-text v-else-if="!loading" class="text-center py-8">
 					<v-icon size="64" color="grey">
 						{{
@@ -54,17 +53,13 @@
 						}}
 					</v-icon>
 					<h3 class="text-h6 mt-4 mb-2">
-						{{
-							type === "followers"
-								? "No followers yet"
-								: "Not following anyone yet"
-						}}
+						{{ type === "followers" ? $t("noFollowers") : $t("noFollowing") }}
 					</h3>
 					<p class="text-body-2 text-grey">
 						{{
 							type === "followers"
-								? "When people follow this user, they will appear here."
-								: "Users that this person follows will appear here."
+								? $t("followersDescription")
+								: $t("followingDescription")
 						}}
 					</p>
 				</v-card-text>
@@ -74,7 +69,7 @@
 						indeterminate
 						color="primary"
 					></v-progress-circular>
-					<p class="mt-4">Loading {{ type }}...</p>
+					<p class="mt-4">{{ $t("loading") }} {{ type }}...</p>
 				</v-card-text>
 			</v-card-text>
 		</v-card>

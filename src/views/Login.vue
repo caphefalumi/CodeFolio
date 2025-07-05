@@ -3,14 +3,14 @@
 		<v-row justify="center">
 			<v-col cols="12" sm="8" md="6">
 				<v-card class="mt-8">
-					<v-card-title class="text-h4 text-center pt-6" id="login-heading"
-						>Login</v-card-title
-					>
+					<v-card-title class="text-h4 text-center pt-6" id="login-heading">{{
+						$t("loginTitle")
+					}}</v-card-title>
 					<v-card-text>
 						<app-form
 							:loading="loading"
 							:error-message="errorMessage"
-							submit-button-text="Login"
+							:submit-button-text="$t('signIn')"
 							:submit-button-block="true"
 							submit-button-class="mt-4"
 							aria-labelled-by="login-heading"
@@ -19,7 +19,7 @@
 						>
 							<v-text-field
 								v-model="form.email"
-								label="Email"
+								:label="$t('email')"
 								type="email"
 								required
 								:rules="[rules.required, rules.email]"
@@ -28,7 +28,7 @@
 							></v-text-field>
 							<v-text-field
 								v-model="form.password"
-								label="Password"
+								:label="$t('password')"
 								type="password"
 								required
 								:rules="[rules.required]"
@@ -38,7 +38,7 @@
 						</app-form>
 						<v-divider class="my-4" aria-hidden="true"></v-divider>
 						<div class="text-center text-body-2 mb-2">
-							<span>Or login with</span>
+							<span>{{ $t("orLoginWith") }}</span>
 						</div>
 						<div class="login-buttons">
 							<GoogleLogin
@@ -68,7 +68,7 @@
 								class="text-decoration-none"
 								:class="{ 'pointer-events-none text-grey': isAnyLoading }"
 							>
-								Don't have an account? Register
+								{{ $t("noAccount") }} {{ $t("signUp") }}
 							</router-link>
 						</div>
 					</v-card-text>
@@ -105,14 +105,17 @@
 					email: "",
 					password: "",
 				},
-				rules: {
-					required: v => !!v || "This field is required",
-					email: v =>
-						/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) || "Email must be valid",
-				},
 			}
 		},
 		computed: {
+			rules() {
+				return {
+					required: v => !!v || this.$t("validationRequired"),
+					email: v =>
+						/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) ||
+						this.$t("validationEmailInvalid"),
+				}
+			},
 			isAnyLoading() {
 				return this.loading || this.googleLoading || this.githubLoading
 			},
@@ -141,7 +144,7 @@
 				} catch (error) {
 					this.errorMessage = this.handleError(
 						error,
-						"Login failed. Please try again."
+						this.$t("invalidCredentials")
 					)
 				} finally {
 					this.loading = false
@@ -164,7 +167,7 @@
 				} catch (error) {
 					this.errorMessage = this.handleError(
 						error,
-						"Google login failed. Please try again."
+						this.$t("googleLogin") + " failed. Please try again."
 					)
 				} finally {
 					this.googleLoading = false

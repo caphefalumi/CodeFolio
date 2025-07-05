@@ -4,6 +4,7 @@ import router from "@/router/router.js"
 import vue3GoogleLogin from "vue3-google-login"
 import { autoAnimatePlugin } from "@formkit/auto-animate/vue"
 import VueVirtualScroller from "vue-virtual-scroller"
+import i18n from "@/locales"
 
 // Vuetify
 import "vuetify/styles"
@@ -65,6 +66,7 @@ app.use(router)
 app.use(vuetify)
 app.use(VueVirtualScroller)
 app.use(autoAnimatePlugin)
+app.use(i18n)
 app.use(vue3GoogleLogin, {
 	clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
 })

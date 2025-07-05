@@ -6,19 +6,17 @@
 				<v-row class="mt-16 mb-8">
 					<v-col cols="12">
 						<h1 id="hero-heading" class="text-h2 font-weight-bold mb-4">
-							Showcase Your Projects
+							{{ $t("homeTitle") }}
 						</h1>
 						<p class="text-h6 mb-6">
-							A platform for independent developers and creators to showcase
-							their work. Share your projects, get feedback, and connect with
-							other creators.
+							{{ $t("homeSubtitle") }}
 						</p>
-						<v-btn color="primary" size="large" to="/projects" class="mr-4"
-							>Browse Projects</v-btn
-						>
-						<v-btn variant="outlined" size="large" to="/login"
-							>Get Started</v-btn
-						>
+						<v-btn color="primary" size="large" to="/projects" class="mr-4">{{
+							$t("navProjects")
+						}}</v-btn>
+						<v-btn variant="outlined" size="large" to="/login">{{
+							$t("getStarted")
+						}}</v-btn>
 					</v-col>
 				</v-row>
 			</section>
@@ -28,7 +26,7 @@
 				<v-row class="mt-8">
 					<v-col cols="12">
 						<h2 id="featured-projects-heading" class="text-h4 mb-6">
-							Featured Projects
+							{{ $t("featuredProjects") }}
 						</h2>
 					</v-col>
 					<v-col cols="12">
@@ -50,7 +48,7 @@
 											variant="text"
 											:to="`${item.getFullPath}`"
 										>
-											View Project
+											{{ $t("viewProject") }}
 										</v-btn>
 									</v-card-actions>
 								</v-card>

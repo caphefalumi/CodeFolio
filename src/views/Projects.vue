@@ -7,7 +7,7 @@
 					<v-col cols="12" md="6">
 						<v-text-field
 							v-model="search"
-							label="Search projects"
+							:label="$t('searchPlaceholder')"
 							prepend-inner-icon="mdi-magnify"
 							variant="outlined"
 							hide-details
@@ -19,7 +19,7 @@
 							:items="projectTypes"
 							item-title="title"
 							item-value="value"
-							label="Project Type"
+							:label="$t('projectType')"
 							variant="outlined"
 							hide-details
 						></v-select>
@@ -30,7 +30,7 @@
 							:items="sortOptions"
 							item-title="title"
 							item-value="value"
-							label="Sort By"
+							:label="$t('sortBy')"
 							variant="outlined"
 							hide-details
 						></v-select>
@@ -65,19 +65,16 @@
 							<v-icon size="64" color="grey-lighten-1" class="mb-4"
 								>mdi-magnify</v-icon
 							>
-							<h3 class="text-h5 mb-2">No projects found</h3>
+							<h3 class="text-h5 mb-2">{{ $t("noProjectsFound") }}</h3>
 							<p class="text-body-1 mb-4">
-								Try adjusting your search terms or filters.
+								{{ $t("adjustFilters") }}
 							</p>
 							<v-btn
 								color="primary"
 								variant="outlined"
-								@click="
-									search = '',
-									selectedType = 'all'
-								"
+								@click="((search = ''), (selectedType = 'all'))"
 							>
-								Clear Filters
+								{{ $t("clearFilters") }}
 							</v-btn>
 						</v-card>
 					</v-col>
@@ -90,7 +87,7 @@
 							indeterminate
 							color="primary"
 						></v-progress-circular>
-						<p class="mt-4">Loading projects...</p>
+						<p class="mt-4">{{ $t("loadingProjects") }}</p>
 					</v-col>
 				</v-row>
 			</section>
@@ -140,22 +137,26 @@
 				sortBy: "newest",
 				page: 1,
 				itemsPerPage: 6,
-				projectTypes: [
-					{ title: "All Types", value: "all" },
-					{ title: "Web App", value: "web" },
-					{ title: "Mobile App", value: "mobile" },
-					{ title: "Game", value: "game" },
-					{ title: "Design", value: "design" },
-				],
-				sortOptions: [
-					{ title: "Newest First", value: "newest" },
-					{ title: "Most Liked", value: "liked" },
-					{ title: "Most Viewed", value: "viewed" },
-				],
 				errorMessage: "",
 			}
 		},
 		computed: {
+			projectTypes() {
+				return [
+					{ title: this.$t("allTypes"), value: "all" },
+					{ title: this.$t("webApp"), value: "web" },
+					{ title: this.$t("mobileApp"), value: "mobile" },
+					{ title: this.$t("game"), value: "game" },
+					{ title: this.$t("design"), value: "design" },
+				]
+			},
+			sortOptions() {
+				return [
+					{ title: this.$t("newestFirst"), value: "newest" },
+					{ title: this.$t("mostLiked"), value: "liked" },
+					{ title: this.$t("mostViewed"), value: "viewed" },
+				]
+			},
 			filteredProjects() {
 				let filtered = this.projects
 				if (this.selectedType !== "all") {

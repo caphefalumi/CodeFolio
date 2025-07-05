@@ -51,7 +51,7 @@
 									@click="upvoteProject"
 									:disabled="project.upvoting"
 									class="mr-2"
-									:aria-label="`Upvote project. Current score: ${project.upvotes - project.downvotes}`"
+									:aria-label="$t('upvote')"
 								>
 									<v-icon
 										:color="project.liked === true ? 'success' : 'grey'"
@@ -71,7 +71,7 @@
 									@click="downvoteProject"
 									:disabled="project.downvoting"
 									class="ml-2"
-									:aria-label="`Downvote project. Current score: ${project.upvotes - project.downvotes}`"
+									:aria-label="$t('downvote')"
 								>
 									<v-icon
 										:color="project.liked === false ? 'error' : 'grey'"
@@ -89,7 +89,7 @@
 									rel="noopener noreferrer"
 									aria-label="View project on GitHub (opens in new tab)"
 								>
-									View on GitHub
+									{{ $t("viewOnGitHub") }}
 								</v-btn>
 							</v-card-actions>
 						</v-card>
@@ -102,7 +102,7 @@
 						<v-card>
 							<v-card-title
 								><h2 id="project-content-heading">
-									Project Content
+									{{ $t("projectContent") }}
 								</h2></v-card-title
 							>
 							<v-card-text>
@@ -117,26 +117,28 @@
 					<section aria-labelledby="github-stats-heading">
 						<v-card>
 							<v-card-title
-								><h2 id="github-stats-heading">GitHub Stats</h2></v-card-title
+								><h2 id="github-stats-heading">
+									{{ $t("githubStats") }}
+								</h2></v-card-title
 							>
 							<v-card-text>
 								<v-row>
 									<v-col cols="4">
 										<div class="text-center">
 											<div class="text-h4">{{ githubStats.stars }}</div>
-											<div class="text-subtitle-1">Stars</div>
+											<div class="text-subtitle-1">{{ $t("stars") }}</div>
 										</div>
 									</v-col>
 									<v-col cols="4">
 										<div class="text-center">
 											<div class="text-h4">{{ githubStats.forks }}</div>
-											<div class="text-subtitle-1">Forks</div>
+											<div class="text-subtitle-1">{{ $t("forks") }}</div>
 										</div>
 									</v-col>
 									<v-col cols="4">
 										<div class="text-center">
 											<div class="text-h4">{{ githubStats.issues }}</div>
-											<div class="text-subtitle-1">Issues</div>
+											<div class="text-subtitle-1">{{ $t("issues") }}</div>
 										</div>
 									</v-col>
 								</v-row>
@@ -150,7 +152,7 @@
 						<v-card>
 							<v-card-title
 								><h2 id="project-details-heading">
-									Project Details
+									{{ $t("projectDetails") }}
 								</h2></v-card-title
 							>
 							<v-card-text>
@@ -159,7 +161,7 @@
 										<template v-slot:prepend>
 											<v-icon aria-hidden="true">mdi-calendar</v-icon>
 										</template>
-										<v-list-item-title>Created</v-list-item-title>
+										<v-list-item-title>{{ $t("created") }}</v-list-item-title>
 										<v-list-item-subtitle>{{
 											project.createdAt
 										}}</v-list-item-subtitle>
@@ -168,7 +170,9 @@
 										<template v-slot:prepend>
 											<v-icon aria-hidden="true">mdi-update</v-icon>
 										</template>
-										<v-list-item-title>Last Updated</v-list-item-title>
+										<v-list-item-title>{{
+											$t("lastUpdated")
+										}}</v-list-item-title>
 										<v-list-item-subtitle>{{
 											project.updatedAt
 										}}</v-list-item-subtitle>
@@ -177,7 +181,7 @@
 										<template v-slot:prepend>
 											<v-icon aria-hidden="true">mdi-eye</v-icon>
 										</template>
-										<v-list-item-title>Views</v-list-item-title>
+										<v-list-item-title>{{ $t("views") }}</v-list-item-title>
 										<v-list-item-subtitle>{{
 											project.views
 										}}</v-list-item-subtitle>
@@ -192,7 +196,7 @@
 					<section aria-labelledby="comments-heading">
 						<v-card>
 							<v-card-title>
-								<h2 id="comments-heading">Comments</h2>
+								<h2 id="comments-heading">{{ $t("comments") }}</h2>
 							</v-card-title>
 							<v-card-text>
 								<app-alert
@@ -215,7 +219,7 @@
 										<v-icon>mdi-account-alert</v-icon>
 									</template>
 									<div class="d-flex align-center justify-space-between">
-										<span>You must be logged in to post comments.</span>
+										<span>{{ $t("loginToComment") }}</span>
 										<v-btn
 											size="small"
 											variant="outlined"
@@ -223,13 +227,13 @@
 											to="/login"
 											class="ml-3"
 										>
-											Login
+											{{ $t("navLogin") }}
 										</v-btn>
 									</div>
 								</v-alert>
 								<app-form
 									:loading="loading"
-									submit-button-text="Post Comment"
+									:submit-button-text="$t('postComment')"
 									:submit-button-disabled="
 										!newComment.trim() || !isAuthenticated
 									"
@@ -237,7 +241,7 @@
 								>
 									<mention-textarea
 										v-model="newComment"
-										label="Add a comment"
+										:label="$t('addComment')"
 										:rows="3"
 										variant="outlined"
 										:disabled="!isAuthenticated"
@@ -259,7 +263,7 @@
 									class="text-center text-grey py-8"
 								>
 									<v-icon size="48" class="mb-2">mdi-comment-outline</v-icon>
-									<div>No comments yet. Be the first to comment!</div>
+									<div>{{ $t("noCommentsYet") }}</div>
 								</div>
 							</v-list>
 						</v-card>
@@ -287,7 +291,7 @@
 				<v-icon color="warning" size="24">mdi-alert</v-icon>
 			</template>
 			<div class="banner-center">
-				You must be logged in to vote on projects.
+				{{ $t("loginToVote") }}
 			</div>
 		</v-alert>
 	</div>

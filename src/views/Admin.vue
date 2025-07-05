@@ -1,10 +1,10 @@
 <template>
 	<div>
 		<v-container>
-			<h1 class="text-h4 mb-6">Admin Dashboard</h1>
+			<h1 class="text-h4 mb-6">{{ $t("adminTitle") }}</h1>
 			<v-tabs v-model="tab">
-				<v-tab>Users</v-tab>
-				<v-tab>Posts</v-tab>
+				<v-tab>{{ $t("adminUsers") }}</v-tab>
+				<v-tab>{{ $t("adminPosts") }}</v-tab>
 			</v-tabs>
 			<v-tabs-items v-model="tab">
 				<!-- Users Tab -->
@@ -12,12 +12,12 @@
 					<div v-if="tab === 0">
 						<v-row>
 							<v-col cols="12">
-								<v-btn color="primary" class="mb-4" @click="openUserDialog()"
-									>Add User</v-btn
-								>
+								<v-btn color="primary" class="mb-4" @click="openUserDialog()">{{
+									$t("addUser")
+								}}</v-btn>
 								<v-text-field
 									v-model="userSearch"
-									label="Search users"
+									:label="$t('searchUsers')"
 									prepend-inner-icon="mdi-magnify"
 									variant="outlined"
 									hide-details
@@ -44,32 +44,32 @@
 						<v-dialog v-model="userDialog" max-width="500px">
 							<v-card>
 								<v-card-title>{{
-									editingUser ? "Edit User" : "Add User"
+									editingUser ? $t("editUser") : $t("addUser")
 								}}</v-card-title>
 								<v-card-text>
 									<v-text-field
 										v-model="userForm.email"
-										label="Email"
+										:label="$t('email')"
 										required
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.username"
-										label="Username"
+										:label="$t('username')"
 										required
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.firstName"
-										label="First Name"
+										:label="$t('firstName')"
 										required
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.lastName"
-										label="Last Name"
+										:label="$t('lastName')"
 										required
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.password"
-										label="Password"
+										:label="$t('password')"
 										:type="showPassword ? 'text' : 'password'"
 										:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
 										@click:append="showPassword = !showPassword"
@@ -77,8 +77,12 @@
 									></v-text-field>
 								</v-card-text>
 								<v-card-actions>
-									<v-btn color="primary" @click="saveUser">Save</v-btn>
-									<v-btn text @click="closeUserDialog">Cancel</v-btn>
+									<v-btn color="primary" @click="saveUser">{{
+										$t("save")
+									}}</v-btn>
+									<v-btn text @click="closeUserDialog">{{
+										$t("cancel")
+									}}</v-btn>
 								</v-card-actions>
 							</v-card>
 						</v-dialog>
@@ -89,12 +93,12 @@
 					<div v-if="tab === 1">
 						<v-row>
 							<v-col cols="12">
-								<v-btn color="primary" class="mb-4" @click="openPostDialog()"
-									>Add Post</v-btn
-								>
+								<v-btn color="primary" class="mb-4" @click="openPostDialog()">{{
+									$t("addPost")
+								}}</v-btn>
 								<v-text-field
 									v-model="postSearch"
-									label="Search posts"
+									:label="$t('searchPosts')"
 									prepend-inner-icon="mdi-magnify"
 									variant="outlined"
 									hide-details
@@ -121,34 +125,38 @@
 						<v-dialog v-model="postDialog" max-width="600px">
 							<v-card>
 								<v-card-title>{{
-									editingPost ? "Edit Post" : "Add Post"
+									editingPost ? $t("editPost") : $t("addPost")
 								}}</v-card-title>
 								<v-card-text>
 									<v-text-field
 										v-model="postForm.title"
-										label="Title"
+										:label="$t('title')"
 										required
 									></v-text-field>
 									<v-textarea
 										v-model="postForm.description"
-										label="Description"
+										:label="$t('description')"
 									></v-textarea>
 									<v-text-field
 										v-model="postForm.githubUrl"
-										label="GitHub URL"
+										:label="$t('githubUrl')"
 									></v-text-field>
 									<v-text-field
 										v-model="postForm.type"
-										label="Type"
+										:label="$t('type')"
 									></v-text-field>
 									<v-text-field
 										v-model="postForm.tags"
-										label="Tags (comma separated)"
+										:label="$t('tagsCommaSeparated')"
 									></v-text-field>
 								</v-card-text>
 								<v-card-actions>
-									<v-btn color="primary" @click="savePost">Save</v-btn>
-									<v-btn text @click="closePostDialog">Cancel</v-btn>
+									<v-btn color="primary" @click="savePost">{{
+										$t("save")
+									}}</v-btn>
+									<v-btn text @click="closePostDialog">{{
+										$t("cancel")
+									}}</v-btn>
 								</v-card-actions>
 							</v-card>
 						</v-dialog>
@@ -191,22 +199,26 @@
 				showPassword: false,
 				userSearch: "",
 				postSearch: "",
-				userHeaders: [
-					{ text: "Email", value: "email" },
-					{ text: "Username", value: "username" },
-					{ text: "First Name", value: "firstName" },
-					{ text: "Last Name", value: "lastName" },
-					{ text: "Actions", value: "actions", sortable: false },
-				],
-				postHeaders: [
-					{ text: "Title", value: "title" },
-					{ text: "Type", value: "type" },
-					{ text: "GitHub", value: "githubUrl" },
-					{ text: "Actions", value: "actions", sortable: false },
-				],
 			}
 		},
 		computed: {
+			userHeaders() {
+				return [
+					{ text: this.$t("email"), value: "email" },
+					{ text: this.$t("username"), value: "username" },
+					{ text: this.$t("firstName"), value: "firstName" },
+					{ text: this.$t("lastName"), value: "lastName" },
+					{ text: this.$t("actions"), value: "actions", sortable: false },
+				]
+			},
+			postHeaders() {
+				return [
+					{ text: this.$t("title"), value: "title" },
+					{ text: this.$t("type"), value: "type" },
+					{ text: this.$t("github"), value: "githubUrl" },
+					{ text: this.$t("actions"), value: "actions", sortable: false },
+				]
+			},
 			filteredUsers() {
 				if (!this.userSearch) return this.users
 				const q = this.userSearch.toLowerCase()
@@ -305,7 +317,7 @@
 				}
 			},
 			deleteUser(user) {
-				if (confirm("Delete this user?")) {
+				if (confirm(this.$t("deleteUser"))) {
 					axios
 						.delete(
 							`${import.meta.env.VITE_SERVER_URL}/api/users/${user._id}`,
@@ -368,7 +380,7 @@
 				}
 			},
 			deletePost(post) {
-				if (confirm("Delete this post?")) {
+				if (confirm(this.$t("deletePost"))) {
 					axios
 						.delete(
 							`${import.meta.env.VITE_SERVER_URL}/api/posts/${post._id}`,

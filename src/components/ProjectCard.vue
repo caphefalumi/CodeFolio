@@ -35,9 +35,8 @@
 				:aria-label="`View project: ${project.title}`"
 				@click="$emit('view', project)"
 			>
-				View
+				{{ $t("projectCardView") }}
 			</app-button>
-
 			<app-button
 				v-if="showEditButton"
 				color="primary"
@@ -46,7 +45,7 @@
 				:aria-label="`Edit project: ${project.title}`"
 				@click="$emit('edit', project)"
 			>
-				Edit
+				{{ $t("projectCardEdit") }}
 			</app-button>
 			<app-button
 				v-if="showDeleteButton"
@@ -56,16 +55,15 @@
 				:aria-label="`Delete project: ${project.title}`"
 				@click="$emit('delete', project)"
 			>
-				Delete
+				{{ $t("projectCardDelete") }}
 			</app-button>
 
 			<v-spacer v-if="showLikeButton"></v-spacer>
-
 			<app-button
 				v-if="showLikeButton"
 				icon
 				:color="project.liked ? 'red' : 'grey'"
-				:aria-label="`${project.liked ? 'Unlike' : 'Like'} project: ${project.title}`"
+				:aria-label="`${project.liked ? $t('projectCard.unlike') : $t('projectCard.like')} project: ${project.title}`"
 				@click="$emit('like', project)"
 			>
 				<v-icon>

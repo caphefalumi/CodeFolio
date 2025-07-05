@@ -10,7 +10,7 @@
 		<v-icon left>
 			{{ isFollowing ? "mdi-account-minus" : "mdi-account-plus" }}
 		</v-icon>
-		{{ isFollowing ? "Following" : "Follow" }}
+		{{ isFollowing ? $t("followingUser") : $t("follow") }}
 	</v-btn>
 </template>
 
