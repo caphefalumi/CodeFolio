@@ -177,7 +177,6 @@
 			},
 
 			handleBlur() {
-				// Delay hiding to allow for click on mention items
 				setTimeout(() => {
 					this.closeMentions()
 				}, 200)
@@ -220,7 +219,7 @@
 				}
 			},
 
-			updateMenuPosition(textarea, atPos) {
+			updateMenuPosition(textarea) {
 				// Update menu activator position for better dropdown placement
 				this.menuActivator = textarea
 			},

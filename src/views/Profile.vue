@@ -741,6 +741,15 @@
 			const username = this.$route.params.username
 			this.fetchProfileAndProjects(username)
 		},
+		watch: {
+			$route(to, from) {
+				// When the route changes, reload the profile data
+				if (to.params.username !== from.params.username) {
+					console.log("Route changed, loading new profile:", to.params.username)
+					this.fetchProfileAndProjects(to.params.username)
+				}
+			},
+		},
 	}
 </script>
 

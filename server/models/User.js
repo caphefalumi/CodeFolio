@@ -134,6 +134,65 @@ userSchema.pre("findOneAndUpdate", function (next) {
 	next()
 })
 
+// Cascade deletion when user is deleted
+userSchema.pre("findOneAndDelete", async function (next) {
+	try {
+		const userId = this.getQuery()._id
+
+		// Import models here to avoid circular dependency
+		const Post = (await import("./Post.js")).default
+		const Notification = (await import("./Notification.js")).default
+
+		// Delete all posts by this user
+		await Post.deleteMany({ author: userId })
+		// Remove user's comments and replies from all posts (separate operations to avoid conflicts)
+		// First remove replies
+		await Post.updateMany(
+			{},
+			{
+				$pull: {
+					"comments.$[].replies": { user: userId },
+				},
+			}
+		)
+
+		// Then remove comments
+		await Post.updateMany(
+			{},
+			{
+				$pull: {
+					comments: { user: userId },
+				},
+			}
+		)
+
+		// Delete all notifications where this user is sender or recipient
+		await Notification.deleteMany({
+			$or: [{ sender: userId }, { recipient: userId }],
+		})
+
+		await this.model.updateMany(
+			{ following: userId },
+			{ $pull: { following: userId } }
+		)
+		await this.model.updateMany(
+			{ followers: userId },
+			{ $pull: { followers: userId } }
+		)
+
+		// Remove user from votedPosts in other users (for posts they authored)
+		const userPosts = await Post.find({ author: userId }).distinct("_id")
+		await this.model.updateMany(
+			{},
+			{ $pull: { votedPosts: { postId: { $in: userPosts } } } }
+		)
+
+		next()
+	} catch (error) {
+		next(error)
+	}
+})
+
 const User = mongoose.model("User", userSchema)
 
 export default User

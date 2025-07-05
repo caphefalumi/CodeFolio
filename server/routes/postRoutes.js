@@ -78,15 +78,27 @@ router.get("/:username", async (req, res) => {
 // 🔹 Get a specific post
 router.get("/:username/:id", async (req, res) => {
 	try {
+		// Increment views first using findByIdAndUpdate to avoid population loss
+		await Post.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } })
+
+		// Then fetch the populated post
 		const post = await Post.findById(req.params.id)
 			.populate("author", "username avatar firstName lastName")
 			.populate("comments.user", "username avatar firstName lastName")
 			.populate("comments.replies.user", "username avatar firstName lastName")
+
 		if (!post) return res.status(404).json({ message: "Not found" })
 
-		// Increment views by 1
-		post.views += 1
-		await post.save()
+		// Debug: Log comment user data
+		console.log("Post comments with user data:")
+		post.comments.forEach((comment, index) => {
+			console.log(`Comment ${index}:`, {
+				id: comment._id,
+				user: comment.user,
+				content: comment.content.substring(0, 50),
+			})
+		})
+
 		res.json(post)
 	} catch (err) {
 		console.error("Error fetching post:", err)
@@ -356,5 +368,105 @@ router.post("/:id/downvote", authenticateToken, async (req, res) => {
 		res.status(400).json({ message: "Error downvoting post", error })
 	}
 })
+
+// 🔹 Delete a comment
+router.delete(
+	"/:id/comments/:commentId",
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const post = await Post.findById(req.params.id)
+			if (!post) return res.status(404).json({ message: "Post not found" })
+
+			const comment = post.comments.id(req.params.commentId)
+			if (!comment)
+				return res.status(404).json({ message: "Comment not found" })
+
+			// Check if current user is authorized (is the comment author or is admin)
+			const isAuthorized = await isAuthorizedUser(
+				req.user.id,
+				comment.user.toString()
+			)
+
+			if (!isAuthorized) {
+				return res
+					.status(403)
+					.json({ message: "Not authorized to delete this comment" })
+			}
+
+			// Clean up notifications related to this comment
+			await post.cleanupCommentNotifications(comment._id)
+
+			// Remove the comment
+			post.comments.pull(req.params.commentId)
+			await post.save()
+
+			// Re-populate and return updated comments
+			await post.populate("comments.user", "username avatar firstName lastName")
+			await post.populate(
+				"comments.replies.user",
+				"username avatar firstName lastName"
+			)
+
+			res.json({
+				message: "Comment deleted successfully",
+				comments: post.comments,
+			})
+		} catch (error) {
+			console.error("Error deleting comment:", error)
+			res.status(500).json({ message: "Error deleting comment", error })
+		}
+	}
+)
+
+// 🔹 Delete a reply
+router.delete(
+	"/:id/comments/:commentId/replies/:replyId",
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const post = await Post.findById(req.params.id)
+			if (!post) return res.status(404).json({ message: "Post not found" })
+
+			const comment = post.comments.id(req.params.commentId)
+			if (!comment)
+				return res.status(404).json({ message: "Comment not found" })
+
+			const reply = comment.replies.id(req.params.replyId)
+			if (!reply) return res.status(404).json({ message: "Reply not found" })
+
+			// Check if current user is authorized (is the reply author or is admin)
+			const isAuthorized = await isAuthorizedUser(
+				req.user.id,
+				reply.user.toString()
+			)
+
+			if (!isAuthorized) {
+				return res
+					.status(403)
+					.json({ message: "Not authorized to delete this reply" })
+			}
+
+			// Remove the reply
+			comment.replies.pull(req.params.replyId)
+			await post.save()
+
+			// Re-populate and return updated comments
+			await post.populate("comments.user", "username avatar firstName lastName")
+			await post.populate(
+				"comments.replies.user",
+				"username avatar firstName lastName"
+			)
+
+			res.json({
+				message: "Reply deleted successfully",
+				comments: post.comments,
+			})
+		} catch (error) {
+			console.error("Error deleting reply:", error)
+			res.status(500).json({ message: "Error deleting reply", error })
+		}
+	}
+)
 
 export default router

@@ -16,7 +16,23 @@
 								<h1>{{ project.title }}</h1>
 							</v-card-title>
 							<v-card-subtitle>
-								<span>By {{ project.author }}</span>
+								<span>By </span>
+								<v-btn
+									variant="text"
+									color="primary"
+									class="pa-1"
+									style="
+										text-transform: none;
+										min-width: auto;
+										height: auto;
+										font-size: inherit;
+										font-weight: normal;
+									"
+									@click="navigateToAuthorProfile"
+									:disabled="!project.author"
+								>
+									{{ project.author }}
+								</v-btn>
 							</v-card-subtitle>
 							<v-card-text>
 								<p class="text-body-1 mb-4">{{ project.description }}</p>
@@ -417,6 +433,22 @@
 				}
 				this.addComment()
 			},
+			navigateToAuthorProfile() {
+				console.log("Navigating to author profile:", this.project.author)
+				if (this.project.author) {
+					const targetRoute = `/${this.project.author}`
+					// Use router.push with force refresh if on same route
+					this.$router.push(targetRoute).catch(() => {
+						// If route is the same, force component reload by adding timestamp query
+						this.$router.push({
+							path: targetRoute,
+							query: { t: Date.now() },
+						})
+					})
+				} else {
+					console.warn("No author information available")
+				}
+			},
 			async addComment() {
 				this.errorMessage = ""
 				this.loading = true
@@ -510,6 +542,22 @@
 		},
 		mounted() {
 			this.fetchProjectDetail()
+		},
+		watch: {
+			$route(to, from) {
+				// When the route changes, reload the project data
+				if (
+					to.params.username !== from.params.username ||
+					to.params.id !== from.params.id
+				) {
+					console.log(
+						"Route changed, loading new project:",
+						to.params.username,
+						to.params.id
+					)
+					this.fetchProjectDetail()
+				}
+			},
 		},
 	}
 </script>

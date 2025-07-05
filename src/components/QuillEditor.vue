@@ -141,7 +141,6 @@
 					this.quill.off("text-change")
 					this.quill.off("selection-change")
 
-					// Destroy instance
 					this.quill = null
 				}
 
@@ -150,22 +149,6 @@
 					this.$refs.quillEditor.innerHTML = ""
 					this.$refs.quillEditor.className = "quill-editor"
 				}
-			},
-
-			focus() {
-				if (this.quill) {
-					this.quill.focus()
-				}
-			},
-
-			blur() {
-				if (this.quill) {
-					this.quill.blur()
-				}
-			},
-
-			getQuill() {
-				return this.quill
 			},
 		},
 	}

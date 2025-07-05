@@ -13,19 +13,28 @@
 						:src="safeUserData.avatar"
 						:alt="`${safeUserData.username} avatar`"
 						cover
-						@error="onAvatarError"
 					></v-img>
 					<span v-else class="text-white text-subtitle-1">
 						{{ safeUserData.username.charAt(0).toUpperCase() }}
 					</span>
 				</v-avatar>
 			</template>
-
 			<div class="comment-content flex-grow-1">
 				<div class="d-flex align-center mb-1">
-					<span class="font-weight-medium text-subtitle-2 mr-2">
+					<v-btn
+						variant="text"
+						color="primary"
+						class="font-weight-medium text-subtitle-2 mr-2 pa-0"
+						style="
+							text-transform: none;
+							min-width: auto;
+							height: auto;
+							font-size: inherit;
+						"
+						@click="handleUsernameClick"
+					>
 						{{ safeUserData.username }}
-					</span>
+					</v-btn>
 					<span class="text-caption text-grey">
 						{{ formatDate(comment.createdAt) }}
 					</span>
@@ -165,13 +174,14 @@
 		computed: {
 			isAuthenticated() {
 				return isLoggedIn()
-			},
-			// Ensure user data exists and has required fields
+			}, // Ensure user data exists and has required fields
 			safeUserData() {
 				const user = this.comment?.user
-				if (!user) {
+
+				if (!user || typeof user === "string") {
+					// Handle case where user is deleted or only an ObjectId string
 					return {
-						username: "Unknown User",
+						username: "Deleted User",
 						avatar: null,
 						_id: null,
 					}
@@ -179,7 +189,7 @@
 
 				// Ensure required fields exist
 				return {
-					username: user.username || "Unknown User",
+					username: user.username || "Deleted User",
 					avatar: user.avatar || null,
 					_id: user._id || null,
 				}
@@ -196,18 +206,17 @@
 					console.warn("CommentItem: No comment data provided")
 					return
 				}
-
 				if (!this.comment.user) {
 					console.warn(
 						"CommentItem: Missing user data for comment:",
 						this.comment._id
 					)
-					// Add a placeholder user object
-					this.$set(this.comment, "user", {
-						username: "Unknown User",
+					// Add a placeholder user object using Vue 3 approach
+					this.comment.user = {
+						username: "Deleted User",
 						avatar: null,
 						_id: null,
-					})
+					}
 				}
 
 				// Validate replies if they exist
@@ -217,12 +226,12 @@
 							console.warn(
 								`CommentItem: Missing user data for reply ${index}:`,
 								reply._id
-							)
-							this.$set(reply, "user", {
-								username: "Unknown User",
+							) // Use direct assignment in Vue 3
+							reply.user = {
+								username: "Deleted User",
 								avatar: null,
 								_id: null,
-							})
+							}
 						}
 					})
 				}
@@ -288,18 +297,38 @@
 			},
 			handleMentionClick(username) {
 				// Navigate to user profile
-				this.$router.push(`/${username}`)
+				console.log("Mention clicked:", username)
+				const targetRoute = `/${username}`
+				// Use router.push with force refresh if on same route
+				this.$router.push(targetRoute).catch(() => {
+					// If route is the same, force component reload by adding timestamp query
+					this.$router.push({
+						path: targetRoute,
+						query: { t: Date.now() },
+					})
+				})
 			},
-			onAvatarError(event) {
-				// Handle avatar loading errors
-				console.warn(
-					"Avatar failed to load for user:",
-					this.comment.user?.username,
-					this.comment.user?.avatar
-				)
-				// Remove the avatar URL to show fallback initial
-				if (this.comment.user) {
-					this.comment.user.avatar = null
+			handleUsernameClick() {
+				console.log("Username clicked:", this.safeUserData.username)
+				if (
+					this.safeUserData.username &&
+					this.safeUserData.username !== "Deleted User"
+				) {
+					const targetRoute = `/${this.safeUserData.username}`
+					console.log("Navigating to:", targetRoute)
+					// Use router.push with force refresh if on same route
+					this.$router.push(targetRoute).catch(() => {
+						// If route is the same, force component reload by adding timestamp query
+						this.$router.push({
+							path: targetRoute,
+							query: { t: Date.now() },
+						})
+					})
+				} else {
+					console.warn(
+						"Cannot navigate - user was deleted:",
+						this.safeUserData.username
+					)
 				}
 			},
 		},

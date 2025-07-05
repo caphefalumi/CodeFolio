@@ -342,18 +342,47 @@
 				}
 			},
 			handleNotificationClick(notification) {
+				console.log("Notification clicked:", notification)
+
 				// Mark as read if not already
 				if (!notification.isRead) {
 					this.markAsRead(notification._id)
 				}
 
-				// Navigate to related content using the correct path format
-				if (notification.relatedPost && notification.relatedPost.author) {
+				// Navigate based on notification type
+				if (notification.type === "follow") {
+					// For follow notifications, redirect to the sender's profile
+					if (notification.sender && notification.sender.username) {
+						console.log("Navigating to profile:", notification.sender.username)
+						const targetRoute = `/${notification.sender.username}`
+						this.navigateToRoute(targetRoute)
+					}
+				} else if (
+					notification.relatedPost &&
+					notification.relatedPost.author
+				) {
+					// For mention, comment, and like notifications, redirect to the post
 					const fullPath = `${notification.relatedPost.author.username}/${notification.relatedPost._id}`
-					this.$router.push(`/${fullPath}`)
+					console.log("Navigating to post:", fullPath)
+					const targetRoute = `/${fullPath}`
+					this.navigateToRoute(targetRoute)
 				}
+
 				// Close the dropdown
 				this.$emit("close")
+			},
+			navigateToRoute(targetRoute) {
+				// Use router navigation with query parameter to force refresh
+				if (this.$route.path === targetRoute) {
+					// If we're already on the target route, add a timestamp to force refresh
+					this.$router.push({
+						path: targetRoute,
+						query: { t: Date.now() },
+					})
+				} else {
+					// Navigate to new route
+					this.$router.push(targetRoute)
+				}
 			},
 
 			formatTime(timestamp) {

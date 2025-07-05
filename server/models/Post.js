@@ -111,6 +111,40 @@ postSchema.pre("findOneAndUpdate", function (next) {
 	next()
 })
 
+// Cascade deletion when post is deleted
+postSchema.pre("findOneAndDelete", async function (next) {
+	try {
+		const postId = this.getQuery()._id
+
+		// Import models here to avoid circular dependency
+		const Notification = (await import("./Notification.js")).default
+		const User = (await import("./User.js")).default
+
+		// Delete all notifications related to this post
+		await Notification.deleteMany({ relatedPost: postId })
+
+		// Remove this post from users' votedPosts arrays
+		await User.updateMany(
+			{ "votedPosts.postId": postId },
+			{ $pull: { votedPosts: { postId: postId } } }
+		)
+
+		next()
+	} catch (error) {
+		next(error)
+	}
+})
+
+// Method to clean up notifications when comments are deleted
+postSchema.methods.cleanupCommentNotifications = async function (commentId) {
+	try {
+		const Notification = (await import("./Notification.js")).default
+		await Notification.deleteMany({ relatedComment: commentId })
+	} catch (error) {
+		console.error("Error cleaning up comment notifications:", error)
+	}
+}
+
 postSchema.set("toJSON", { virtuals: true })
 
 const Post = mongoose.model("Post", postSchema)
