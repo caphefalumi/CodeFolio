@@ -9,6 +9,7 @@ import sendEmail from "../mailer.js"
 import authenticateToken from "../middleware/authenticateToken.js"
 import fs from "fs"
 import "dotenv/config"
+import { convertImageUrlToUri } from "./uploadRoutes.js"
 
 const privateKey = fs.readFileSync(
 	process.cwd() + "/private_encrypted.key",
@@ -203,6 +204,7 @@ router.post("/login/google", async (req, res) => {
 		)
 
 		const { id, email, picture, given_name, family_name } = googleUser
+		const avatar = await convertImageUrlToUri(picture, "profile")
 		let user = await User.findOne({ email })
 
 		if (!user) {
@@ -216,7 +218,7 @@ router.post("/login/google", async (req, res) => {
 				firstName: given_name,
 				lastName: family_name,
 				password: crypto.randomBytes(128).toString("hex"),
-				avatar: picture,
+				avatar: avatar,
 				oAuthProviders: [{ provider: "google", providerId: id }],
 			})
 		} else {
@@ -316,6 +318,7 @@ router.get("/login/github/callback", async (req, res) => {
 
 		const email = primaryEmailObj.email
 		const avatar_url = userProfile.avatar_url
+		const avatar = await convertImageUrlToUri(avatar_url, "profile")
 
 		let user = await User.findOne({ email })
 
@@ -330,7 +333,7 @@ router.get("/login/github/callback", async (req, res) => {
 				firstName: userProfile.name?.split(" ")[0] || "",
 				lastName: userProfile.name?.split(" ")[1] || "",
 				password: crypto.randomBytes(128).toString("hex"),
-				avatar: avatar_url,
+				avatar: avatar,
 				oAuthProviders: [{ provider: "github", providerId: userProfile.id }],
 			})
 		} else {

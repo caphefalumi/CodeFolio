@@ -253,7 +253,7 @@
 
 					<!-- Quill Editor for Project Content -->
 					<div class="mb-4">
-						<label class="v-label v-field-label">Project Content *</label>
+						<label class="v-label v-field-label"></label>
 						<quill-editor
 							v-model="projectForm.content"
 							placeholder="Write detailed content about your project, including features and implementation details..."
