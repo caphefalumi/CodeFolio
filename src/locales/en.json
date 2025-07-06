@@ -234,5 +234,13 @@
 	"validationDescriptionMaxLength": "Description must be less than 500 characters",
 	"validationTypeRequired": "Project type is required",
 	"validationContentRequired": "Project content is required",
-	"validationValidUrl": "Please enter a valid URL"
+	"validationValidUrl": "Please enter a valid URL",
+	"validationUrlInvalid": "Please enter a valid URL",
+
+	"notificationsLoading": "Loading notifications...",
+	"notificationsNewNotifications": "new notification",
+	"notificationsNewNotificationsPlural": "new notifications",
+	"notificationsMarkAsRead": "Mark as read",
+	"notificationsRemoveNotification": "Remove notification",
+	"notificationsCloseNotifications": "Close notifications"
 }

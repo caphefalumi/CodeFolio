@@ -6,7 +6,7 @@
 				<!-- Header -->
 				<div class="notification-header">
 					<div class="d-flex align-center justify-space-between">
-						<h3 class="notification-title">{{ $t("notifications.title") }}</h3>
+						<h3 class="notification-title">{{ $t("notificationsTitle") }}</h3>
 						<div class="d-flex align-center">
 							<v-btn
 								icon
@@ -14,7 +14,7 @@
 								variant="text"
 								@click="$emit('close')"
 								class="header-btn"
-								:aria-label="$t('notifications.closeNotifications')"
+								:aria-label="$t('notificationsCloseNotifications')"
 							>
 								<v-icon size="18">mdi-close</v-icon>
 							</v-btn>
@@ -30,8 +30,8 @@
 							>{{ unreadCount }}
 							{{
 								unreadCount > 1
-									? $t("notifications.newNotificationsPlural")
-									: $t("notifications.newNotifications")
+									? $t("notificationsNewNotificationsPlural")
+									: $t("notificationsNewNotifications")
 							}}</span
 						>
 						>
@@ -42,7 +42,7 @@
 							@click="markAllAsRead"
 							class="mark-read-btn"
 						>
-							{{ $t("notifications.markAllRead") }}
+							{{ $t("markAllRead") }}
 						</v-btn>
 					</div>
 				</div>
@@ -57,7 +57,7 @@
 							color="primary"
 						></v-progress-circular>
 						<div class="mt-3 text-body-2 text-medium-emphasis">
-							{{ $t("notifications.loading") }}
+							{{ $t("notificationsLoading") }}
 						</div>
 					</div>
 					<!-- Empty State -->
@@ -67,10 +67,10 @@
 								>mdi-bell-outline</v-icon
 							>
 							<h4 class="text-h6 text-medium-emphasis mb-2">
-								{{ $t("notifications.empty.title") }}
+								{{ $t("notificationsEmptyTitle") }}
 							</h4>
 							<p class="text-body-2 text-disabled">
-								{{ $t("notifications.empty.description") }}
+								{{ $t("notificationsEmptyDescription") }}
 							</p>
 						</div>
 					</div>
@@ -134,7 +134,7 @@
 											prepend-icon="mdi-check"
 										>
 											<v-list-item-title>{{
-												$t("notifications.markAsRead")
+												$t("notificationsMarkAsRead")
 											}}</v-list-item-title>
 										</v-list-item>
 										<v-list-item
@@ -143,7 +143,7 @@
 											class="text-error"
 										>
 											<v-list-item-title>{{
-												$t("notifications.removeNotification")
+												$t("notificationsRemoveNotification")
 											}}</v-list-item-title>
 										</v-list-item>
 									</v-list>
@@ -164,7 +164,7 @@
 						class="text-caption"
 					>
 						<v-icon size="16" class="mr-1">mdi-delete-sweep</v-icon>
-						{{ $t("notifications.clearAll") }}
+						{{ $t("clearAll") }}
 					</v-btn>
 				</div>
 			</div>

@@ -234,5 +234,13 @@
 	"validationDescriptionMaxLength": "Mô tả phải ít hơn 500 ký tự",
 	"validationTypeRequired": "Loại dự án là bắt buộc",
 	"validationContentRequired": "Nội dung dự án là bắt buộc",
-	"validationValidUrl": "Vui lòng nhập URL hợp lệ"
+	"validationValidUrl": "Vui lòng nhập URL hợp lệ",
+	"validationUrlInvalid": "Vui lòng nhập URL hợp lệ",
+
+	"notificationsLoading": "Đang tải thông báo...",
+	"notificationsNewNotifications": "thông báo mới",
+	"notificationsNewNotificationsPlural": "thông báo mới",
+	"notificationsMarkAsRead": "Đánh dấu đã đọc",
+	"notificationsRemoveNotification": "Xóa thông báo",
+	"notificationsCloseNotifications": "Đóng thông báo"
 }

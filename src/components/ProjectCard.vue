@@ -63,7 +63,7 @@
 				v-if="showLikeButton"
 				icon
 				:color="project.liked ? 'red' : 'grey'"
-				:aria-label="`${project.liked ? $t('projectCard.unlike') : $t('projectCard.like')} project: ${project.title}`"
+				:aria-label="`${project.liked ? $t('projectCardUnlike') : $t('projectCardLike')} project: ${project.title}`"
 				@click="$emit('like', project)"
 			>
 				<v-icon>
