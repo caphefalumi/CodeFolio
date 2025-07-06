@@ -17,9 +17,13 @@ export function useApi() {
 			Authorization: `Bearer ${token}`,
 		},
 	})
-
 	const handleError = (err, defaultMessage = "An error occurred") => {
 		error.value = err.response?.data?.message || err.message || defaultMessage
+		return error.value
+	}
+
+	const getErrorMessage = (err, defaultMessage = "An error occurred") => {
+		return err.response?.data?.message || err.message || defaultMessage
 	}
 
 	const clearMessages = () => {
@@ -144,13 +148,13 @@ export function useApi() {
 		)
 		return response.data
 	}
-
 	return {
 		loading: computed(() => loading.value),
 		error: computed(() => error.value),
 		success: computed(() => success.value),
 		clearMessages,
 		handleError,
+		getErrorMessage,
 		apiCall,
 		getAuthHeaders,
 		getAuthHeadersWithFormData,

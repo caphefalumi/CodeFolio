@@ -89,16 +89,6 @@ router.get("/:username/:id", async (req, res) => {
 
 		if (!post) return res.status(404).json({ message: "Not found" })
 
-		// Debug: Log comment user data
-		console.log("Post comments with user data:")
-		post.comments.forEach((comment, index) => {
-			console.log(`Comment ${index}:`, {
-				id: comment._id,
-				user: comment.user,
-				content: comment.content.substring(0, 50),
-			})
-		})
-
 		res.json(post)
 	} catch (err) {
 		console.error("Error fetching post:", err)

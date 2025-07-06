@@ -320,11 +320,11 @@
 					</app-button>
 				</template>
 			</app-dialog>
-
 			<!-- Password Reset Dialog -->
-			<password-reset-dialog
+			<forgot-password-dialog
 				v-model="showResetPassword"
 				:user-email="currentUser?.email"
+				:skip-email-step="true"
 				@success="handlePasswordResetSuccess"
 			/>
 
@@ -362,7 +362,7 @@
 	import AppAlert from "@/components/AppAlert.vue"
 	import ProjectCard from "@/components/ProjectCard.vue"
 	import QuillEditor from "@/components/QuillEditor.vue"
-	import PasswordResetDialog from "@/components/PasswordResetDialog.vue"
+	import ForgotPasswordDialog from "@/components/ForgotPasswordDialog.vue"
 	import FollowButton from "@/components/FollowButton.vue"
 	import FollowersDialog from "@/components/FollowersDialog.vue"
 
@@ -375,7 +375,7 @@
 			AppAlert,
 			ProjectCard,
 			QuillEditor,
-			PasswordResetDialog,
+			ForgotPasswordDialog,
 			FollowButton,
 			FollowersDialog,
 		},
@@ -424,7 +424,7 @@
 				createPost,
 				updatePost,
 				deletePost,
-				handleError,
+				getErrorMessage,
 			} = useApi()
 
 			return {
@@ -433,7 +433,7 @@
 				createPost,
 				updatePost,
 				deletePost,
-				handleError,
+				getErrorMessage,
 			}
 		},
 		computed: {
@@ -471,27 +471,32 @@
 			},
 		},
 		methods: {
-			initializeTranslatedData() {				// Initialize project types
+			initializeTranslatedData() {
+				// Initialize project types
 				this.projectTypes = [
-					this.$t('projectTypeWebDevelopment'),
-					this.$t('projectTypeMobileApp'),
-					this.$t('projectTypeApiDevelopment'),
-					this.$t('projectTypeOther'),
-				]				// Initialize validation rules
+					this.$t("projectTypeWebDevelopment"),
+					this.$t("projectTypeMobileApp"),
+					this.$t("projectTypeApiDevelopment"),
+					this.$t("projectTypeOther"),
+				] // Initialize validation rules
 				this.projectValidationRules = {
 					title: [
-						v => !!v || this.$t('validationRequired'),
-						v => (v && v.length >= 3) || this.$t('validationTitleMinLength'),
-						v => (v && v.length <= 100) || this.$t('validationTitleMaxLength'),
+						v => !!v || this.$t("validationRequired"),
+						v => (v && v.length >= 3) || this.$t("validationTitleMinLength"),
+						v => (v && v.length <= 100) || this.$t("validationTitleMaxLength"),
 					],
 					description: [
-						v => !!v || this.$t('validationRequired'),
-						v => (v && v.length >= 10) || this.$t('validationDescriptionMinLength'),
-						v => (v && v.length <= 500) || this.$t('validationDescriptionMaxLength'),
+						v => !!v || this.$t("validationRequired"),
+						v =>
+							(v && v.length >= 10) ||
+							this.$t("validationDescriptionMinLength"),
+						v =>
+							(v && v.length <= 500) ||
+							this.$t("validationDescriptionMaxLength"),
 					],
-					type: [v => !!v || this.$t('validationRequired')],
+					type: [v => !!v || this.$t("validationRequired")],
 					githubUrl: [
-						v => !v || this.isValidUrl(v) || this.$t('validationUrlInvalid'),
+						v => !v || this.isValidUrl(v) || this.$t("validationUrlInvalid"),
 					],
 				}
 			},
@@ -540,16 +545,17 @@
 				const newUsername = this.editForm.username?.trim()
 				if (!newUsername || newUsername === this.userProfile.username) return
 
-				try {				const res = await axios.get(
-					`${import.meta.env.VITE_SERVER_URL}/api/users/${newUsername}`
-				)
-				if (res.status === 200 && res.data) {
-					this.usernameError = this.$t('usernameExists')
-				}
+				try {
+					const res = await axios.get(
+						`${import.meta.env.VITE_SERVER_URL}/api/users/${newUsername}`
+					)
+					if (res.status === 200 && res.data) {
+						this.usernameError = this.$t("usernameExists")
+					}
 				} catch (error) {
 					// Username is available if we get a 404
 					if (error.response?.status !== 404) {
-						console.error('Error checking username:', error)
+						console.error("Error checking username:", error)
 					}
 				}
 			},
@@ -581,16 +587,19 @@
 						bio: this.editForm.bio,
 						avatar: avatarUri,
 						username: this.editForm.username,
-					}					
+					}
 					await this.updateUser(payload, this.accessToken)
-					this.successMessage = this.$t('profileUpdated')
+					this.successMessage = this.$t("profileUpdated")
 					this.fetchProfileAndProjects(this.editForm.username)
 					setTimeout(() => {
 						this.showEditProfile = false
 						this.successMessage = ""
 					}, 1200)
 				} catch (error) {
-					this.handleError(error, "Failed to update profile. Please try again.")
+					this.errorMessage = this.getErrorMessage(
+						error,
+						"Failed to update profile. Please try again."
+					)
 				} finally {
 					this.loading = false
 				}
@@ -647,7 +656,10 @@
 					this.showNewProject = false
 					this.resetProjectForm()
 				} catch (error) {
-					this.handleError(error, "Project save failed")
+					this.projectErrorMessage = this.getErrorMessage(
+						error,
+						"Project save failed"
+					)
 				} finally {
 					this.loading = false
 				}
@@ -673,7 +685,7 @@
 			},
 
 			async deleteProject(project) {
-				if (confirm(this.$t('deleteConfirm'))) {
+				if (confirm(this.$t("deleteConfirm"))) {
 					this.loading = true
 					try {
 						await this.deletePost(project._id, this.accessToken)
@@ -681,7 +693,10 @@
 							p => p._id !== project._id
 						)
 					} catch (error) {
-						this.handleError(error, "Project deletion failed")
+						this.errorMessage = this.getErrorMessage(
+							error,
+							"Project deletion failed"
+						)
 					} finally {
 						this.loading = false
 					}
@@ -734,7 +749,8 @@
 				if (
 					!this.projectForm.content ||
 					this.projectForm.content.trim().length === 0
-				) {					this.contentError = this.$t('validationRequired')
+				) {
+					this.contentError = this.$t("validationRequired")
 					isValid = false
 				} else {
 					this.contentError = ""
@@ -742,7 +758,7 @@
 
 				// Set general error message if form is invalid
 				if (!isValid) {
-					this.projectErrorMessage = this.$t('requiredFields')
+					this.projectErrorMessage = this.$t("requiredFields")
 				}
 
 				return isValid

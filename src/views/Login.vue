@@ -71,10 +71,27 @@
 								{{ $t("noAccount") }} {{ $t("signUp") }}
 							</router-link>
 						</div>
+						<div class="text-center mt-2">
+							<v-btn
+								variant="text"
+								color="primary"
+								size="small"
+								:disabled="isAnyLoading"
+								@click="showForgotPassword = true"
+							>
+								{{ $t("forgotPassword") }}
+							</v-btn>
+						</div>
 					</v-card-text>
 				</v-card>
 			</v-col>
 		</v-row>
+
+		<!-- Forgot Password Dialog -->
+		<forgot-password-dialog
+			v-model="showForgotPassword"
+			@success="handleForgotPasswordSuccess"
+		/>
 	</v-container>
 </template>
 
@@ -83,6 +100,7 @@
 	import axios from "axios"
 	import vIconLogin from "@/components/vIconLogin.vue"
 	import AppForm from "@/components/AppForm.vue"
+	import ForgotPasswordDialog from "@/components/ForgotPasswordDialog.vue"
 	import { useApi } from "@/composables/common.js"
 
 	export default {
@@ -90,10 +108,11 @@
 			GoogleLogin,
 			vIconLogin,
 			AppForm,
+			ForgotPasswordDialog,
 		},
 		setup() {
-			const { handleError } = useApi()
-			return { handleError }
+			const { getErrorMessage } = useApi()
+			return { getErrorMessage }
 		},
 		data() {
 			return {
@@ -101,6 +120,7 @@
 				googleLoading: false,
 				githubLoading: false,
 				errorMessage: "",
+				showForgotPassword: false,
 				form: {
 					email: "",
 					password: "",
@@ -142,7 +162,7 @@
 					sessionStorage.setItem("accessToken", response.data.accessToken)
 					this.$router.push("/")
 				} catch (error) {
-					this.errorMessage = this.handleError(
+					this.errorMessage = this.getErrorMessage(
 						error,
 						this.$t("invalidCredentials")
 					)
@@ -165,7 +185,7 @@
 					sessionStorage.setItem("accessToken", res.data.accessToken)
 					window.location.href = "/"
 				} catch (error) {
-					this.errorMessage = this.handleError(
+					this.errorMessage = this.getErrorMessage(
 						error,
 						this.$t("googleLogin") + " failed. Please try again."
 					)
@@ -203,9 +223,14 @@
 				} else if (githubError) {
 					this.errorMessage = githubError
 					window.location.reload()
-				}
-				// Always reset loading state when we receive a message
+				} // Always reset loading state when we receive a message
 				this.githubLoading = false
+			},
+			handleForgotPasswordSuccess(message) {
+				// Show success message and optionally redirect to login
+				this.errorMessage = ""
+				// You could show a success toast here if needed
+				console.log("Password reset successful:", message)
 			},
 		},
 	}

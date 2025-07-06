@@ -89,8 +89,8 @@
 			AppForm,
 		},
 		setup() {
-			const { handleError } = useApi()
-			return { handleError }
+			const { getErrorMessage } = useApi()
+			return { getErrorMessage }
 		},
 		data() {
 			return {
@@ -139,8 +139,6 @@
 						v === this.form.password || this.$t("validationPasswordsNotMatch"),
 				}
 			},
-		},
-		computed: {
 			isFormValid() {
 				return (
 					this.form.firstName &&
@@ -175,7 +173,7 @@
 					)
 					this.$router.push("/")
 				} catch (error) {
-					this.errorMessage = this.handleError(
+					this.errorMessage = this.getErrorMessage(
 						error,
 						"Registration failed. Please try again."
 					)

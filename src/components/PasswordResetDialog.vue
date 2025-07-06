@@ -126,8 +126,8 @@
 			}
 		},
 		setup() {
-			const { handleError } = useApi()
-			return { handleError }
+			const { getErrorMessage } = useApi()
+			return { getErrorMessage }
 		},
 		computed: {
 			isOpen: {
@@ -156,8 +156,10 @@
 					this.successMessage = res.data.message
 					this.currentStep = 2
 				} catch (err) {
-					this.handleError(err)
-					this.errorMessage = err.response?.data?.message || err.message
+					this.errorMessage = this.getErrorMessage(
+						err,
+						"Failed to send reset code"
+					)
 				} finally {
 					this.loading = false
 				}

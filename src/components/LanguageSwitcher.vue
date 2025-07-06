@@ -16,7 +16,6 @@
 				v-for="language in languages"
 				:key="language.code"
 				@click="changeLanguage(language.code)"
-				:class="{ 'v-list-item--active': currentLanguage === language.code }"
 			>
 				<template #prepend>
 					<v-icon>{{ language.icon }}</v-icon>

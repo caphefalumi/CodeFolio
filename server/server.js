@@ -11,11 +11,11 @@ import uploadRoutes from "./routes/uploadRoutes.js"
 import notificationRoutes from "./routes/notificationRoutes.js"
 
 const app = express()
-app.use((req, res, next) => {
-	const origin = req.get("Origin") || req.get("Referer") || "Unknown origin"
-	console.log(`Incoming request from: ${origin}`)
-	next()
-})
+// app.use((req, res, next) => {
+// 	const origin = req.get("Origin") || req.get("Referer") || "Unknown origin"
+// 	console.log(`Incoming request from: ${origin}`)
+// 	next()
+// })
 
 const corsOptions = {
 	origin: [

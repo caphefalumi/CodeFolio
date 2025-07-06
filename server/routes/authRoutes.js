@@ -414,7 +414,48 @@ router.post("/logout", async (req, res) => {
 	}
 })
 
-// Forgot password: send 6-digit code to email
+// Forgot password for non-authenticated users (by email)
+router.post("/forgot-password-email", async (req, res) => {
+	const { email } = req.body
+	if (!email) {
+		return res.status(400).json({ message: "Email is required" })
+	}
+
+	try {
+		const user = await User.findOne({ email })
+		if (!user) {
+			return res.json({
+				message:
+					"If an account with this email exists, a reset code has been sent.",
+			})
+		}
+
+		// Generate 6-digit code
+		const code = Math.floor(100000 + Math.random() * 900000).toString()
+		user.resetCode = code
+		user.resetCodeExpires = Date.now() + 15 * 60 * 1000 // 15 min
+		await user.save()
+
+		// Send email
+		const mailOptions = {
+			from: `CodeFolio <${process.env.GMAIL_USER}>`,
+			to: user.email,
+			subject: "Password Reset Code",
+			html: `<h2>Your CodeFolio password reset code:</h2><h1>${code}</h1><p>This code will expire in 15 minutes.</p>`,
+		}
+
+		await sendEmail(mailOptions)
+		res.json({
+			message:
+				"If an account with this email exists, a reset code has been sent.",
+		})
+	} catch (error) {
+		console.error("Email send error:", error)
+		res.status(500).json({ message: "Failed to send email", error })
+	}
+})
+
+// Forgot password: send 6-digit code to email (authenticated)
 router.post("/forgot-password", authenticateToken, async (req, res) => {
 	const user = await User.findOne({ _id: req.user.id })
 	console.log("User from token:", user.username)
@@ -432,6 +473,7 @@ router.post("/forgot-password", authenticateToken, async (req, res) => {
 		subject: "Password Reset Code",
 		html: `<h2>Your CodeFolio password reset code:</h2><h1>${code}</h1><p>This code will expire in 15 minutes.</p>`,
 	}
+
 	try {
 		await sendEmail(mailOptions)
 		res.json({ message: "Reset code sent to email" })
@@ -441,7 +483,47 @@ router.post("/forgot-password", authenticateToken, async (req, res) => {
 	}
 })
 
-// Verify reset code
+// Verify reset code for non-authenticated users
+router.post("/verify-reset-code-email", async (req, res) => {
+	const { email, code } = req.body
+	if (!email || !code) {
+		return res.status(400).json({ message: "Email and code are required" })
+	}
+
+	const user = await User.findOne({ email })
+	if (!user || !user.resetCode || !user.resetCodeExpires) {
+		return res.status(400).json({ message: "Invalid or expired code" })
+	}
+	if (user.resetCode !== code || Date.now() > user.resetCodeExpires) {
+		return res.status(400).json({ message: "Invalid or expired code" })
+	}
+	res.json({ message: "Code verified" })
+})
+
+// Reset password with code for non-authenticated users
+router.post("/reset-password-email", async (req, res) => {
+	const { email, code, newPassword } = req.body
+	if (!email || !code || !newPassword) {
+		return res
+			.status(400)
+			.json({ message: "Email, code, and new password are required" })
+	}
+
+	const user = await User.findOne({ email })
+	if (!user || !user.resetCode || !user.resetCodeExpires) {
+		return res.status(400).json({ message: "Invalid or expired code" })
+	}
+	if (user.resetCode !== code || Date.now() > user.resetCodeExpires) {
+		return res.status(400).json({ message: "Invalid or expired code" })
+	}
+	user.password = await bcrypt.hash(newPassword, 10)
+	user.resetCode = undefined
+	user.resetCodeExpires = undefined
+	await user.save()
+	res.json({ message: "Password reset successful" })
+})
+
+// Verify reset code (authenticated)
 router.post("/verify-reset-code", authenticateToken, async (req, res) => {
 	const { code } = req.body
 

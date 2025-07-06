@@ -12,8 +12,10 @@
 								cover
 								:alt="`${project.title} project cover image`"
 							></v-img>
-							<v-card-title class="text-h3">
-								<h1>{{ project.title }}</h1>
+							<v-card-title class="text-h3 pa-0">
+								<div class="project-title-responsive font-weight-bold">
+									{{ project.title }}
+								</div>
 							</v-card-title>
 							<v-card-subtitle>
 								<span>By </span>
@@ -315,8 +317,8 @@
 			MentionTextarea,
 		},
 		setup() {
-			const { handleError } = useApi()
-			return { handleError }
+			const { getErrorMessage } = useApi()
+			return { getErrorMessage }
 		},
 		data() {
 			return {
@@ -485,7 +487,7 @@
 					if (error.response && error.response.status === 401) {
 						this.showCommentAuthAlert = true
 					} else {
-						this.errorMessage = this.handleError(
+						this.errorMessage = this.getErrorMessage(
 							error,
 							"Failed to post comment. Please try again."
 						)
@@ -540,7 +542,7 @@
 						this.showAuthBanner = false
 					}, 5000)
 				} else {
-					this.errorMessage = this.handleError(error, "Failed to vote.")
+					this.errorMessage = this.getErrorMessage(error, "Failed to vote.")
 				}
 			},
 		},
@@ -639,5 +641,13 @@
 		max-width: 100%;
 		height: auto;
 		margin: 1em 0;
+	}
+
+	.project-title-responsive {
+		padding-left: 2%;
+		word-break: break-word;
+		white-space: normal;
+		overflow-wrap: break-word;
+		max-width: 100%;
 	}
 </style>

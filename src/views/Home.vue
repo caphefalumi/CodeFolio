@@ -14,9 +14,13 @@
 						<v-btn color="primary" size="large" to="/projects" class="mr-4">{{
 							$t("navProjects")
 						}}</v-btn>
-						<v-btn variant="outlined" size="large" to="/login">{{
-							$t("getStarted")
-						}}</v-btn>
+						<v-btn
+							v-if="!isLoggedIn"
+							variant="outlined"
+							size="large"
+							to="/login"
+							>{{ $t("getStarted") }}</v-btn
+						>
 					</v-col>
 				</v-row>
 			</section>
@@ -64,6 +68,7 @@
 <script>
 	import axios from "axios"
 	import { RecycleScroller } from "vue-virtual-scroller"
+	import { isLoggedIn } from "@/composables/user"
 	import "vue-virtual-scroller/dist/vue-virtual-scroller.css"
 
 	export default {
@@ -72,6 +77,7 @@
 		data() {
 			return {
 				featuredProjects: [],
+				isLoggedIn: isLoggedIn(),
 			}
 		},
 		mounted() {

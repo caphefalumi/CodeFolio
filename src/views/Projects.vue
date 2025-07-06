@@ -126,8 +126,8 @@
 			ProjectCard,
 		},
 		setup() {
-			const { handleError } = useApi()
-			return { handleError }
+			const { getErrorMessage } = useApi()
+			return { getErrorMessage }
 		},
 		data() {
 			return {
@@ -251,7 +251,7 @@
 				}
 			} catch (error) {
 				console.error("Error fetching projects:", error)
-				this.errorMessage = this.handleError(
+				this.errorMessage = this.getErrorMessage(
 					error,
 					"Failed to load projects. Please try again."
 				)
