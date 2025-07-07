@@ -58,19 +58,6 @@
 				{{ $t("projectCardDelete") }}
 			</app-button>
 
-			<v-spacer v-if="showLikeButton"></v-spacer>
-			<app-button
-				v-if="showLikeButton"
-				icon
-				:color="project.liked ? 'red' : 'grey'"
-				:aria-label="`${project.liked ? $t('projectCardUnlike') : $t('projectCardLike')} project: ${project.title}`"
-				@click="$emit('like', project)"
-			>
-				<v-icon>
-					{{ project.liked ? "mdi-heart" : "mdi-heart-outline" }}
-				</v-icon>
-			</app-button>
-
 			<slot name="actions" :project="project"></slot>
 		</v-card-actions>
 	</v-card>
@@ -97,10 +84,6 @@
 				type: Boolean,
 				default: false,
 			},
-			showLikeButton: {
-				type: Boolean,
-				default: false,
-			},
 			imageHeight: {
 				type: [String, Number],
 				default: 180,
@@ -110,7 +93,7 @@
 				default: "",
 			},
 		},
-		emits: ["view", "edit", "delete", "like"],
+		emits: ["view", "edit", "delete"],
 	}
 </script>
 

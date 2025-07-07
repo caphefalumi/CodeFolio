@@ -207,32 +207,6 @@
 									:message="errorMessage"
 									custom-class="mb-4"
 								/>
-
-								<!-- Authentication Alert for Comments -->
-								<v-alert
-									v-if="showCommentAuthAlert"
-									type="warning"
-									class="mb-4"
-									border="start"
-									colored-border
-									density="compact"
-								>
-									<template #prepend>
-										<v-icon>mdi-account-alert</v-icon>
-									</template>
-									<div class="d-flex align-center justify-space-between">
-										<span>{{ $t("loginToComment") }}</span>
-										<v-btn
-											size="small"
-											variant="outlined"
-											color="primary"
-											to="/login"
-											class="ml-3"
-										>
-											{{ $t("navLogin") }}
-										</v-btn>
-									</div>
-								</v-alert>
 								<app-form
 									:loading="loading"
 									:submit-button-text="$t('postComment')"
@@ -276,7 +250,7 @@
 		<v-alert
 			v-if="showAuthBanner"
 			type="warning"
-			class="mb-4 fade-banner auth-banner-fixed text-center"
+			class="mb-4 fade-banner auth-banner-fixed"
 			border="start"
 			colored-border
 			elevation="0"
@@ -290,10 +264,33 @@
 			"
 		>
 			<template #prepend>
-				<v-icon color="warning" size="24">mdi-alert</v-icon>
+				<v-icon>mdi-account-alert</v-icon>
 			</template>
-			<div class="banner-center">
-				{{ $t("loginToVote") }}
+			<div class="d-flex align-center justify-center">
+				<span>{{ $t("loginToVote") }}</span>
+			</div>
+		</v-alert>
+		<v-alert
+			v-if="showCommentAuthAlert"
+			type="warning"
+			class="mb-4 fade-banner auth-banner-fixed"
+			border="start"
+			colored-border
+			elevation="0"
+			density="comfortable"
+			style="
+				background-color: #fffbe7;
+				color: #b26a00;
+				font-weight: 500;
+				transition: opacity 1s;
+				z-index: 9999;
+			"
+		>
+			<template #prepend>
+				<v-icon>mdi-account-alert</v-icon>
+			</template>
+			<div class="d-flex align-center justify-center">
+				<span>{{ $t("loginToComment") }}</span>
 			</div>
 		</v-alert>
 	</div>
@@ -346,6 +343,7 @@
 				showAuthBanner: false,
 				showCommentAuthAlert: false,
 				authBannerTimeout: null,
+				commentAuthTimeout: null,
 				loading: false,
 			}
 		},
@@ -425,16 +423,23 @@
 			},
 			toggleLike() {
 				this.project.liked = !this.project.liked
-				// TODO: Add API call to upvote/downvote
 			},
 			handleCommentFocus() {
 				if (!this.isAuthenticated) {
 					this.showCommentAuthAlert = true
+					clearTimeout(this.commentAuthTimeout)
+					this.commentAuthTimeout = setTimeout(() => {
+						this.showCommentAuthAlert = false
+					}, 2000)
 				}
 			},
 			handleCommentSubmit() {
 				if (!this.isAuthenticated) {
 					this.showCommentAuthAlert = true
+					clearTimeout(this.commentAuthTimeout)
+					this.commentAuthTimeout = setTimeout(() => {
+						this.showCommentAuthAlert = false
+					}, 2000)
 					return
 				}
 				this.addComment()
@@ -486,6 +491,10 @@
 				} catch (error) {
 					if (error.response && error.response.status === 401) {
 						this.showCommentAuthAlert = true
+						clearTimeout(this.commentAuthTimeout)
+						this.commentAuthTimeout = setTimeout(() => {
+							this.showCommentAuthAlert = false
+						}, 2000)
 					} else {
 						this.errorMessage = this.getErrorMessage(
 							error,
@@ -498,6 +507,17 @@
 			},
 			async upvoteProject() {
 				if (this.project.upvoting) return
+
+				// Check authentication before making API call
+				if (!this.isAuthenticated) {
+					this.showAuthBanner = true
+					clearTimeout(this.authBannerTimeout)
+					this.authBannerTimeout = setTimeout(() => {
+						this.showAuthBanner = false
+					}, 2000)
+					return
+				}
+
 				this.project.upvoting = true
 				try {
 					const token = getAccessToken()
@@ -517,6 +537,17 @@
 			},
 			async downvoteProject() {
 				if (this.project.downvoting) return
+
+				// Check authentication before making API call
+				if (!this.isAuthenticated) {
+					this.showAuthBanner = true
+					clearTimeout(this.authBannerTimeout)
+					this.authBannerTimeout = setTimeout(() => {
+						this.showAuthBanner = false
+					}, 2000)
+					return
+				}
+
 				this.project.downvoting = true
 				try {
 					const token = getAccessToken()
@@ -540,7 +571,7 @@
 					clearTimeout(this.authBannerTimeout)
 					this.authBannerTimeout = setTimeout(() => {
 						this.showAuthBanner = false
-					}, 5000)
+					}, 2000)
 				} else {
 					this.errorMessage = this.getErrorMessage(error, "Failed to vote.")
 				}
@@ -585,10 +616,6 @@
 		max-width: 90vw;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 		pointer-events: none;
-	}
-	.banner-center {
-		text-align: center;
-		width: 100%;
 	}
 
 	.project-content {

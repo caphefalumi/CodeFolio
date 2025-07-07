@@ -668,7 +668,6 @@
 			viewProject(project) {
 				this.$router.push(`/${this.userProfile.username}/${project.id}`)
 			},
-
 			editProject(project) {
 				this.projectForm = { ...project }
 				this.showNewProject = true

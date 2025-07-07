@@ -51,7 +51,6 @@
 								:project="project"
 								:show-edit-button="false"
 								:show-delete-button="false"
-								:show-like-button="true"
 								@view="viewProject"
 							/>
 						</article>
@@ -153,7 +152,6 @@
 			sortOptions() {
 				return [
 					{ title: this.$t("newestFirst"), value: "newest" },
-					{ title: this.$t("mostLiked"), value: "liked" },
 					{ title: this.$t("mostViewed"), value: "viewed" },
 				]
 			},
@@ -167,7 +165,7 @@
 				if (this.search && this.search.trim()) {
 					const searchTerm = this.search.trim()
 					// If search starts with #, filter by tag
-					if (searchTerm.startsWith("#")) {
+					if (searchTerm.startsWith("#") || searchTerm.startsWith("@")) {
 						const tagQuery = searchTerm.slice(1).toLowerCase()
 						filtered = filtered.filter(
 							project =>
@@ -194,17 +192,15 @@
 						})
 					}
 				}
+
 				if (this.sortBy === "newest") {
 					filtered = filtered.sort(
 						(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
 					)
-				} else if (this.sortBy === "liked") {
-					filtered = filtered.sort(
-						(a, b) => (b.upvotes || 0) - (a.upvotes || 0)
-					)
 				} else if (this.sortBy === "viewed") {
 					filtered = filtered.sort((a, b) => (b.views || 0) - (a.views || 0))
 				}
+
 				return filtered
 			},
 			totalPages() {

@@ -116,14 +116,10 @@ postSchema.pre("findOneAndDelete", async function (next) {
 	try {
 		const postId = this.getQuery()._id
 
-		// Import models here to avoid circular dependency
 		const Notification = (await import("./Notification.js")).default
 		const User = (await import("./User.js")).default
 
-		// Delete all notifications related to this post
 		await Notification.deleteMany({ relatedPost: postId })
-
-		// Remove this post from users' votedPosts arrays
 		await User.updateMany(
 			{ "votedPosts.postId": postId },
 			{ $pull: { votedPosts: { postId: postId } } }

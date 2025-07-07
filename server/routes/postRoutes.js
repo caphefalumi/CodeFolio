@@ -50,7 +50,10 @@ router.post("/", authenticateToken, async (req, res) => {
 // 🔹 Get all posts
 router.get("/", async (req, res) => {
 	try {
-		const posts = await Post.find().populate("author", "username avatar")
+		const posts = await Post.find()
+			.populate("author", "username avatar")
+			.sort({ createdAt: -1 })
+
 		res.json(posts)
 	} catch (error) {
 		console.error("Error fetching posts:", error)
@@ -63,10 +66,10 @@ router.get("/:username", async (req, res) => {
 	try {
 		const user = await User.findOne({ username: req.params.username })
 		if (!user) return res.status(404).json({ message: "User not found" })
-		const posts = await Post.find({ author: user.id }).populate(
-			"author",
-			"username avatar"
-		)
+
+		const posts = await Post.find({ author: user.id })
+			.populate("author", "username avatar")
+			.sort({ createdAt: -1 })
 		if (!posts) return res.status(404).json({ message: "Posts not found" })
 
 		res.json(posts)

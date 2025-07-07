@@ -28,10 +28,6 @@ function authenticateToken(req, res, next) {
 				console.error("Token verification error:", err.message)
 				return res.status(403).json({
 					message: "Not authorized",
-					error:
-						err.name === "TokenExpiredError"
-							? "Token has expired"
-							: "Token is invalid",
 				})
 			}
 

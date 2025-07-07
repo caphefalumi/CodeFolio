@@ -68,7 +68,7 @@
 <script>
 	import axios from "axios"
 	import { RecycleScroller } from "vue-virtual-scroller"
-	import { isLoggedIn } from "@/composables/user"
+	import { isLoggedIn, getAccessToken } from "@/composables/user"
 	import "vue-virtual-scroller/dist/vue-virtual-scroller.css"
 
 	export default {
@@ -81,8 +81,14 @@
 			}
 		},
 		mounted() {
+			let headers = {}
+			const token = getAccessToken()
+			if (token) {
+				headers.Authorization = `Bearer ${token}`
+			}
+
 			axios
-				.get(`${import.meta.env.VITE_SERVER_URL}/api/posts/`)
+				.get(`${import.meta.env.VITE_SERVER_URL}/api/posts/`, { headers })
 				.then(response => {
 					this.featuredProjects = response.data
 					console.log("Projects:", this.featuredProjects)

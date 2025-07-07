@@ -1,7 +1,7 @@
 <template>
 	<v-container>
 		<v-row justify="center">
-			<v-col cols="12" sm="8" md="6">
+			<v-col cols="12" sm="10" md="8" lg="6">
 				<v-card class="mt-8">
 					<v-card-title class="text-h4 text-center pt-6" id="login-heading">{{
 						$t("loginTitle")
@@ -41,18 +41,21 @@
 							<span>{{ $t("orLoginWith") }}</span>
 						</div>
 						<div class="login-buttons">
-							<GoogleLogin
-								:callback="handleGoogleLogin"
-								auto-login
-								popup-type="TOKEN"
-								:disabled="isAnyLoading"
-							>
-								<v-icon-login
-									provider="google"
-									:loading="googleLoading"
+							<div class="login-btn-wrapper">
+								<GoogleLogin
+									:callback="handleGoogleLogin"
+									auto-login
+									popup-type="TOKEN"
 									:disabled="isAnyLoading"
-								/>
-							</GoogleLogin>
+								>
+									<v-icon-login
+										provider="google"
+										:loading="googleLoading"
+										:disabled="isAnyLoading"
+										@click="!isAnyLoading && handleGoogleButtonClick()"
+									/>
+								</GoogleLogin>
+							</div>
 							<div class="login-btn-wrapper">
 								<v-icon-login
 									provider="github"
@@ -170,7 +173,6 @@
 					this.loading = false
 				}
 			},
-
 			async handleGoogleLogin(response) {
 				this.errorMessage = ""
 				this.googleLoading = true
@@ -191,6 +193,19 @@
 					)
 				} finally {
 					this.googleLoading = false
+				}
+			},
+			handleGoogleButtonClick() {
+				// Set loading state when Google button is clicked
+				if (!this.isAnyLoading) {
+					this.googleLoading = true
+
+					// Add a timeout to reset loading state if Google login doesn't complete
+					setTimeout(() => {
+						if (this.googleLoading) {
+							this.googleLoading = false
+						}
+					}, 10000) // 10 second timeout
 				}
 			},
 			handleGithubLogin() {

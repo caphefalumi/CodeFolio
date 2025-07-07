@@ -179,13 +179,24 @@ userSchema.pre("findOneAndDelete", async function (next) {
 			{ followers: userId },
 			{ $pull: { followers: userId } }
 		)
-
 		// Remove user from votedPosts in other users (for posts they authored)
 		const userPosts = await Post.find({ author: userId }).distinct("_id")
 		await this.model.updateMany(
 			{},
 			{ $pull: { votedPosts: { postId: { $in: userPosts } } } }
 		)
+
+		// Remove user's likes from posts and update like counts
+		const likedPostIds = await this.model.findById(userId).select("likedPosts")
+		if (likedPostIds && likedPostIds.likedPosts.length > 0) {
+			await Post.updateMany(
+				{ _id: { $in: likedPostIds.likedPosts } },
+				{ $inc: { likes: -1 } }
+			)
+		}
+
+		// Remove user from other users' likedPosts arrays
+		await this.model.updateMany({}, { $pull: { likedPosts: userId } })
 
 		next()
 	} catch (error) {

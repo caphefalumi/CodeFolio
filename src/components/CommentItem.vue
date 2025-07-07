@@ -61,30 +61,6 @@
 				<!-- Reply Form -->
 				<div v-if="showReplyForm && !isReply" class="mt-3">
 					<!-- Authentication Alert -->
-					<v-alert
-						v-if="showAuthAlert"
-						type="warning"
-						class="mb-3"
-						border="start"
-						colored-border
-						density="compact"
-					>
-						<template #prepend>
-							<v-icon>mdi-account-alert</v-icon>
-						</template>
-						<div class="d-flex align-center justify-space-between">
-							<span>You must be logged in to reply to comments.</span>
-							<v-btn
-								size="small"
-								variant="outlined"
-								color="primary"
-								to="/login"
-								class="ml-3"
-							>
-								Login
-							</v-btn>
-						</div>
-					</v-alert>
 					<mention-textarea
 						v-model="replyContent"
 						label="Write a reply..."
@@ -167,8 +143,7 @@
 			return {
 				showReplyForm: false,
 				replyContent: "",
-				submittingReply: false,
-				showAuthAlert: false,
+				submittingReply: false
 			}
 		},
 		computed: {
@@ -247,7 +222,6 @@
 			},
 			handleReplyClick() {
 				if (!this.isAuthenticated) {
-					this.showAuthAlert = true
 					this.showReplyForm = true
 					return
 				}
@@ -257,19 +231,16 @@
 				this.showReplyForm = !this.showReplyForm
 				if (!this.showReplyForm) {
 					this.replyContent = ""
-					this.showAuthAlert = false
 				}
 			},
 			cancelReply() {
 				this.showReplyForm = false
 				this.replyContent = ""
-				this.showAuthAlert = false
 			},
 			async submitReply() {
 				if (!this.replyContent.trim()) return
 
 				if (!this.isAuthenticated) {
-					this.showAuthAlert = true
 					return
 				}
 
@@ -285,12 +256,8 @@
 					this.$emit("reply-added")
 					this.replyContent = ""
 					this.showReplyForm = false
-					this.showAuthAlert = false
 				} catch (error) {
 					console.error("Error adding reply:", error)
-					if (error.response && error.response.status === 401) {
-						this.showAuthAlert = true
-					}
 				} finally {
 					this.submittingReply = false
 				}
