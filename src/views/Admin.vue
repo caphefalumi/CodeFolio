@@ -61,21 +61,25 @@
 										v-model="userForm.email"
 										:label="$t('email')"
 										required
+										maxlength="255"
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.username"
 										:label="$t('username')"
 										required
+										maxlength="50"
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.firstName"
 										:label="$t('firstName')"
 										required
+										maxlength="50"
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.lastName"
 										:label="$t('lastName')"
 										required
+										maxlength="50"
 									></v-text-field>
 									<v-text-field
 										v-model="userForm.password"
@@ -84,6 +88,7 @@
 										:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
 										@click:append="showPassword = !showPassword"
 										:required="!editingUser"
+										maxlength="128"
 									></v-text-field>
 								</v-card-text>
 								<v-card-actions>
@@ -142,22 +147,29 @@
 										v-model="postForm.title"
 										:label="$t('title')"
 										required
+										maxlength="100"
+										counter
 									></v-text-field>
 									<v-textarea
 										v-model="postForm.description"
 										:label="$t('description')"
+										maxlength="500"
+										counter
 									></v-textarea>
 									<v-text-field
 										v-model="postForm.githubUrl"
 										:label="$t('githubUrl')"
+										maxlength="255"
 									></v-text-field>
 									<v-text-field
 										v-model="postForm.type"
 										:label="$t('type')"
+										maxlength="50"
 									></v-text-field>
 									<v-text-field
 										v-model="postForm.tags"
 										:label="$t('tagsCommaSeparated')"
+										maxlength="200"
 									></v-text-field>
 								</v-card-text>
 								<v-card-actions>

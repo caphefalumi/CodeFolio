@@ -225,6 +225,8 @@
 										:rows="3"
 										variant="outlined"
 										:disabled="!isAuthenticated"
+										maxlength="1000"
+										counter
 										@focus="handleCommentFocus"
 									/>
 								</app-form>
@@ -380,12 +382,11 @@
 					)
 					const post = res.data
 
-					// Check if post exists
 					if (!post) {
 						this.showNotFound = true
 						return
 					}
-
+					console.log("PProject votes it ", post.liked)
 					this.project = {
 						title: post.title,
 						description: post.description,
@@ -399,7 +400,7 @@
 						views: post.views,
 						upvotes: post.upvotes || 0,
 						downvotes: post.downvotes || 0,
-						liked: post.liked || null,
+						liked: post.liked !== undefined ? post.liked : null,
 						upvoting: false,
 						downvoting: false,
 					}

@@ -47,6 +47,7 @@
 				:rules="[rules.required, rules.email]"
 				aria-label="Enter your email address to receive a reset code"
 				autocomplete="email"
+				maxlength="255"
 			></v-text-field>
 		</app-form>
 
@@ -101,6 +102,7 @@
 				:rules="[rules.required, rules.password]"
 				aria-label="Enter your new password"
 				autocomplete="new-password"
+				maxlength="128"
 			></v-text-field>
 			<v-text-field
 				v-model="confirmPassword"
@@ -110,6 +112,7 @@
 				:rules="[rules.required, rules.confirmPassword]"
 				aria-label="Confirm your new password by typing it again"
 				autocomplete="new-password"
+				maxlength="128"
 			></v-text-field>
 		</app-form>
 

@@ -25,6 +25,7 @@
 								:rules="[rules.required, rules.email]"
 								autocomplete="email"
 								:disabled="isAnyLoading"
+								maxlength="255"
 							></v-text-field>
 							<v-text-field
 								v-model="form.password"
@@ -34,6 +35,7 @@
 								:rules="[rules.required]"
 								autocomplete="current-password"
 								:disabled="isAnyLoading"
+								maxlength="128"
 							></v-text-field>
 						</app-form>
 						<v-divider class="my-4" aria-hidden="true"></v-divider>

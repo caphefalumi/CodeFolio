@@ -27,6 +27,7 @@
 										required
 										:rules="[rules.required, rules.name]"
 										autocomplete="given-name"
+										maxlength="50"
 									></v-text-field
 								></v-col>
 								<v-col cols="6"
@@ -37,6 +38,7 @@
 										required
 										:rules="[rules.required, rules.name]"
 										autocomplete="family-name"
+										maxlength="50"
 									></v-text-field
 								></v-col>
 							</v-row>
@@ -47,6 +49,7 @@
 								required
 								:rules="[rules.required, rules.email]"
 								autocomplete="email"
+								maxlength="255"
 							></v-text-field>
 							<v-text-field
 								v-model="form.username"
@@ -55,6 +58,7 @@
 								required
 								:rules="[rules.required, rules.username]"
 								autocomplete="username"
+								maxlength="50"
 							></v-text-field>
 							<v-text-field
 								v-model="form.password"
@@ -63,6 +67,7 @@
 								required
 								:rules="[rules.required, rules.password]"
 								autocomplete="new-password"
+								maxlength="128"
 							></v-text-field>
 						</app-form>
 						<div class="mt-4 text-center">

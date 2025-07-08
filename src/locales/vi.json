@@ -72,7 +72,6 @@
 	"projectTypeApiDevelopment": "Phát triển API",
 	"projectTypeOther": "Khác",
 
-
 	"searchPlaceholder": "Tìm kiếm dự án",
 	"sortBy": "Sắp xếp theo",
 	"allTypes": "Tất cả loại",
@@ -167,5 +166,10 @@
 	"notificationsNewNotificationsPlural": "thông báo mới",
 	"notificationsMarkAsRead": "Đánh dấu đã đọc",
 	"notificationsRemoveNotification": "Xóa thông báo",
-	"notificationsCloseNotifications": "Đóng thông báo"
+	"notificationsCloseNotifications": "Đóng thông báo",
+
+	"notFoundTitle": "404",
+	"notFoundPageNotFound": "Không tìm thấy trang",
+	"notFoundMessage": "Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.",
+	"notFoundGoHome": "Về trang chủ"
 }

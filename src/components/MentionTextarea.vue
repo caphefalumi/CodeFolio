@@ -10,6 +10,8 @@
 			:hide-details="hideDetails"
 			:disabled="disabled"
 			:class="textareaClass"
+			:maxlength="maxlength"
+			:counter="counter"
 			@input="handleInput"
 			@keydown="handleKeydown"
 			@click="handleClick"
@@ -115,6 +117,14 @@
 			textareaClass: {
 				type: String,
 				default: "",
+			},
+			maxlength: {
+				type: [String, Number],
+				default: undefined,
+			},
+			counter: {
+				type: Boolean,
+				default: false,
 			},
 		},
 		emits: ["update:modelValue"],

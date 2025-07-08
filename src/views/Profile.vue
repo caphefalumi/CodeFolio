@@ -210,6 +210,7 @@
 							required
 							autocomplete="username"
 							:error-messages="usernameError"
+							maxlength="50"
 							@blur="checkUsernameAvailability"
 						></v-text-field>
 						<v-text-field
@@ -217,17 +218,21 @@
 							:label="$t('firstName')"
 							required
 							autocomplete="given-name"
+							maxlength="50"
 						></v-text-field>
 						<v-text-field
 							v-model="editForm.lastName"
 							:label="$t('lastName')"
 							required
 							autocomplete="family-name"
+							maxlength="50"
 						></v-text-field>
 						<v-textarea
 							v-model="editForm.bio"
 							:label="$t('bio')"
 							rows="3"
+							maxlength="500"
+							counter
 							aria-label="Bio - Write a brief description about yourself"
 						></v-textarea>
 					</app-form>
@@ -255,6 +260,8 @@
 						:label="$t('projectTitle')"
 						:rules="projectValidationRules.title"
 						required
+						maxlength="100"
+						counter
 						aria-label="Enter a descriptive title for your project"
 					></v-text-field>
 					<v-textarea
@@ -262,6 +269,8 @@
 						:label="$t('projectDescription')"
 						:rules="projectValidationRules.description"
 						required
+						maxlength="500"
+						counter
 						aria-label="Provide a brief description of what your project does"
 					></v-textarea>
 
@@ -299,6 +308,7 @@
 						:rules="projectValidationRules.githubUrl"
 						prepend-icon="mdi-github"
 						type="url"
+						maxlength="255"
 						aria-label="Enter the URL of your GitHub repository for this project"
 					></v-text-field>
 					<v-select
@@ -356,7 +366,7 @@
 		fetchProjects,
 		fetchCurrentUser,
 		getAccessToken,
-	} from "@/composables/user.js"	
+	} from "@/composables/user.js"
 	import { useApi } from "@/composables/common.js"
 	import axios from "axios"
 	// Import reusable components
