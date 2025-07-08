@@ -20,7 +20,7 @@
 				<template #prepend>
 					<v-icon>{{ language.icon }}</v-icon>
 				</template>
-				<v-list-item-title>{{ t(language.nameKey) }}</v-list-item-title>
+				<v-list-item-title>{{ language.nameKey }}</v-list-item-title>
 			</v-list-item>
 		</v-list>
 	</v-menu>
@@ -37,12 +37,12 @@
 			const languages = [
 				{
 					code: "en",
-					nameKey: "languageEnglish",
+					nameKey: "English",
 					icon: "mdi-flag",
 				},
 				{
 					code: "vi",
-					nameKey: "languageVietnamese",
+					nameKey: "Tiếng Việt",
 					icon: "mdi-flag",
 				},
 			]
