@@ -3,9 +3,9 @@
 	"save": "Lưu",
 	"cancel": "Hủy",
 	"close": "Đóng",
-
 	"navHome": "Trang chủ",
 	"navProjects": "Dự án",
+	"navStatistics": "Thống kê",
 	"navProfile": "Hồ sơ",
 	"navLogin": "Đăng nhập",
 	"navLogout": "Đăng xuất",
@@ -126,10 +126,18 @@
 	"adminTitle": "Bảng điều khiển quản trị",
 	"adminUsers": "Người dùng",
 	"adminPosts": "Bài viết",
+	"adminAnalytics": "Phân tích",
 	"addUser": "Thêm người dùng",
 	"addPost": "Thêm bài viết",
 	"editUser": "Chỉnh sửa người dùng",
 	"editPost": "Chỉnh sửa bài viết",
+
+	"analytics": "Phân tích",
+	"projectViewsOverTime": "Lượt xem dự án theo thời gian",
+	"projectsByType": "Dự án theo loại",
+	"topContributors": "Người đóng góp hàng đầu",
+	"engagementMetrics": "Chỉ số tương tác",
+
 	"searchUsers": "Tìm kiếm người dùng",
 	"searchPosts": "Tìm kiếm bài viết",
 	"actions": "Hành động",
@@ -171,5 +179,18 @@
 	"notFoundTitle": "404",
 	"notFoundPageNotFound": "Không tìm thấy trang",
 	"notFoundMessage": "Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.",
-	"notFoundGoHome": "Về trang chủ"
+	"notFoundGoHome": "Về trang chủ",
+
+	"platformStatistics": "Thống kê nền tảng",
+	"statisticsDescription": "Phân tích và thông tin chi tiết toàn diện cho nền tảng CodeFolio",
+	"projectTypesDistribution": "Phân phối loại dự án",
+	"userRegistrationTrend": "Xu hướng đăng ký người dùng",
+	"mostPopularProjects": "Dự án phổ biến nhất",
+	"mostActiveUsers": "Người dùng hoạt động nhiều nhất",
+	"totalProjects": "Tổng số dự án",
+	"totalUsers": "Tổng số người dùng",
+	"totalViews": "Tổng lượt xem",
+	"totalUpvotes": "Tổng số upvote",
+	"recentActivity": "Hoạt động gần đây",
+	"statisticsNoData": "Không có dữ liệu"
 }

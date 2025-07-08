@@ -15,6 +15,7 @@
 			<v-tabs v-model="tab">
 				<v-tab>{{ $t("adminUsers") }}</v-tab>
 				<v-tab>{{ $t("adminPosts") }}</v-tab>
+				<v-tab>{{ $t("adminAnalytics") }}</v-tab>
 			</v-tabs>
 			<v-tabs-items v-model="tab">
 				<!-- Users Tab -->
@@ -32,6 +33,7 @@
 									variant="outlined"
 									hide-details
 									class="mb-4"
+									maxlength="100"
 								/>
 								<v-data-table
 									:headers="userHeaders"
@@ -118,6 +120,7 @@
 									variant="outlined"
 									hide-details
 									class="mb-4"
+									maxlength="100"
 								/>
 								<v-data-table
 									:headers="postHeaders"
@@ -184,6 +187,11 @@
 						</v-dialog>
 					</div>
 				</v-tab-item>
+				<v-tab-item>
+					<div v-if="tab === 2">
+						<Statistics-View />
+					</div>
+				</v-tab-item>
 			</v-tabs-items>
 		</v-container>
 	</div>
@@ -193,11 +201,12 @@
 	import axios from "axios"
 	import { getAccessToken, fetchCurrentUser } from "@/composables/user.js"
 	import NotFound from "@/views/NotFound.vue"
-
+	import StatisticsView from "@/components/Statistics.vue"
 	export default {
 		name: "AdminDashboard",
 		components: {
 			NotFound,
+			StatisticsView,
 		},
 		data() {
 			return {

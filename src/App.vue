@@ -19,7 +19,6 @@
 			<language-switcher />
 			<v-btn to="/" text>{{ $t("navHome") }}</v-btn>
 			<v-btn to="/projects" text>{{ $t("navProjects") }}</v-btn>
-			<!-- Notification Bell Button Only -->
 			<v-btn
 				v-if="isAuthenticated"
 				icon

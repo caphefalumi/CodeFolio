@@ -3,9 +3,9 @@
 	"save": "Save",
 	"cancel": "Cancel",
 	"close": "Close",
-
 	"navHome": "Home",
 	"navProjects": "Projects",
+	"navStatistics": "Statistics",
 	"navProfile": "Profile",
 	"navLogin": "Login",
 	"navLogout": "Logout",
@@ -126,10 +126,18 @@
 	"adminTitle": "Admin Dashboard",
 	"adminUsers": "Users",
 	"adminPosts": "Posts",
+	"adminAnalytics": "Analytics",
 	"addUser": "Add User",
 	"addPost": "Add Post",
 	"editUser": "Edit User",
 	"editPost": "Edit Post",
+
+	"analytics": "Analytics",
+	"projectViewsOverTime": "Project Views Over Time",
+	"projectsByType": "Projects by Type",
+	"topContributors": "Top Contributors",
+	"engagementMetrics": "Engagement Metrics",
+
 	"searchUsers": "Search users",
 	"searchPosts": "Search posts",
 	"actions": "Actions",
@@ -167,9 +175,21 @@
 	"notificationsMarkAsRead": "Mark as read",
 	"notificationsRemoveNotification": "Remove notification",
 	"notificationsCloseNotifications": "Close notifications",
-
 	"notFoundTitle": "404",
 	"notFoundPageNotFound": "Page Not Found",
 	"notFoundMessage": "The page you are looking for doesn't exist or has been moved.",
-	"notFoundGoHome": "Go Home"
+	"notFoundGoHome": "Go Home",
+
+	"platformStatistics": "Platform Statistics",
+	"statisticsDescription": "Comprehensive analytics and insights for the CodeFolio platform",
+	"projectTypesDistribution": "Project Types Distribution",
+	"userRegistrationTrend": "User Registration Trend",
+	"mostPopularProjects": "Most Popular Projects",
+	"mostActiveUsers": "Most Active Users",
+	"totalProjects": "Total Projects",
+	"totalUsers": "Total Users",
+	"totalViews": "Total Views",
+	"totalUpvotes": "Total Upvotes",
+	"recentActivity": "Recent Activity",
+	"statisticsNoData": "No data available"
 }
