@@ -85,7 +85,7 @@ router.post("/token", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		console.log("New access token generated successfully")
+		console.log(`${Date.now().toLocaleString()} New access token generated successfully`)
 		res.json({ accessToken })
 	})
 })

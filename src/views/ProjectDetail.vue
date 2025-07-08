@@ -379,7 +379,7 @@
 						views: post.views,
 						upvotes: post.upvotes || 0,
 						downvotes: post.downvotes || 0,
-						liked: post.liked,
+						liked: post.liked || null,
 						upvoting: false,
 						downvoting: false,
 					}
@@ -420,9 +420,6 @@
 				} catch (err) {
 					console.error("Error fetching GitHub stats:", err)
 				}
-			},
-			toggleLike() {
-				this.project.liked = !this.project.liked
 			},
 			handleCommentFocus() {
 				if (!this.isAuthenticated) {

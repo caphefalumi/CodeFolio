@@ -1,5 +1,6 @@
 import express from "express"
 import fs from "fs"
+import jwt from "jsonwebtoken"
 import authenticateToken from "../middleware/authenticateToken.js"
 import Post from "../models/Post.js"
 import User from "../models/User.js"
@@ -7,6 +8,7 @@ import { extractMentions, notifyMentionedUsers } from "../utils/mentions.js"
 import { isAuthorizedUser } from "../utils/adminCheck.js"
 
 const router = express.Router()
+const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 
 // 🔹 Create a post
 router.post("/", authenticateToken, async (req, res) => {
@@ -81,10 +83,8 @@ router.get("/:username", async (req, res) => {
 // 🔹 Get a specific post
 router.get("/:username/:id", async (req, res) => {
 	try {
-		// Increment views first using findByIdAndUpdate to avoid population loss
 		await Post.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } })
 
-		// Then fetch the populated post
 		const post = await Post.findById(req.params.id)
 			.populate("author", "username avatar firstName lastName")
 			.populate("comments.user", "username avatar firstName lastName")
@@ -92,7 +92,27 @@ router.get("/:username/:id", async (req, res) => {
 
 		if (!post) return res.status(404).json({ message: "Not found" })
 
-		res.json(post)
+		let liked = null
+		if (req.headers.authorization) {
+			try {
+				const token = req.headers.authorization.split(" ")[1]
+				const decoded = jwt.verify(token, publicKey, { algorithms: ["RS256"] })
+				const user = await User.findById(decoded.id)
+				if (user) {
+					const currentVote = user.votedPosts.find(
+						vote => vote.postId.toString() === req.params.id
+					)
+					liked = currentVote ? currentVote.upvoted : null
+				}
+			} catch (authError) {
+				console.log("Invalid token in project detail route")
+			}
+		}
+
+		const postResponse = post.toJSON()
+		postResponse.liked = liked
+
+		res.json(postResponse)
 	} catch (err) {
 		console.error("Error fetching post:", err)
 		res.status(500).json({ message: "Error", err })

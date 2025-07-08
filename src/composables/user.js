@@ -8,11 +8,6 @@ export function isLoggedIn() {
 	return !!getAccessToken()
 }
 
-export function getCurrentUserInfo() {
-	const userInfo = sessionStorage.getItem("user")
-	return userInfo ? JSON.parse(userInfo) : null
-}
-
 export async function fetchCurrentUser() {
 	try {
 		const res = await axios.get(
@@ -24,7 +19,6 @@ export async function fetchCurrentUser() {
 		return res.data
 	} catch (error) {
 		console.error("Error fetching current user:", error)
-		// throw error
 	}
 }
 
@@ -48,9 +42,4 @@ export async function fetchProjects(username) {
 	} catch (error) {
 		console.error(`Error fetching projects for user "${username}":`, error)
 	}
-}
-
-export function isAdmin() {
-	const userInfo = getCurrentUserInfo()
-	return userInfo && userInfo.email === "dangduytoan13l@gmail.com"
 }

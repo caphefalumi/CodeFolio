@@ -153,6 +153,7 @@
 				return [
 					{ title: this.$t("newestFirst"), value: "newest" },
 					{ title: this.$t("mostViewed"), value: "viewed" },
+					{ title: this.$t("highestRated"), value: "highest" }
 				]
 			},
 			filteredProjects() {
@@ -199,6 +200,9 @@
 					)
 				} else if (this.sortBy === "viewed") {
 					filtered = filtered.sort((a, b) => (b.views || 0) - (a.views || 0))
+				}
+				else if (this.sortBy === "highest") {
+					filtered = filtered.sort((a, b) => (b.upvotes || 0) - (b.downvotes || 0) - (a.upvotes || 0) + (a.downvotes || 0))
 				}
 
 				return filtered
