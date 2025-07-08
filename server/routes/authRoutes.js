@@ -85,7 +85,14 @@ router.post("/token", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		console.log(`${Date.now().toLocaleString()} New access token generated successfully`)
+		const now = new Date()
+		const formatted = now.toLocaleString('en-US', {
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: true
+		})
+
+		console.log(`${formatted} New access token generated successfully`)
 		res.json({ accessToken })
 	})
 })
@@ -259,7 +266,7 @@ router.post("/login/google", async (req, res) => {
 		})
 		console.log("User logged in:", user.username)
 
-		res.json({ accessToken })
+		res.status(200).json({ accessToken })
 	} catch (err) {
 		console.error("Google login error:", err)
 		res.status(500).json({

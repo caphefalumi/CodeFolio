@@ -143,18 +143,17 @@
 			return {
 				showReplyForm: false,
 				replyContent: "",
-				submittingReply: false
+				submittingReply: false,
 			}
 		},
 		computed: {
 			isAuthenticated() {
 				return isLoggedIn()
-			}, // Ensure user data exists and has required fields
+			},
 			safeUserData() {
 				const user = this.comment?.user
 
 				if (!user || typeof user === "string") {
-					// Handle case where user is deleted or only an ObjectId string
 					return {
 						username: "Deleted User",
 						avatar: null,
@@ -162,7 +161,6 @@
 					}
 				}
 
-				// Ensure required fields exist
 				return {
 					username: user.username || "Deleted User",
 					avatar: user.avatar || null,
@@ -171,12 +169,10 @@
 			},
 		},
 		mounted() {
-			// Validate comment data on component mount
 			this.validateCommentData()
 		},
 		methods: {
 			validateCommentData() {
-				// Log any data issues for debugging
 				if (!this.comment) {
 					console.warn("CommentItem: No comment data provided")
 					return
@@ -186,7 +182,6 @@
 						"CommentItem: Missing user data for comment:",
 						this.comment._id
 					)
-					// Add a placeholder user object using Vue 3 approach
 					this.comment.user = {
 						username: "Deleted User",
 						avatar: null,
@@ -194,14 +189,13 @@
 					}
 				}
 
-				// Validate replies if they exist
 				if (this.comment.replies && Array.isArray(this.comment.replies)) {
 					this.comment.replies.forEach((reply, index) => {
 						if (!reply.user) {
 							console.warn(
 								`CommentItem: Missing user data for reply ${index}:`,
 								reply._id
-							) // Use direct assignment in Vue 3
+							)
 							reply.user = {
 								username: "Deleted User",
 								avatar: null,

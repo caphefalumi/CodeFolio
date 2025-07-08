@@ -12,7 +12,7 @@
 		<!-- Show admin dashboard for authorized users -->
 		<v-container v-else>
 			<h1 class="text-h4 mb-6">{{ $t("adminTitle") }}</h1>
-			<v-tabs v-model="tab">
+			<v-tabs v-model="tab" @update:model-value="onTabChange">
 				<v-tab>{{ $t("adminUsers") }}</v-tab>
 				<v-tab>{{ $t("adminPosts") }}</v-tab>
 				<v-tab>{{ $t("adminAnalytics") }}</v-tab>
@@ -189,7 +189,7 @@
 				</v-tab-item>
 				<v-tab-item>
 					<div v-if="tab === 2">
-						<Statistics-View />
+						<StatisticsView />
 					</div>
 				</v-tab-item>
 			</v-tabs-items>
@@ -288,10 +288,48 @@
 				return token ? { Authorization: `Bearer ${token}` } : {}
 			},
 		},
+		watch: {
+			"$route.query.tab"(newTab) {
+				this.initializeTabFromUrl()
+			},
+		},
 		async mounted() {
+			// Initialize tab from URL query parameter
+			this.initializeTabFromUrl()
 			await this.checkAdminAccess()
 		},
 		methods: {
+			initializeTabFromUrl() {
+				const tabParam = this.$route.query.tab
+				const tabMap = {
+					users: 0,
+					posts: 1,
+					analytics: 2,
+				}
+
+				if (tabParam && tabMap.hasOwnProperty(tabParam)) {
+					this.tab = tabMap[tabParam]
+				} else {
+					// Default to users tab and update URL if no tab parameter exists
+					this.tab = 0
+					if (!tabParam) {
+						this.$router.replace({
+							path: this.$route.path,
+							query: { ...this.$route.query, tab: "users" },
+						})
+					}
+				}
+			},
+
+			onTabChange(newTab) {
+				const tabNames = ["users", "posts", "analytics"]
+				const tabName = tabNames[newTab] || "users"
+
+				this.$router.push({
+					path: this.$route.path,
+					query: { ...this.$route.query, tab: tabName },
+				})
+			},
 			async checkAdminAccess() {
 				const isAuthenticated = getAccessToken()
 

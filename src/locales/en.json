@@ -7,6 +7,7 @@
 	"navProjects": "Projects",
 	"navStatistics": "Statistics",
 	"navProfile": "Profile",
+	"navAdmin": "Admin",
 	"navLogin": "Login",
 	"navLogout": "Logout",
 
@@ -133,6 +134,7 @@
 	"editPost": "Edit Post",
 
 	"analytics": "Analytics",
+	"actionCreatedProject": "created project",
 	"projectViewsOverTime": "Project Views Over Time",
 	"projectsByType": "Projects by Type",
 	"topContributors": "Top Contributors",

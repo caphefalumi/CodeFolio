@@ -20,6 +20,10 @@
 			<v-btn to="/" text>{{ $t("navHome") }}</v-btn>
 			<v-btn to="/projects" text>{{ $t("navProjects") }}</v-btn>
 			<v-btn
+				v-if="isAdmin"
+				to="/admin"
+				text>{{ $t("navAdmin") }}</v-btn>
+			<v-btn
 				v-if="isAuthenticated"
 				icon
 				@click="toggleNotifications"
@@ -99,10 +103,11 @@
 			return {
 				isAuthenticated: false,
 				user: null,
+				isAdmin: false,
 				username: "",
 				avatar: "",
 				isDark: false,
-				tokenRefreshInterval: null, // interval ID for auto-refresh
+				tokenRefreshInterval: null,
 				showNotifications: false,
 				unreadCount: 0,
 			}
@@ -118,8 +123,10 @@
 					this.user = await fetchCurrentUser()
 					this.username = this.user.username
 					this.avatar = this.user.avatar
+
+					this.isAdmin = this.user.email === import.meta.env.VITE_ADMIN_EMAIL
+
 					console.log("User profile fetched:", this.avatar, this.username)
-					// Load unread count after profile is fetched
 					this.loadUnreadCount()
 				} catch (error) {
 					console.error("Error fetching user profile:", error)

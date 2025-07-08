@@ -6,6 +6,7 @@
 	"navHome": "Trang chủ",
 	"navProjects": "Dự án",
 	"navStatistics": "Thống kê",
+	"navAdmin": "Quản lý",
 	"navProfile": "Hồ sơ",
 	"navLogin": "Đăng nhập",
 	"navLogout": "Đăng xuất",
@@ -133,6 +134,7 @@
 	"editPost": "Chỉnh sửa bài viết",
 
 	"analytics": "Phân tích",
+	"actionCreatedProject": "đã tạo dự án",
 	"projectViewsOverTime": "Lượt xem dự án theo thời gian",
 	"projectsByType": "Dự án theo loại",
 	"topContributors": "Người đóng góp hàng đầu",

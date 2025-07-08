@@ -68,6 +68,7 @@
 <script>
 	import axios from "axios"
 	import { RecycleScroller } from "vue-virtual-scroller"
+	import { isLoggedIn } from "@/composables/user"
 	import "vue-virtual-scroller/dist/vue-virtual-scroller.css"
 
 	export default {
@@ -76,6 +77,7 @@
 		data() {
 			return {
 				featuredProjects: [],
+				isLoggedIn: isLoggedIn()
 			}
 		},
 		mounted() {

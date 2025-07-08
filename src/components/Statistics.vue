@@ -258,18 +258,10 @@
 			async fetchStatistics() {
 				this.loading = true
 				try {
-					// Use backend port 3001 as specified by user
-					const serverUrl = import.meta.env.VITE_SERVER_URL
-					console.log("Fetching statistics from:", serverUrl)
-
 					const [projects, users] = await Promise.all([
-						axios.get(`${serverUrl}/api/posts/`),
-						axios.get(`${serverUrl}/api/users/`),
+						axios.get(`${import.meta.env.VITE_SERVER_URL}/api/posts/`),
+						axios.get(`${import.meta.env.VITE_SERVER_URL}/api/users/`),
 					])
-
-					console.log("Fetched projects:", projects.data.length)
-					console.log("Fetched users:", users.data.length)
-					console.log("Sample project:", projects.data[0])
 
 					this.processStatistics(projects.data, users.data)
 				} catch (error) {
@@ -320,15 +312,14 @@
 					},
 				]
 
-				// Top projects by views - ensure proper sorting and data
 				this.topProjects = validProjects
-					.filter(p => p && p._id && p.title) // Filter out invalid projects
+					.filter(p => p && p._id && p.title)
 					.sort((a, b) => (b.views || 0) - (a.views || 0))
 					.slice(0, 5)
 
 				// Top users by project count
 				const userProjectCounts = validUsers
-					.filter(user => user && user._id && user.username) // Filter out invalid users
+					.filter(user => user && user._id && user.username)
 					.map(user => {
 						const userProjects = validProjects.filter(
 							p => p.author && p.author._id === user._id
@@ -345,7 +336,7 @@
 
 				this.topUsers = userProjectCounts
 					.sort((a, b) => b.projectCount - a.projectCount)
-					.slice(0, 5) // Recent activities (generate from recent projects)
+					.slice(0, 5)
 				console.log("All projects:", validProjects)
 				console.log(
 					"Projects with authors:",
@@ -363,14 +354,14 @@
 							project.createdAt
 					)
 					.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-					.slice(0, 20) // Increase to 20 for better virtual scrolling demonstration
+					.slice(0, 20)
 					.map(project => ({
 						_id: project._id,
 						userName:
 							project.author.firstName && project.author.lastName
 								? `${project.author.firstName} ${project.author.lastName}`
 								: project.author.username || "Anonymous User",
-						action: "created project",
+						action: $t("createdProject"),
 						target: project.title,
 						link: `/${project.author.username}/${project._id}`,
 						createdAt: project.createdAt,
@@ -391,17 +382,14 @@
 				const ctx = this.$refs.projectTypesChart?.getContext("2d")
 				if (!ctx) return
 
-				// Group projects by type - use all projects, not just top projects
 				const typeCounts = {}
 
-				// Get all projects to show proper distribution
 				if (this.topProjects && this.topProjects.length > 0) {
 					this.topProjects.forEach(project => {
 						const type = project.type || "Other"
 						typeCounts[type] = (typeCounts[type] || 0) + 1
 					})
 				} else {
-					// Default data if no projects
 					typeCounts["No Data"] = 1
 				}
 

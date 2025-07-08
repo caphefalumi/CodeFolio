@@ -22,7 +22,7 @@ const corsOptions = {
 		"https://localhost:3000",
 		"https://codefolio-phi.vercel.app",
 		"https://bechuotbedangyeu.vercel.app",
-		"http://tauri.localhost"
+		"http://tauri.localhost",
 	],
 	credentials: true,
 }
