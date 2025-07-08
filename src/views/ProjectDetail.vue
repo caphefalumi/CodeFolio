@@ -1,6 +1,10 @@
 <template>
 	<div>
-		<v-container>
+		<!-- Show NotFound if project doesn't exist -->
+		<NotFound v-if="showNotFound" />
+
+		<!-- Show main project content if project exists -->
+		<v-container v-else>
 			<v-row v-auto-animate>
 				<!-- Project Header -->
 				<v-col cols="12">
@@ -304,6 +308,7 @@
 	import AppForm from "@/components/AppForm.vue"
 	import CommentItem from "@/components/CommentItem.vue"
 	import MentionTextarea from "@/components/MentionTextarea.vue"
+	import NotFound from "@/views/NotFound.vue"
 
 	export default {
 		name: "ProjectDetailView",
@@ -312,6 +317,7 @@
 			AppForm,
 			CommentItem,
 			MentionTextarea,
+			NotFound,
 		},
 		setup() {
 			const { getErrorMessage } = useApi()
@@ -319,6 +325,10 @@
 		},
 		data() {
 			return {
+				// Error state
+				showNotFound: false,
+
+				// Existing data
 				project: {
 					title: "",
 					description: "",
@@ -354,6 +364,9 @@
 		},
 		methods: {
 			async fetchProjectDetail() {
+				// Reset error state
+				this.showNotFound = false
+
 				try {
 					const { username, id } = this.$route.params
 					let headers = {}
@@ -366,6 +379,13 @@
 						}
 					)
 					const post = res.data
+
+					// Check if post exists
+					if (!post) {
+						this.showNotFound = true
+						return
+					}
+
 					this.project = {
 						title: post.title,
 						description: post.description,
@@ -402,6 +422,13 @@
 					}
 				} catch (err) {
 					console.error("Error fetching project detail:", err)
+					// Check if it's a 404 error (project not found)
+					if (err.response && err.response.status === 404) {
+						this.showNotFound = true
+					} else {
+						// For other errors, still show NotFound to avoid broken page
+						this.showNotFound = true
+					}
 				}
 			},
 			async fetchGitHubStats() {

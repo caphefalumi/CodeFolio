@@ -1,6 +1,16 @@
 <template>
 	<div>
-		<v-container>
+		<!-- Show NotFound for unauthorized users -->
+		<NotFound v-if="showNotFound" />
+
+		<!-- Show loading spinner while checking authentication -->
+		<v-container v-else-if="isLoading" class="text-center">
+			<v-progress-circular indeterminate size="64" />
+			<p class="mt-4">{{ $t("loading") || "Loading..." }}</p>
+		</v-container>
+
+		<!-- Show admin dashboard for authorized users -->
+		<v-container v-else>
 			<h1 class="text-h4 mb-6">{{ $t("adminTitle") }}</h1>
 			<v-tabs v-model="tab">
 				<v-tab>{{ $t("adminUsers") }}</v-tab>
@@ -169,12 +179,21 @@
 
 <script>
 	import axios from "axios"
-	import { getAccessToken } from "@/composables/user.js"
+	import { getAccessToken, fetchCurrentUser } from "@/composables/user.js"
+	import NotFound from "@/views/NotFound.vue"
 
 	export default {
 		name: "AdminDashboard",
+		components: {
+			NotFound,
+		},
 		data() {
 			return {
+				// Authentication state
+				isLoading: true,
+				showNotFound: false,
+
+				// Existing data
 				tab: 0,
 				users: [],
 				posts: [],
@@ -248,11 +267,45 @@
 				return token ? { Authorization: `Bearer ${token}` } : {}
 			},
 		},
-		mounted() {
-			this.fetchUsers()
-			this.fetchPosts()
+		async mounted() {
+			await this.checkAdminAccess()
 		},
 		methods: {
+			async checkAdminAccess() {
+				const isAuthenticated = getAccessToken()
+
+				if (!isAuthenticated) {
+					this.showNotFound = true
+					this.isLoading = false
+					return
+				}
+
+				try {
+					const currentUser = await fetchCurrentUser()
+
+					if (!currentUser) {
+						this.showNotFound = true
+						this.isLoading = false
+						return
+					}
+
+					const isAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL
+
+					if (isAdmin) {
+						this.isLoading = false
+						// Load admin data
+						this.fetchUsers()
+						this.fetchPosts()
+					} else {
+						this.showNotFound = true
+						this.isLoading = false
+					}
+				} catch (error) {
+					console.error("Error checking admin access:", error)
+					this.showNotFound = true
+					this.isLoading = false
+				}
+			},
 			fetchUsers() {
 				axios
 					.get(`${import.meta.env.VITE_SERVER_URL}/api/users`)

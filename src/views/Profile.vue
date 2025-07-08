@@ -1,6 +1,10 @@
 <template>
 	<v-theme-provider>
-		<v-container class="py-8">
+		<!-- Show NotFound if user doesn't exist -->
+		<NotFound v-if="showNotFound" />
+
+		<!-- Show main profile content if user exists -->
+		<v-container v-else class="py-8">
 			<section aria-labelledby="profile-heading">
 				<!-- User Profile Section at Top -->
 				<v-row class="profile-header" align="center" justify="center">
@@ -352,7 +356,7 @@
 		fetchProjects,
 		fetchCurrentUser,
 		getAccessToken,
-	} from "@/composables/user.js"
+	} from "@/composables/user.js"	
 	import { useApi } from "@/composables/common.js"
 	import axios from "axios"
 	// Import reusable components
@@ -365,6 +369,7 @@
 	import ForgotPasswordDialog from "@/components/ForgotPasswordDialog.vue"
 	import FollowButton from "@/components/FollowButton.vue"
 	import FollowersDialog from "@/components/FollowersDialog.vue"
+	import NotFound from "@/views/NotFound.vue"
 
 	export default {
 		name: "ProfileView",
@@ -378,9 +383,14 @@
 			ForgotPasswordDialog,
 			FollowButton,
 			FollowersDialog,
+			NotFound,
 		},
 		data() {
 			return {
+				// Error state
+				showNotFound: false,
+
+				// Existing data
 				userProfile: {},
 				userProjects: [],
 				currentUser: null,
@@ -500,11 +510,20 @@
 					],
 				}
 			},
-
 			async fetchProfileAndProjects(username) {
+				// Reset error state
+				this.showNotFound = false
+
 				try {
 					// 1. Get public user profile by username
 					const profile = await fetchProfile(username)
+
+					// Check if profile exists
+					if (!profile) {
+						this.showNotFound = true
+						return
+					}
+
 					this.userProfile = profile
 
 					// 2. Try to get current logged-in user (optional)
@@ -529,6 +548,13 @@
 					this.userProjects = await fetchProjects(username)
 				} catch (err) {
 					console.error("Error loading profile or projects:", err)
+					// Check if it's a 404 error (user not found)
+					if (err.response && err.response.status === 404) {
+						this.showNotFound = true
+					} else {
+						// For other errors, still show NotFound to avoid broken page
+						this.showNotFound = true
+					}
 				}
 			},
 

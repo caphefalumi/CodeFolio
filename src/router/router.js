@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router"
-import { fetchCurrentUser } from "@/composables/user.js"
 const routes = [
 	{
 		path: "/",
@@ -12,14 +11,9 @@ const routes = [
 		component: () => import("@/views/Projects.vue"),
 	},
 	{
-		path: "/:username",
-		name: "Profile",
-		component: () => import("@/views/Profile.vue"),
-	},
-	{
-		path: "/:username/:id",
-		name: "ProjectDetail",
-		component: () => import("@/views/ProjectDetail.vue"),
+		path: "/admin",
+		name: "Admin",
+		component: () => import("@/views/Admin.vue"),
 	},
 	{
 		path: "/login",
@@ -34,15 +28,23 @@ const routes = [
 		meta: { requiresGuest: true },
 	},
 	{
-		path: "/admin",
-		name: "Admin",
-		component: () => import("@/views/Admin.vue"),
-		meta: { requiresAdmin: true },
-	},
-
-	{
 		path: "/404",
 		name: "NotFound",
+		component: () => import("@/views/NotFound.vue"),
+	},
+	{
+		path: "/:username",
+		name: "Profile",
+		component: () => import("@/views/Profile.vue"),
+	},
+	{
+		path: "/:username/:id",
+		name: "ProjectDetail",
+		component: () => import("@/views/ProjectDetail.vue"),
+	},
+	{
+		path: "/:pathMatch(.*)*",
+		name: "CatchAll",
 		component: () => import("@/views/NotFound.vue"),
 	},
 ]
@@ -62,34 +64,6 @@ router.beforeEach(async (to, from, next) => {
 	// If route requires guest (login/register) and user is authenticated
 	else if (to.meta.requiresGuest && isAuthenticated) {
 		next("/")
-	} // If route requires admin
-	else if (to.meta.requiresAdmin) {
-		console.log("Admin route accessed")
-		if (!isAuthenticated) {
-			console.log("No auth token, redirecting to 404")
-			next("/404")
-			return
-		}
-
-		try {
-			const currentUser = await fetchCurrentUser()
-
-			if (!currentUser) {
-				console.log("No current user, redirecting to 404")
-				next("/404")
-				return
-			}
-
-			const isAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL
-
-			if (isAdmin) {
-				next()
-			} else {
-				next("/404")
-			}
-		} catch (error) {
-			next("/404")
-		}
 	} else {
 		next()
 	}

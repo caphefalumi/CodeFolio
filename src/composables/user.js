@@ -30,6 +30,7 @@ export async function fetchProfile(username) {
 		return res.data
 	} catch (error) {
 		console.error(`Error fetching profile for user "${username}":`, error)
+		throw error // Re-throw error so it can be handled by the calling component
 	}
 }
 
@@ -41,5 +42,6 @@ export async function fetchProjects(username) {
 		return res.data
 	} catch (error) {
 		console.error(`Error fetching projects for user "${username}":`, error)
+		throw error // Re-throw error so it can be handled by the calling component
 	}
 }
