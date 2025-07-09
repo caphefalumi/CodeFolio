@@ -461,7 +461,6 @@
 				return getAccessToken()
 			},
 			isProjectFormValid() {
-				// Check if all required fields are filled and valid
 				const titleValid =
 					this.projectForm.title &&
 					this.projectForm.title.length >= 3 &&

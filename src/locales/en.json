@@ -134,6 +134,7 @@
 	"editPost": "Edit Post",
 
 	"analytics": "Analytics",
+	"technologyStackDistribution": "Technology Stack Distribution",
 	"actionCreatedProject": "created project",
 	"projectViewsOverTime": "Project Views Over Time",
 	"projectsByType": "Projects by Type",
@@ -193,5 +194,15 @@
 	"totalViews": "Total Views",
 	"totalUpvotes": "Total Upvotes",
 	"recentActivity": "Recent Activity",
-	"statisticsNoData": "No data available"
+	"statisticsNoData": "No data available",
+	"technologies": "Technologies",
+	"numberOfProjects": "Number of Projects",
+	"createdProject": "created project",
+	"edit": "Edit",
+	"delete": "Delete",
+	"editComment": "Edit Comment",
+	"deleteComment": "Delete Comment",
+	"confirmDelete": "Are you sure you want to delete this comment?",
+	"edited": "(edited)",
+	"reply": "Reply"
 }

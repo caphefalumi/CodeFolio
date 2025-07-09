@@ -37,13 +37,50 @@
 					</v-btn>
 					<span class="text-caption text-grey">
 						{{ formatDate(comment.createdAt) }}
+						<span v-if="comment.edited" class="ml-1 text-grey-darken-1">
+							{{ $t("edited") }}
+						</span>
 					</span>
 				</div>
 				<div class="text-body-2 mb-2">
-					<comment-content
-						:content="comment.content"
-						@mention-click="handleMentionClick"
-					/>
+					<!-- Show edit form if editing -->
+					<div v-if="isEditing">
+						<mention-textarea
+							v-model="editContent"
+							:label="$t('editComment')"
+							:rows="3"
+							variant="outlined"
+							density="compact"
+							:hide-details="true"
+							class="mb-2"
+						/>
+						<div class="d-flex justify-end gap-2">
+							<v-btn
+								size="small"
+								variant="outlined"
+								@click="cancelEdit"
+								:disabled="savingEdit"
+							>
+								{{ $t("cancel") }}
+							</v-btn>
+							<v-btn
+								size="small"
+								color="primary"
+								@click="saveEdit"
+								:loading="savingEdit"
+								:disabled="!editContent.trim()"
+							>
+								{{ $t("save") }}
+							</v-btn>
+						</div>
+					</div>
+					<!-- Show comment content if not editing -->
+					<div v-else>
+						<comment-content
+							:content="comment.content"
+							@mention-click="handleMentionClick"
+						/>
+					</div>
 				</div>
 				<div class="comment-actions">
 					<v-btn
@@ -55,15 +92,51 @@
 						class="text-caption pa-1"
 						style="min-width: auto"
 					>
-						{{ showReplyForm ? "Cancel" : "Reply" }}
+						{{ showReplyForm ? $t("cancel") : $t("reply") }}
 					</v-btn>
+					<!-- Reply button for replies (to mention the reply author) -->
+					<v-btn
+						v-if="isReply"
+						size="small"
+						variant="text"
+						color="primary"
+						@click="handleReplyToReplyClick"
+						class="text-caption pa-1"
+						style="min-width: auto"
+					>
+						{{ $t("reply") }}
+					</v-btn>
+
+					<!-- Edit and Delete buttons for comment author -->
+					<template v-if="canEditDelete && !isEditing">
+						<v-btn
+							size="small"
+							variant="text"
+							color="primary"
+							@click="startEdit"
+							class="text-caption pa-1 ml-2"
+							style="min-width: auto"
+						>
+							{{ $t("edit") }}
+						</v-btn>
+						<v-btn
+							size="small"
+							variant="text"
+							color="error"
+							@click="confirmDelete"
+							class="text-caption pa-1 ml-2"
+							style="min-width: auto"
+						>
+							{{ $t("delete") }}
+						</v-btn>
+					</template>
 				</div>
 				<!-- Reply Form -->
 				<div v-if="showReplyForm && !isReply" class="mt-3">
 					<!-- Authentication Alert -->
 					<mention-textarea
 						v-model="replyContent"
-						label="Write a reply..."
+						:label="$t('addComment')"
 						:rows="2"
 						variant="outlined"
 						density="compact"
@@ -78,7 +151,7 @@
 							@click="cancelReply"
 							:disabled="submittingReply"
 						>
-							Cancel
+							{{ $t("cancel") }}
 						</v-btn>
 						<v-btn
 							size="small"
@@ -87,11 +160,10 @@
 							:loading="submittingReply"
 							:disabled="!replyContent.trim() || !isAuthenticated"
 						>
-							Reply
+							{{ $t("postComment") }}
 						</v-btn>
 					</div>
 				</div>
-
 				<!-- Replies -->
 				<div
 					v-if="!isReply && comment.replies && comment.replies.length > 0"
@@ -103,6 +175,10 @@
 							:key="reply._id"
 							:comment="reply"
 							:is-reply="true"
+							:post-id="postId"
+							:parent-comment-id="comment._id"
+							@reply-added="$emit('reply-added')"
+							@reply-to-reply="handleReplyToReplyEvent"
 							class="reply-item"
 						/>
 					</div>
@@ -137,13 +213,20 @@
 				type: String,
 				required: true,
 			},
+			parentCommentId: {
+				type: String,
+				default: null,
+			},
 		},
-		emits: ["reply-added"],
+		emits: ["reply-added", "reply-to-reply"],
 		data() {
 			return {
 				showReplyForm: false,
 				replyContent: "",
 				submittingReply: false,
+				isEditing: false,
+				editContent: "",
+				savingEdit: false,
 			}
 		},
 		computed: {
@@ -165,6 +248,20 @@
 					username: user.username || "Deleted User",
 					avatar: user.avatar || null,
 					_id: user._id || null,
+				}
+			},
+			canEditDelete() {
+				if (!this.isAuthenticated || !this.comment?.user?._id) return false
+
+				// Get current user ID from token
+				const token = getAccessToken()
+				if (!token) return false
+
+				try {
+					const payload = JSON.parse(atob(token.split(".")[1]))
+					return payload.id === this.comment.user._id
+				} catch (error) {
+					return false
 				}
 			},
 		},
@@ -221,10 +318,26 @@
 				}
 				this.toggleReplyForm()
 			},
-			toggleReplyForm() {
+			toggleReplyForm(mentionUsername = null) {
 				this.showReplyForm = !this.showReplyForm
 				if (!this.showReplyForm) {
 					this.replyContent = ""
+				} else if (mentionUsername) {
+					// Auto-mention the user when replying
+					this.replyContent = `@${mentionUsername} `
+				}
+			},
+			handleReplyToReplyClick() {
+				// Emit event to parent comment to open reply form with mention
+				this.$emit("reply-to-reply", {
+					mentionUsername: this.safeUserData.username,
+					commentId: this.parentCommentId,
+				})
+			},
+			handleReplyToReplyEvent(eventData) {
+				// Handle reply-to-reply event from child reply
+				if (eventData.commentId === this.comment._id) {
+					this.toggleReplyForm(eventData.mentionUsername)
 				}
 			},
 			cancelReply() {
@@ -290,6 +403,60 @@
 						"Cannot navigate - user was deleted:",
 						this.safeUserData.username
 					)
+				}
+			},
+			startEdit() {
+				this.isEditing = true
+				this.editContent = this.comment.content
+			},
+			cancelEdit() {
+				this.isEditing = false
+				this.editContent = ""
+			},
+			async saveEdit() {
+				if (!this.editContent.trim()) return
+
+				this.savingEdit = true
+				try {
+					const token = getAccessToken()
+					const endpoint = this.isReply
+						? `${import.meta.env.VITE_SERVER_URL}/api/posts/${this.postId}/comments/${this.parentCommentId}/replies/${this.comment._id}`
+						: `${import.meta.env.VITE_SERVER_URL}/api/posts/${this.postId}/comments/${this.comment._id}`
+
+					await axios.put(
+						endpoint,
+						{ content: this.editContent },
+						{ headers: { Authorization: `Bearer ${token}` } }
+					)
+
+					this.$emit("reply-added") // Refresh the comments
+					this.isEditing = false
+					this.editContent = ""
+				} catch (error) {
+					console.error("Error editing comment:", error)
+				} finally {
+					this.savingEdit = false
+				}
+			},
+			confirmDelete() {
+				if (confirm(this.$t("confirmDelete"))) {
+					this.deleteComment()
+				}
+			},
+			async deleteComment() {
+				try {
+					const token = getAccessToken()
+					const endpoint = this.isReply
+						? `${import.meta.env.VITE_SERVER_URL}/api/posts/${this.postId}/comments/${this.parentCommentId}/replies/${this.comment._id}`
+						: `${import.meta.env.VITE_SERVER_URL}/api/posts/${this.postId}/comments/${this.comment._id}`
+
+					await axios.delete(endpoint, {
+						headers: { Authorization: `Bearer ${token}` },
+					})
+
+					this.$emit("reply-added") // Refresh the comments
+				} catch (error) {
+					console.error("Error deleting comment:", error)
 				}
 			},
 		},

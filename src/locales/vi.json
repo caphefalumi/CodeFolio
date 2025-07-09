@@ -134,6 +134,7 @@
 	"editPost": "Chỉnh sửa bài viết",
 
 	"analytics": "Phân tích",
+	"technologyStackDistribution": "Phân phối công nghệ",
 	"actionCreatedProject": "đã tạo dự án",
 	"projectViewsOverTime": "Lượt xem dự án theo thời gian",
 	"projectsByType": "Dự án theo loại",
@@ -194,5 +195,15 @@
 	"totalViews": "Tổng lượt xem",
 	"totalUpvotes": "Tổng số upvote",
 	"recentActivity": "Hoạt động gần đây",
-	"statisticsNoData": "Không có dữ liệu"
+	"statisticsNoData": "Không có dữ liệu",
+	"technologies": "Công nghệ",
+	"numberOfProjects": "Số lượng dự án",
+	"createdProject": "đã tạo dự án",
+	"edit": "Chỉnh sửa",
+	"delete": "Xóa",
+	"editComment": "Chỉnh sửa bình luận",
+	"deleteComment": "Xóa bình luận",
+	"confirmDelete": "Bạn có chắc chắn muốn xóa bình luận này không?",
+	"edited": "(đã chỉnh sửa)",
+	"reply": "Trả lời"
 }

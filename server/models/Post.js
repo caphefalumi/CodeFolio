@@ -14,6 +14,13 @@ const replySchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
+	edited: {
+		type: Boolean,
+		default: false,
+	},
+	editedAt: {
+		type: Date,
+	},
 })
 
 const commentSchema = new mongoose.Schema({
@@ -29,6 +36,13 @@ const commentSchema = new mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now,
+	},
+	edited: {
+		type: Boolean,
+		default: false,
+	},
+	editedAt: {
+		type: Date,
 	},
 	replies: [replySchema],
 })

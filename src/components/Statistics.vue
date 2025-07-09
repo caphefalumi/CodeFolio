@@ -64,14 +64,15 @@
 						</v-card-text>
 					</v-card>
 				</v-col>
-
-				<!-- User Registration Trend -->
+				<!-- Technology Stack Distribution -->
 				<v-col cols="12" md="6">
 					<v-card class="pa-4">
-						<v-card-title>{{ $t("userRegistrationTrend") }}</v-card-title>
+						<v-card-title>{{
+							$t("technologyStackDistribution") || "Popular Technologies"
+						}}</v-card-title>
 						<v-card-text>
 							<div class="chart-container">
-								<canvas ref="userTrendChart" width="400" height="300"></canvas>
+								<canvas ref="techStackChart" width="400" height="300"></canvas>
 							</div>
 						</v-card-text>
 					</v-card>
@@ -237,14 +238,55 @@
 		},
 		data() {
 			return {
-				keyMetrics: [],
 				topProjects: [],
 				topUsers: [],
+				allUsers: [],
+				allProjects: [],
 				recentActivities: [],
 				projectTypesChart: null,
-				userTrendChart: null,
+				techStackChart: null,
 				loading: true,
 			}
+		},
+		computed: {
+			keyMetrics() {
+				// Calculate key metrics reactively
+				const totalViews = this.allProjects.reduce(
+					(sum, p) => sum + (p.views || 0),
+					0
+				)
+				const totalUpvotes = this.allProjects.reduce(
+					(sum, p) => sum + (p.upvotes || 0),
+					0
+				)
+
+				return [
+					{
+						title: this.$t("totalProjects"),
+						value: this.allProjects.length,
+						icon: "mdi-folder-multiple",
+						color: "primary",
+					},
+					{
+						title: this.$t("totalUsers"),
+						value: this.allUsers.length,
+						icon: "mdi-account-group",
+						color: "primary",
+					},
+					{
+						title: this.$t("totalViews"),
+						value: totalViews.toLocaleString(),
+						icon: "mdi-eye",
+						color: "primary",
+					},
+					{
+						title: this.$t("totalUpvotes"),
+						value: totalUpvotes.toLocaleString(),
+						icon: "mdi-thumb-up",
+						color: "warning",
+					},
+				]
+			},
 		},
 		async mounted() {
 			await this.fetchStatistics()
@@ -252,7 +294,7 @@
 		},
 		beforeUnmount() {
 			if (this.projectTypesChart) this.projectTypesChart.destroy()
-			if (this.userTrendChart) this.userTrendChart.destroy()
+			if (this.techStackChart) this.techStackChart.destroy()
 		},
 		methods: {
 			async fetchStatistics() {
@@ -263,65 +305,26 @@
 						axios.get(`${import.meta.env.VITE_SERVER_URL}/api/users/`),
 					])
 
-					this.processStatistics(projects.data, users.data)
+					this.allUsers = users.data || []
+					this.allProjects = projects.data || []
+					this.processStatistics()
 				} catch (error) {
 					console.error("Error fetching statistics:", error)
 				} finally {
 					this.loading = false
 				}
 			},
-			processStatistics(projects, users) {
-				// Ensure we have valid data arrays
-				const validProjects = Array.isArray(projects) ? projects : []
-				const validUsers = Array.isArray(users) ? users : []
-
-				// Calculate key metrics
-				const totalViews = validProjects.reduce(
-					(sum, p) => sum + (p.views || 0),
-					0
-				)
-				const totalUpvotes = validProjects.reduce(
-					(sum, p) => sum + (p.upvotes || 0),
-					0
-				)
-
-				this.keyMetrics = [
-					{
-						title: this.$t("totalProjects"),
-						value: validProjects.length,
-						icon: "mdi-folder-multiple",
-						color: "primary",
-					},
-					{
-						title: this.$t("totalUsers"),
-						value: validUsers.length,
-						icon: "mdi-account-group",
-						color: "primary"
-					},
-					{
-						title: this.$t("totalViews"),
-						value: totalViews.toLocaleString(),
-						icon: "mdi-eye",
-						color: "primary"
-					},
-					{
-						title: this.$t("totalUpvotes"),
-						value: totalUpvotes.toLocaleString(),
-						icon: "mdi-thumb-up",
-						color: "warning",
-					},
-				]
-
-				this.topProjects = validProjects
+			processStatistics() {
+				this.topProjects = this.allProjects
 					.filter(p => p && p._id && p.title)
 					.sort((a, b) => (b.views || 0) - (a.views || 0))
 					.slice(0, 5)
 
 				// Top users by project count
-				const userProjectCounts = validUsers
+				const userProjectCounts = this.allUsers
 					.filter(user => user && user._id && user.username)
 					.map(user => {
-						const userProjects = validProjects.filter(
+						const userProjects = this.allProjects.filter(
 							p => p.author && p.author._id === user._id
 						)
 						return {
@@ -337,13 +340,14 @@
 				this.topUsers = userProjectCounts
 					.sort((a, b) => b.projectCount - a.projectCount)
 					.slice(0, 5)
-				console.log("All projects:", validProjects)
+
+				console.log("All projects:", this.allProjects)
 				console.log(
 					"Projects with authors:",
-					validProjects.filter(p => p.author)
+					this.allProjects.filter(p => p.author)
 				)
 
-				this.recentActivities = validProjects
+				this.recentActivities = this.allProjects
 					.filter(
 						project =>
 							project &&
@@ -357,25 +361,19 @@
 					.slice(0, 20)
 					.map(project => ({
 						_id: project._id,
-						userName:
-							project.author.firstName && project.author.lastName
-								? `${project.author.firstName} ${project.author.lastName}`
-								: project.author.username || "Anonymous User",
-						action: $t("createdProject"),
+						userName: project.author.username || "Deleted User",
+						action: this.$t("createdProject"),
 						target: project.title,
 						link: `/${project.author.username}/${project._id}`,
 						createdAt: project.createdAt,
 						icon: "mdi-plus",
 						color: "primary",
 					}))
-
-				console.log("Recent activities:", this.recentActivities)
 			},
-
 			createCharts() {
 				this.$nextTick(() => {
 					this.createProjectTypesChart()
-					this.createUserTrendChart()
+					this.createTechStackChart()
 				})
 			},
 			createProjectTypesChart() {
@@ -422,43 +420,237 @@
 					},
 				})
 			},
-			createUserTrendChart() {
-				const ctx = this.$refs.userTrendChart?.getContext("2d")
+			createTechStackChart() {
+				const ctx = this.$refs.techStackChart?.getContext("2d")
 				if (!ctx) return
 
-				// Mock user registration trend data
-				const last6Months = []
-				for (let i = 5; i >= 0; i--) {
-					const date = new Date()
-					date.setMonth(date.getMonth() - i)
-					last6Months.push({
-						month: date.toLocaleDateString("en-US", { month: "short" }),
-						users: Math.floor(Math.random() * 20) + 5,
+				const techCounts = {}
+				const commonTechs = [
+					"JavaScript",
+					"TypeScript",
+					"React",
+					"Vue",
+					"Angular",
+					"Node.js",
+					"Python",
+					"Java",
+					"C++",
+					"C#",
+					"PHP",
+					"HTML",
+					"CSS",
+					"MongoDB",
+					"MySQL",
+					"PostgreSQL",
+					"Express",
+					"Next.js",
+					"Nuxt.js",
+					"Laravel",
+					"Django",
+					"Flask",
+					"Spring",
+					"Docker",
+					"AWS",
+					"Azure",
+					"Firebase",
+					"Git",
+					"Redux",
+					"Vuex",
+					"GraphQL",
+					"REST API",
+					"TailwindCSS",
+					"Bootstrap",
+					"Sass",
+					"Webpack",
+					"Vite",
+					"jQuery",
+					"Rust",
+					"Go",
+					"Swift",
+					"Kotlin",
+					"Flutter",
+					"React Native",
+					"Electron",
+				]
+
+				// Analyze all projects (not just top 5)
+				if (this.allProjects && this.allProjects.length > 0) {
+					this.allProjects.forEach(project => {
+						// First priority: Check actual project tags
+						if (project.tags && Array.isArray(project.tags)) {
+							project.tags.forEach(tag => {
+								if (tag && tag.trim()) {
+									const cleanTag = tag.trim()
+									// Check if tag matches common technologies (case insensitive)
+									const matchedTech = commonTechs.find(
+										tech => tech.toLowerCase() === cleanTag.toLowerCase()
+									)
+									if (matchedTech) {
+										techCounts[matchedTech] = (techCounts[matchedTech] || 0) + 1
+									} else {
+										techCounts[cleanTag] = (techCounts[cleanTag] || 0) + 1
+									}
+								}
+							})
+						}
+
+						const projectText =
+							`${project.title || ""} ${project.description || ""} ${project.content || ""}`.toLowerCase()
+
+						commonTechs.forEach(tech => {
+							// Only count if not already counted from tags
+							const projectHasTechTag =
+								project.tags &&
+								project.tags.some(
+									tag => tag.toLowerCase() === tech.toLowerCase()
+								)
+
+							if (
+								!projectHasTechTag &&
+								projectText.includes(tech.toLowerCase())
+							) {
+								techCounts[tech] = (techCounts[tech] || 0) + 1
+							}
+						})
 					})
 				}
 
-				this.userTrendChart = new Chart(ctx, {
-					type: "line",
+				let labels,
+					data,
+					hasRealData = true
+
+				if (Object.keys(techCounts).length === 0) {
+					hasRealData = false
+					labels = ["No Technology Data"]
+					data = [1]
+				} else {
+					const sortedTechs = Object.entries(techCounts)
+						.sort(([, a], [, b]) => b - a)
+						.slice(0, 10)
+
+					labels = sortedTechs.map(([tech]) => tech)
+					data = sortedTechs.map(([, count]) => count)
+				}
+
+				const colors = hasRealData
+					? [
+							"#1976D2",
+							"#388E3C",
+							"#F57C00",
+							"#D32F2F",
+							"#7B1FA2",
+							"#616161",
+							"#795548",
+							"#E91E63",
+							"#009688",
+							"#FF5722",
+						]
+					: ["#BDBDBD"]
+
+				const borderColors = hasRealData
+					? [
+							"#1565C0",
+							"#2E7D32",
+							"#EF6C00",
+							"#C62828",
+							"#6A1B9A",
+							"#424242",
+							"#5D4037",
+							"#C2185B",
+							"#00796B",
+							"#E64A19",
+						]
+					: ["#9E9E9E"]
+
+				this.techStackChart = new Chart(ctx, {
+					type: "bar",
 					data: {
-						labels: last6Months.map(d => d.month),
+						labels: labels,
 						datasets: [
 							{
-								label: "New Users",
-								data: last6Months.map(d => d.users),
-								borderColor: "#1976D2",
-								backgroundColor: "rgba(25, 118, 210, 0.1)",
-								fill: true,
-								tension: 0.4,
+								data: data,
+								backgroundColor: colors,
+								borderColor: borderColors,
+								borderWidth: 2,
+								borderRadius: 8,
+								borderSkipped: false,
 							},
 						],
 					},
 					options: {
 						responsive: true,
 						maintainAspectRatio: false,
+						plugins: {
+							legend: {
+								display: false,
+							},
+							tooltip: {
+								enabled: hasRealData,
+								borderWidth: 1,
+								cornerRadius: 8,
+								callbacks: {
+									title: function (context) {
+										return context[0].label
+									},
+									label: function (context) {
+										if (!hasRealData) return "No technology data available"
+										const count = context.parsed.y
+										return `Used in ${count} ${count === 1 ? "project" : "projects"}`
+									},
+								},
+							},
+						},
 						scales: {
+							x: {
+								title: {
+									display: true,
+									text: this.$t("technologies"),
+									font: {
+										size: 12,
+										weight: "bold",
+									},
+								},
+								grid: {
+									display: false,
+								},
+								ticks: {
+									maxRotation: 45,
+									minRotation: 45,
+									font: {
+										size: 10,
+									},
+								},
+							},
 							y: {
 								beginAtZero: true,
+								title: {
+									display: true,
+									text: this.$t("numberOfProjects"),
+									font: {
+										size: 12,
+										weight: "bold",
+									},
+								},
+								grid: {
+									color: "rgba(0, 0, 0, 0.1)",
+								},
+								ticks: {
+									stepSize: 1,
+									font: {
+										size: 11,
+									},
+								},
 							},
+						},
+						animation: {
+							duration: 1500,
+							easing: "easeInOutQuart",
+						},
+						onHover: (event, activeElements) => {
+							if (hasRealData) {
+								event.native.target.style.cursor =
+									activeElements.length > 0 ? "pointer" : "default"
+							}
 						},
 					},
 				})

@@ -382,6 +382,116 @@ router.post("/:id/downvote", authenticateToken, async (req, res) => {
 	}
 })
 
+// 🔹 Edit a comment
+router.put("/:id/comments/:commentId", authenticateToken, async (req, res) => {
+	try {
+		const post = await Post.findById(req.params.id)
+		if (!post) return res.status(404).json({ message: "Post not found" })
+
+		const comment = post.comments.id(req.params.commentId)
+		if (!comment) return res.status(404).json({ message: "Comment not found" })
+
+		// Check if current user is authorized (is the comment author or is admin)
+		const isAuthorized = await isAuthorizedUser(
+			req.user.id,
+			comment.user.toString()
+		)
+
+		if (!isAuthorized) {
+			return res
+				.status(403)
+				.json({ message: "Not authorized to edit this comment" })
+		}
+
+		const newContent = req.body.content
+		if (!newContent || !newContent.trim()) {
+			return res
+				.status(400)
+				.json({ message: "Comment content cannot be empty" })
+		}
+
+		// Update the comment content and mark as edited
+		comment.content = newContent.trim()
+		comment.edited = true
+		comment.editedAt = new Date()
+		await post.save()
+
+		// Re-populate and return updated comments
+		await post.populate("comments.user", "username avatar firstName lastName")
+		await post.populate(
+			"comments.replies.user",
+			"username avatar firstName lastName"
+		)
+
+		res.json({
+			message: "Comment edited successfully",
+			comments: post.comments,
+		})
+	} catch (error) {
+		console.error("Error editing comment:", error)
+		res.status(500).json({ message: "Error editing comment", error })
+	}
+})
+
+// 🔹 Edit a reply
+router.put(
+	"/:id/comments/:commentId/replies/:replyId",
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const post = await Post.findById(req.params.id)
+			if (!post) return res.status(404).json({ message: "Post not found" })
+
+			const comment = post.comments.id(req.params.commentId)
+			if (!comment)
+				return res.status(404).json({ message: "Comment not found" })
+
+			const reply = comment.replies.id(req.params.replyId)
+			if (!reply) return res.status(404).json({ message: "Reply not found" })
+
+			// Check if current user is authorized (is the reply author or is admin)
+			const isAuthorized = await isAuthorizedUser(
+				req.user.id,
+				reply.user.toString()
+			)
+
+			if (!isAuthorized) {
+				return res
+					.status(403)
+					.json({ message: "Not authorized to edit this reply" })
+			}
+
+			const newContent = req.body.content
+			if (!newContent || !newContent.trim()) {
+				return res
+					.status(400)
+					.json({ message: "Reply content cannot be empty" })
+			}
+
+			// Update the reply content and mark as edited
+			reply.content = newContent.trim()
+			reply.edited = true
+			reply.editedAt = new Date()
+			await post.save()
+
+			// Re-populate and return updated comments
+			await post.populate("comments.user", "username avatar firstName lastName")
+			await post.populate(
+				"comments.replies.user",
+				"username avatar firstName lastName"
+			)
+
+			res.json({
+				message: "Reply edited successfully",
+				comments: post.comments,
+			})
+		} catch (error) {
+			console.error("Error editing reply:", error)
+			res.status(500).json({ message: "Error editing reply", error })
+		}
+	}
+)
+
 // 🔹 Delete a comment
 router.delete(
 	"/:id/comments/:commentId",
