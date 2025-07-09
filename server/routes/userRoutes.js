@@ -76,30 +76,6 @@ router.post("/", authenticateToken, async (req, res) => {
 	}
 })
 
-// Search users for mentions
-router.get("/search", async (req, res) => {
-	try {
-		const { q, limit = 10 } = req.query
-		if (!q || q.trim().length < 1) {
-			return res.json([])
-		}
-
-		const users = await User.find({
-			$or: [
-				{ username: { $regex: q, $options: "i" } },
-				{ firstName: { $regex: q, $options: "i" } },
-				{ lastName: { $regex: q, $options: "i" } },
-			],
-		})
-			.select("username firstName lastName avatar")
-			.limit(parseInt(limit))
-
-		res.json(users)
-	} catch (error) {
-		console.error("Error searching users:", error)
-		res.status(500).json({ message: "Error searching users", error })
-	}
-})
 router.get("/me", authenticateToken, async (req, res) => {
 	try {
 		const user = await User.findById(req.user.id)

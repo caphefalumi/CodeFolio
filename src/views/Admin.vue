@@ -289,13 +289,12 @@
 			},
 		},
 		watch: {
-			"$route.query.tab"(newTab) {
+			"$route.query.tab"() {
 				this.initializeTabFromUrl()
 			},
 		},
 		async mounted() {
 			// Initialize tab from URL query parameter
-			this.initializeTabFromUrl()
 			await this.checkAdminAccess()
 		},
 		methods: {
@@ -355,6 +354,7 @@
 						// Load admin data
 						this.fetchUsers()
 						this.fetchPosts()
+						this.initializeTabFromUrl()
 					} else {
 						this.showNotFound = true
 						this.isLoading = false
