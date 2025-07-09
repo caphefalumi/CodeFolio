@@ -491,26 +491,14 @@
 				try {
 					if (!this.newComment.trim()) return
 					const token = getAccessToken()
-					const response = await axios.post(
+					await axios.post(
 						`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.$route.params.id}/comments`,
 						{ content: this.newComment },
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
 
-					// Refresh the comments from the response
-					this.comments = response.data.comments.map(c => ({
-						_id: c._id,
-						user: c.user,
-						createdAt: c.createdAt,
-						content: c.content,
-						replies: (c.replies || []).map(r => ({
-							_id: r._id,
-							user: r.user,
-							createdAt: r.createdAt,
-							content: r.content,
-						})),
-					}))
-
+					// Instead of updating comments from response, re-fetch full post details
+					await this.fetchProjectDetail()
 					this.newComment = ""
 					this.showCommentAuthAlert = false
 				} catch (error) {
