@@ -117,6 +117,11 @@
 			this.loadThemePreference()
 			this.loadUnreadCount()
 		},
+		computed: {
+			isAdmin() {
+				return this.user && this.user.email === import.meta.env.VITE_ADMIN_EMAIL
+			},
+		},
 		methods: {
 			async fetchProfile() {
 				try {
@@ -124,7 +129,6 @@
 					this.username = this.user.username
 					this.avatar = this.user.avatar
 
-					this.isAdmin = this.user.email === import.meta.env.VITE_ADMIN_EMAIL
 
 					console.log("User profile fetched:", this.avatar, this.username)
 					this.loadUnreadCount()
