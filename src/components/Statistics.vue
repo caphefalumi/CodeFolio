@@ -296,13 +296,13 @@
 						title: this.$t("totalUsers"),
 						value: validUsers.length,
 						icon: "mdi-account-group",
-						color: "secondary",
+						color: "primary"
 					},
 					{
 						title: this.$t("totalViews"),
 						value: totalViews.toLocaleString(),
 						icon: "mdi-eye",
-						color: "success",
+						color: "primary"
 					},
 					{
 						title: this.$t("totalUpvotes"),
