@@ -71,6 +71,11 @@
 	"projectTypeWebDevelopment": "Web Development",
 	"projectTypeMobileApp": "Mobile App",
 	"projectTypeApiDevelopment": "API Development",
+	"projectTypeGame": "Game",
+	"projectTypeDesign": "Design",
+	"projectTypeDataScience": "Data Science",
+	"projectTypeMachineLearning": "Machine Learning",
+	"projectTypeDevOps": "DevOps",
 	"projectTypeOther": "Other",
 
 	"searchPlaceholder": "Search projects",

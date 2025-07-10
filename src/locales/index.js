@@ -3,12 +3,12 @@ import en from "./en.json"
 import vi from "./vi.json"
 
 const getSavedLanguage = () => {
-	return localStorage.getItem("language")
+	return localStorage.getItem("lang")
 }
 
 // Save language preference to localStorage
 const saveLanguage = locale => {
-	localStorage.setItem("language", locale)
+	localStorage.setItem("lang", locale)
 }
 
 const i18n = createI18n({

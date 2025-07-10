@@ -448,6 +448,37 @@ const createVotes = async (users, posts) => {
 	console.log("✅ User votes created")
 }
 
+// Randomize and update the "type" field for all posts
+const randomizePostTypes = async () => {
+	console.log("🎲 Randomizing 'type' field for all posts...")
+	await connectDB()
+	const posts = await Post.find({})
+	if (!posts.length) {
+		console.log("No posts found to update.")
+		return
+	}
+	const updatedTypes = [
+		"Web Development",
+		"Mobile App",
+		"API Development",
+		"Game",
+		"Design",
+		"Data Science",
+		"Machine Learning",
+		"DevOps",
+		"Other",
+	]
+	let updatedCount = 0
+	for (const post of posts) {
+		const randomType = faker.helpers.arrayElement(updatedTypes)
+		post.type = randomType
+		await post.save()
+		updatedCount++
+	}
+	console.log(`✅ Updated 'type' for ${updatedCount} posts.`)
+	mongoose.connection.close()
+}
+
 // Main seeding function
 const seedDatabase = async (clearFirst = false) => {
 	try {
@@ -509,6 +540,7 @@ const seedDatabase = async (clearFirst = false) => {
 // Check command line arguments for destructive mode
 const args = process.argv.slice(2)
 const shouldClear = args.includes("--clear") || args.includes("--destructive")
+const shouldRandomizeTypes = args.includes("--randomize-types")
 
 if (shouldClear) {
 	console.log("⚠️⚠️⚠️  DESTRUCTIVE MODE ENABLED ⚠️⚠️⚠️")
@@ -517,5 +549,9 @@ if (shouldClear) {
 	console.log("Use 'npm run seed -- --clear' for destructive mode")
 }
 
-// Run the seeder
-seedDatabase(shouldClear)
+if (shouldRandomizeTypes) {
+	randomizePostTypes()
+} else {
+	// Run the seeder
+	seedDatabase(shouldClear)
+}

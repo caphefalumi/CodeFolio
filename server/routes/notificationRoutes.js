@@ -4,7 +4,6 @@ import authenticateToken from "../middleware/authenticateToken.js"
 
 const router = express.Router()
 
-// Get all notifications for the authenticated user
 router.get("/", authenticateToken, async (req, res) => {
 	try {
 		const notifications = await Notification.find({ recipient: req.user.id })
@@ -27,7 +26,6 @@ router.get("/", authenticateToken, async (req, res) => {
 	}
 })
 
-// Get unread notifications count
 router.get("/unread-count", authenticateToken, async (req, res) => {
 	try {
 		const count = await Notification.countDocuments({

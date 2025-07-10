@@ -490,35 +490,6 @@
 			},
 		},
 		methods: {
-			initializeTranslatedData() {
-				// Initialize project types
-				this.projectTypes = [
-					this.$t("projectTypeWebDevelopment"),
-					this.$t("projectTypeMobileApp"),
-					this.$t("projectTypeApiDevelopment"),
-					this.$t("projectTypeOther"),
-				] // Initialize validation rules
-				this.projectValidationRules = {
-					title: [
-						v => !!v || this.$t("validationRequired"),
-						v => (v && v.length >= 3) || this.$t("validationTitleMinLength"),
-						v => (v && v.length <= 100) || this.$t("validationTitleMaxLength"),
-					],
-					description: [
-						v => !!v || this.$t("validationRequired"),
-						v =>
-							(v && v.length >= 10) ||
-							this.$t("validationDescriptionMinLength"),
-						v =>
-							(v && v.length <= 500) ||
-							this.$t("validationDescriptionMaxLength"),
-					],
-					type: [v => !!v || this.$t("validationRequired")],
-					githubUrl: [
-						v => !v || this.isValidUrl(v) || this.$t("validationUrlInvalid"),
-					],
-				}
-			},
 			async fetchProfileAndProjects(username) {
 				// Reset error state
 				this.showNotFound = false
@@ -809,8 +780,37 @@
 		},
 
 		mounted() {
-			// Initialize translated data after component is mounted
-			this.initializeTranslatedData()
+			this.projectTypes = [
+				this.$t("Web Development"),
+				this.$t("Mobile App"),
+				this.$t("API Development"),
+				this.$t("Game"),
+				this.$t("Design"),
+				this.$t("Data Science"),
+				this.$t("Machine Learning"),
+				this.$t("DevOps"),
+				this.$t("Other"),
+			] // Initialize validation rules
+			this.projectValidationRules = {
+				title: [
+					v => !!v || this.$t("validationRequired"),
+					v => (v && v.length >= 3) || this.$t("validationTitleMinLength"),
+					v => (v && v.length <= 100) || this.$t("validationTitleMaxLength"),
+				],
+				description: [
+					v => !!v || this.$t("validationRequired"),
+					v =>
+						(v && v.length >= 10) ||
+						this.$t("validationDescriptionMinLength"),
+					v =>
+						(v && v.length <= 500) ||
+						this.$t("validationDescriptionMaxLength"),
+				],
+				type: [v => !!v || this.$t("validationRequired")],
+				githubUrl: [
+					v => !v || this.isValidUrl(v) || this.$t("validationUrlInvalid"),
+				],
+			}
 
 			// Load profile data
 			const username = this.$route.params.username

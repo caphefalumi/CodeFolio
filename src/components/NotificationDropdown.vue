@@ -436,8 +436,6 @@
 		background: rgb(var(--v-theme-surface));
 		color: rgb(var(--v-theme-on-surface));
 		border-radius: 12px;
-		box-shadow: 0 8px 32px rgba(var(--v-theme-shadow-key-umbra-opacity), 0.15);
-		border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 		overflow: hidden;
 		position: relative;
 		z-index: 10000;
@@ -558,7 +556,7 @@
 
 	.notification-time {
 		font-size: 0.75rem;
-		color: rgb(var(--v-theme-on-surface-variant));
+		color: rgb(var(--v-theme-on-surface));
 		font-weight: 500;
 	}
 

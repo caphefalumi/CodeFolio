@@ -144,10 +144,15 @@
 			projectTypes() {
 				return [
 					{ title: this.$t("allTypes"), value: "all" },
-					{ title: this.$t("webApp"), value: "web" },
-					{ title: this.$t("mobileApp"), value: "mobile" },
-					{ title: this.$t("game"), value: "game" },
-					{ title: this.$t("design"), value: "design" },
+					{ title: this.$t("Web Development"), value: "Web Development" },
+					{ title: this.$t("Mobile App"), value: "Mobile App" },
+					{ title: this.$t("API Development"), value: "API Development" },
+					{ title: this.$t("Game"), value: "Game" },
+					{ title: this.$t("Design"), value: "Design" },
+					{ title: this.$t("Data Science"), value: "Data Science" },
+					{ title: this.$t("Machine Learning"), value: "Machine Learning" },
+					{ title: this.$t("DevOps"), value: "DevOps" },
+					{ title: this.$t("Other"), value: "Other" },
 				]
 			},
 			sortOptions() {
