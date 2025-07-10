@@ -289,12 +289,4 @@
 		font-family: "Roboto", sans-serif;
 		-webkit-font-smoothing: antialiased;
 	}
-
-	/* Ensure notification dropdown appears above all content */
-	.notification-wrapper {
-		position: fixed !important;
-		top: 64px !important; /* Below the app bar */
-		right: 16px !important;
-		z-index: 9999 !important;
-	}
 </style>
