@@ -211,7 +211,6 @@ router.post("/login/google", async (req, res) => {
 		)
 
 		const { id, email, picture, given_name, family_name } = googleUser
-		const avatar = await convertImageUrlToUri(picture, "profile")
 		let user = await User.findOne({ email })
 
 		if (!user) {
@@ -219,6 +218,7 @@ router.post("/login/google", async (req, res) => {
 			if (await User.findOne({ username: username })) {
 				username += crypto.randomBytes(5).toString("hex")
 			}
+			const avatar = await convertImageUrlToUri(picture, "profile")
 			user = new User({
 				username: username,
 				email: email,

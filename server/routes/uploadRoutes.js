@@ -93,7 +93,7 @@ async function convertImageUrlToUri(imageUrl, type) {
 			return `data:${mimeType};base64,${base64}`
 		}
 	} catch (error) {
-		throw new Error(`Failed to process image from URL: ${error.message}`)
+		return imageUrl
 	}
 }
 

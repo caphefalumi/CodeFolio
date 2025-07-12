@@ -497,7 +497,6 @@
 						{ headers: { Authorization: `Bearer ${token}` } }
 					)
 
-					// Instead of updating comments from response, re-fetch full post details
 					await this.fetchProjectDetail()
 					this.newComment = ""
 					this.showCommentAuthAlert = false

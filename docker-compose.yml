@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   frontend:
     build:
@@ -7,10 +5,8 @@ services:
       dockerfile: Dockerfile.frontend
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
-    environment:
-      - NODE_ENV=production
+    env_file:
+      - .env
 
   backend:
     build:
@@ -18,9 +14,8 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "3001:3001"
-    environment:
-      - NODE_ENV=production
-    volumes:
-      # Mount any necessary config files or data
-      - ./server/private_encrypted.key:/src/private_encrypted.key:ro
-      - ./server/public.key:/src/public.key:ro
+    env_file:
+      - ./server/.env
+    # volumes:
+    #   - ./server/private_encrypted.key:/src/private_encrypted.key:ro
+    #   - ./server/public.key:/src/public.key:ro

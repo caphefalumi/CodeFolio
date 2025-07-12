@@ -9,6 +9,8 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"server": "cd server && bun run server",
+		"deploy": "vercel --prod && cd server && vercel --prod",
+		"deploy:all": "bun run deploy && bun run tauri:build",
 		"tauri": "tauri",
 		"tauri:dev": "tauri dev",
 		"tauri:build": "tauri build"
