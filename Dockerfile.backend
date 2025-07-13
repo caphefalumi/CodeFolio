@@ -1,4 +1,3 @@
-# Backend Dockerfile for Node.js server
 FROM node:22-slim
 
 WORKDIR /app
