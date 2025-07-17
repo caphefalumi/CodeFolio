@@ -16,15 +16,15 @@
 		"express": "^5.1.0",
 		"fs": "^0.0.1-security",
 		"jsonwebtoken": "^9.0.2",
-		"mongoose": "^8.15.2",
+		"mongoose": "^8.16.4",
 		"multer": "^2.0.1",
 		"node-fetch": "^3.3.2",
-		"nodemailer": "^7.0.4",
+		"nodemailer": "^7.0.5",
 		"nodemon": "^3.1.10",
 		"random-cat-img": "^1.1.8",
-		"sharp": "^0.34.2",
+		"sharp": "^0.34.3",
 		"socket.io": "^4.8.1",
-		"vue-i18n": "^11.1.7"
+		"vue-i18n": "^11.1.10"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^9.9.0"
