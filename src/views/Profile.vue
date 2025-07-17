@@ -1,9 +1,7 @@
 <template>
 	<v-theme-provider>
-		<!-- Show NotFound if user doesn't exist -->
 		<NotFound v-if="showNotFound" />
 
-		<!-- Show main profile content if user exists -->
 		<v-container v-else class="py-8">
 			<section aria-labelledby="profile-heading">
 				<!-- User Profile Section at Top -->
@@ -344,6 +342,7 @@
 
 			<!-- Followers Dialog -->
 			<followers-dialog
+				v-if="userProfile._id"
 				v-model="showFollowersDialog"
 				:user-id="userProfile._id"
 				:type="followersDialogType"

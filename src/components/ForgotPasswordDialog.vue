@@ -6,27 +6,28 @@
 		toolbar-color="warning"
 		@close="closeDialog"
 	>
-		<v-stepper v-model="currentStep" flat class="mb-2">
-			<v-stepper-header>
-				<v-stepper-step
-					v-if="!skipEmailStep"
-					:complete="currentStep > 1"
-					step="1"
-					>{{ $t("sendResetCode") }}</v-stepper-step
-				>
-				<v-divider v-if="!skipEmailStep"></v-divider>
-				<v-stepper-step
-					:complete="currentStep > 2"
-					:step="skipEmailStep ? 1 : 2"
-					>{{ $t("verifyResetCode") }}</v-stepper-step
-				>
-				<v-divider></v-divider>
-				<v-stepper-step :step="skipEmailStep ? 2 : 3">{{
-					$t("setNewPassword")
-				}}</v-stepper-step>
-			</v-stepper-header>
-		</v-stepper>
-		<!-- Step 1: Enter Email and Send Reset Code (only shown if not skipping email step) -->
+		<!-- Stepper header replaced for Vuetify 3.x compatibility -->
+		<div class="mb-2 d-flex flex-row justify-center align-center">
+			<div
+				v-if="!skipEmailStep"
+				:class="['step', { complete: currentStep > 1 }]"
+			>
+				{{ $t('sendResetCode') }}
+			</div>
+			<div v-if="!skipEmailStep" class="step-divider"></div>
+			<div
+				:class="['step', { complete: currentStep > (skipEmailStep ? 1 : 2) }]"
+			>
+				{{ $t('verifyResetCode') }}
+			</div>
+			<div class="step-divider"></div>
+			<div
+				:class="['step', { complete: currentStep > (skipEmailStep ? 2 : 3) }]"
+			>
+				{{ $t('setNewPassword') }}
+			</div>
+		</div>
+
 		<app-form
 			v-if="currentStep === 1 && !skipEmailStep"
 			:loading="loading"
@@ -51,7 +52,6 @@
 			></v-text-field>
 		</app-form>
 
-		<!-- Step 2: Verify Code (or Step 1 if skipEmailStep is true) -->
 		<app-form
 			v-if="
 				(currentStep === 2 && !skipEmailStep) ||
@@ -371,3 +371,25 @@
 		},
 	}
 </script>
+
+<style scoped>
+.step {
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	background: #f5f5f5;
+	margin: 0 0.25rem;
+	font-weight: 500;
+	color: #888;
+}
+.step.complete {
+	background: #ffe082;
+	color: #333;
+}
+.step-divider {
+	width: 32px;
+	height: 2px;
+	background: #ffe082;
+	margin: 0 0.25rem;
+	align-self: center;
+}
+</style>

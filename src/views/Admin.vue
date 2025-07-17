@@ -17,182 +17,103 @@
 				<v-tab>{{ $t("adminPosts") }}</v-tab>
 				<v-tab>{{ $t("adminAnalytics") }}</v-tab>
 			</v-tabs>
-			<v-tabs-items v-model="tab">
-				<!-- Users Tab -->
-				<v-tab-item>
-					<div v-if="tab === 0">
-						<v-row>
-							<v-col cols="12">
-								<v-btn color="primary" class="mb-4" @click="openUserDialog()">{{
-									$t("addUser")
-								}}</v-btn>
-								<v-text-field
-									v-model="userSearch"
-									:label="$t('searchUsers')"
-									prepend-inner-icon="mdi-magnify"
-									variant="outlined"
-									hide-details
-									class="mb-4"
-									maxlength="100"
-								/>
-								<v-data-table
-									:headers="userHeaders"
-									:items="filteredUsers"
-									item-key="_id"
-									class="elevation-1"
-									:items-per-page="10"
-								>
-									<template #item.actions="{ item }">
-										<v-btn icon @click="editUser(item)"
-											><v-icon>mdi-pencil</v-icon></v-btn
-										>
-										<v-btn icon @click="deleteUser(item)"
-											><v-icon>mdi-delete</v-icon></v-btn
-										>
-									</template>
-								</v-data-table>
-							</v-col>
-						</v-row>
-						<v-dialog v-model="userDialog" max-width="500px">
-							<v-card>
-								<v-card-title>{{
-									editingUser ? $t("editUser") : $t("addUser")
-								}}</v-card-title>
-								<v-card-text>
-									<v-text-field
-										v-model="userForm.email"
-										:label="$t('email')"
-										required
-										maxlength="255"
-									></v-text-field>
-									<v-text-field
-										v-model="userForm.username"
-										:label="$t('username')"
-										required
-										maxlength="50"
-									></v-text-field>
-									<v-text-field
-										v-model="userForm.firstName"
-										:label="$t('firstName')"
-										required
-										maxlength="50"
-									></v-text-field>
-									<v-text-field
-										v-model="userForm.lastName"
-										:label="$t('lastName')"
-										required
-										maxlength="50"
-									></v-text-field>
-									<v-text-field
-										v-model="userForm.password"
-										:label="$t('password')"
-										:type="showPassword ? 'text' : 'password'"
-										:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-										@click:append="showPassword = !showPassword"
-										:required="!editingUser"
-										maxlength="128"
-									></v-text-field>
-								</v-card-text>
-								<v-card-actions>
-									<v-btn color="primary" @click="saveUser">{{
-										$t("save")
-									}}</v-btn>
-									<v-btn text @click="closeUserDialog">{{
-										$t("cancel")
-									}}</v-btn>
-								</v-card-actions>
-							</v-card>
-						</v-dialog>
-					</div>
-				</v-tab-item>
-				<!-- Posts Tab -->
-				<v-tab-item>
-					<div v-if="tab === 1">
-						<v-row>
-							<v-col cols="12">
-								<v-btn color="primary" class="mb-4" @click="openPostDialog()">{{
-									$t("addPost")
-								}}</v-btn>
-								<v-text-field
-									v-model="postSearch"
-									:label="$t('searchPosts')"
-									prepend-inner-icon="mdi-magnify"
-									variant="outlined"
-									hide-details
-									class="mb-4"
-									maxlength="100"
-								/>
-								<v-data-table
-									:headers="postHeaders"
-									:items="filteredPosts"
-									item-key="_id"
-									class="elevation-1"
-									:items-per-page="10"
-								>
-									<template #item.actions="{ item }">
-										<v-btn icon @click="editPost(item)"
-											><v-icon>mdi-pencil</v-icon></v-btn
-										>
-										<v-btn icon @click="deletePost(item)"
-											><v-icon>mdi-delete</v-icon></v-btn
-										>
-									</template>
-								</v-data-table>
-							</v-col>
-						</v-row>
-						<v-dialog v-model="postDialog" max-width="600px">
-							<v-card>
-								<v-card-title>{{
-									editingPost ? $t("editPost") : $t("addPost")
-								}}</v-card-title>
-								<v-card-text>
-									<v-text-field
-										v-model="postForm.title"
-										:label="$t('title')"
-										required
-										maxlength="100"
-										counter
-									></v-text-field>
-									<v-textarea
-										v-model="postForm.description"
-										:label="$t('description')"
-										maxlength="500"
-										counter
-									></v-textarea>
-									<v-text-field
-										v-model="postForm.githubUrl"
-										:label="$t('githubUrl')"
-										maxlength="255"
-									></v-text-field>
-									<v-text-field
-										v-model="postForm.type"
-										:label="$t('type')"
-										maxlength="50"
-									></v-text-field>
-									<v-text-field
-										v-model="postForm.tags"
-										:label="$t('tagsCommaSeparated')"
-										maxlength="200"
-									></v-text-field>
-								</v-card-text>
-								<v-card-actions>
-									<v-btn color="primary" @click="savePost">{{
-										$t("save")
-									}}</v-btn>
-									<v-btn text @click="closePostDialog">{{
-										$t("cancel")
-									}}</v-btn>
-								</v-card-actions>
-							</v-card>
-						</v-dialog>
-					</div>
-				</v-tab-item>
-				<v-tab-item>
-					<div v-if="tab === 2">
-						<StatisticsView />
-					</div>
-				</v-tab-item>
-			</v-tabs-items>
+
+			<!-- Users Tab -->
+			<div v-if="tab === 0">
+				<v-row>
+					<v-col cols="12">
+						<v-btn color="primary" class="mb-4" @click="openUserDialog()">{{ $t("addUser") }}</v-btn>
+						<v-text-field
+							v-model="userSearch"
+							:label="$t('searchUsers')"
+							prepend-inner-icon="mdi-magnify"
+							variant="outlined"
+							hide-details
+							class="mb-4"
+							maxlength="100"
+						/>
+						<v-data-table
+							:headers="userHeaders"
+							:items="filteredUsers"
+							item-key="_id"
+							class="elevation-1"
+							:items-per-page="10"
+						>
+							<template #item.actions="{ item }">
+								<v-btn icon @click="editUser(item)"><v-icon>mdi-pencil</v-icon></v-btn>
+								<v-btn icon @click="deleteUser(item)"><v-icon>mdi-delete</v-icon></v-btn>
+							</template>
+						</v-data-table>
+					</v-col>
+				</v-row>
+				<v-dialog v-model="userDialog" max-width="500px">
+					<v-card>
+						<v-card-title>{{ editingUser ? $t("editUser") : $t("addUser") }}</v-card-title>
+						<v-card-text>
+							<v-text-field v-model="userForm.email" :label="$t('email')" required maxlength="255"></v-text-field>
+							<v-text-field v-model="userForm.username" :label="$t('username')" required maxlength="50"></v-text-field>
+							<v-text-field v-model="userForm.firstName" :label="$t('firstName')" required maxlength="50"></v-text-field>
+							<v-text-field v-model="userForm.lastName" :label="$t('lastName')" required maxlength="50"></v-text-field>
+							<v-text-field v-model="userForm.password" :label="$t('password')" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" :required="!editingUser" maxlength="128"></v-text-field>
+						</v-card-text>
+						<v-card-actions>
+							<v-btn color="primary" @click="saveUser">{{ $t("save") }}</v-btn>
+							<v-btn text @click="closeUserDialog">{{ $t("cancel") }}</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+			</div>
+
+			<!-- Posts Tab -->
+			<div v-else-if="tab === 1">
+				<v-row>
+					<v-col cols="12">
+						<v-btn color="primary" class="mb-4" @click="openPostDialog()">{{ $t("addPost") }}</v-btn>
+						<v-text-field
+							v-model="postSearch"
+							:label="$t('searchPosts')"
+							prepend-inner-icon="mdi-magnify"
+							variant="outlined"
+							hide-details
+							class="mb-4"
+							maxlength="100"
+						/>
+						<v-data-table
+							:headers="postHeaders"
+							:items="filteredPosts"
+							item-key="_id"
+							class="elevation-1"
+							:items-per-page="10"
+						>
+							<template #item.actions="{ item }">
+								<v-btn icon @click="editPost(item)"><v-icon>mdi-pencil</v-icon></v-btn>
+								<v-btn icon @click="deletePost(item)"><v-icon>mdi-delete</v-icon></v-btn>
+							</template>
+						</v-data-table>
+					</v-col>
+				</v-row>
+				<v-dialog v-model="postDialog" max-width="600px">
+					<v-card>
+						<v-card-title>{{ editingPost ? $t("editPost") : $t("addPost") }}</v-card-title>
+						<v-card-text>
+							<v-text-field v-model="postForm.title" :label="$t('title')" required maxlength="100" counter></v-text-field>
+							<v-textarea v-model="postForm.description" :label="$t('description')" maxlength="500" counter></v-textarea>
+							<v-text-field v-model="postForm.githubUrl" :label="$t('githubUrl')" maxlength="255"></v-text-field>
+							<v-text-field v-model="postForm.type" :label="$t('type')" maxlength="50"></v-text-field>
+							<v-text-field v-model="postForm.tags" :label="$t('tagsCommaSeparated')" maxlength="200"></v-text-field>
+						</v-card-text>
+						<v-card-actions>
+							<v-btn color="primary" @click="savePost">{{ $t("save") }}</v-btn>
+							<v-btn text @click="closePostDialog">{{ $t("cancel") }}</v-btn>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+			</div>
+
+			<!-- Analytics Tab -->
+			<div v-else-if="tab === 2">
+				<StatisticsView />
+			</div>
 		</v-container>
 	</div>
 </template>

@@ -103,7 +103,6 @@
 			return {
 				isAuthenticated: false,
 				user: null,
-				isAdmin: false,
 				username: "",
 				avatar: "",
 				isDark: false,
@@ -210,7 +209,7 @@
 
 			toggleTheme() {
 				this.isDark = !this.isDark
-				this.$vuetify.theme.global.name = this.isDark ? "dark" : "light"
+				this.$vuetify.theme.change(this.isDark ? "dark" : "light")
 				localStorage.setItem("theme", this.isDark ? "dark" : "light")
 			},
 
@@ -223,7 +222,7 @@
 					return
 				}
 				this.isDark = savedTheme === "dark"
-				this.$vuetify.theme.global.name = this.isDark ? "dark" : "light"
+				this.$vuetify.theme.change(this.isDark ? "dark" : "light")
 			},
 			logout() {
 				axios
