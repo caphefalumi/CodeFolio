@@ -197,11 +197,9 @@ router.post("/login/jwt", async (req, res) => {
 
 router.post("/login/google", async (req, res) => {
 	const googleAccessToken = req.body.token
-
 	if (!googleAccessToken) {
 		return res.status(400).json({ message: "No access token provided" })
 	}
-
 	try {
 		const { data: googleUser } = await axios.get(
 			"https://www.googleapis.com/oauth2/v2/userinfo",

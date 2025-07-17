@@ -15,4 +15,4 @@ COPY server/ ./
 EXPOSE 3001
 
 # Start the server
-CMD ["bun", "run", "server"]
+CMD ["bun", "run", "server:prod"]
