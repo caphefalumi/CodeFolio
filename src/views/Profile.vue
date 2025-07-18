@@ -328,21 +328,46 @@
 
 					<v-row class="mb-2">
 						<v-col cols="12">
-							<v-btn color="secondary" variant="outlined" @click="showGithubRepoDialog = true" v-if="editForm.githubUrl || (currentUser && currentUser.oAuthProviders && currentUser.oAuthProviders.some(p => p.provider === 'github'))">
+							<v-btn
+								color="secondary"
+								variant="outlined"
+								@click="showGithubRepoDialog = true"
+								v-if="
+									editForm.githubUrl ||
+									(currentUser &&
+										currentUser.oAuthProviders &&
+										currentUser.oAuthProviders.some(
+											p => p.provider === 'github'
+										))
+								"
+							>
 								Import from GitHub
 							</v-btn>
 						</v-col>
 					</v-row>
-					<app-dialog v-model="showGithubRepoDialog" :title="'Select a GitHub Repository'" max-width="600">
+					<app-dialog
+						v-model="showGithubRepoDialog"
+						:title="'Select a GitHub Repository'"
+						max-width="600"
+					>
 						<v-list>
-							<v-list-item v-for="repo in githubRepos" :key="repo.id" @click="importGithubRepo(repo)" style="cursor:pointer">
+							<v-list-item
+								v-for="repo in githubRepos"
+								:key="repo.id"
+								@click="importGithubRepo(repo)"
+								style="cursor: pointer"
+							>
 								<v-list-item-title>{{ repo.name }}</v-list-item-title>
-								<v-list-item-subtitle>{{ repo.description }}</v-list-item-subtitle>
+								<v-list-item-subtitle>{{
+									repo.description
+								}}</v-list-item-subtitle>
 							</v-list-item>
 						</v-list>
 						<template #actions>
 							<v-spacer></v-spacer>
-							<app-button color="primary" @click="showGithubRepoDialog = false">Close</app-button>
+							<app-button color="primary" @click="showGithubRepoDialog = false"
+								>Close</app-button
+							>
 						</template>
 					</app-dialog>
 				</app-form>
@@ -389,7 +414,12 @@
 
 <script>
 	import { marked } from "marked"
-	import { getAccessToken, fetchProfile, fetchProjects, fetchCurrentUser } from "@/composables/user.js"
+	import {
+		getAccessToken,
+		fetchProfile,
+		fetchProjects,
+		fetchCurrentUser,
+	} from "@/composables/user.js"
 	import { useApi } from "@/composables/common.js"
 	import axios from "axios"
 	import QuillEditor from "@/components/QuillEditor.vue"
@@ -664,10 +694,18 @@
 					let content = this.projectForm.content
 					let importedFromGithub = false
 					// If importing from GitHub, content is already Markdown
-					if (this.projectForm.githubUrl && this.projectForm.content && /<[^>]+>/.test(this.projectForm.content)) {
+					if (
+						this.projectForm.githubUrl &&
+						this.projectForm.content &&
+						/<[^>]+>/.test(this.projectForm.content)
+					) {
 						// If content is HTML (from Quill), store as Markdown
 						importedFromGithub = false
-					} else if (this.projectForm.githubUrl && this.projectForm.content && !/<[^>]+>/.test(this.projectForm.content)) {
+					} else if (
+						this.projectForm.githubUrl &&
+						this.projectForm.content &&
+						!/<[^>]+>/.test(this.projectForm.content)
+					) {
 						importedFromGithub = true
 					}
 
@@ -721,7 +759,12 @@
 			async openNewProjectDialog() {
 				this.resetProjectForm()
 				this.showNewProject = true
-				if (this.editForm.githubUrl || (this.currentUser && this.currentUser.oAuthProviders && this.currentUser.oAuthProviders.some(p => p.provider === 'github'))) {
+				if (
+					this.editForm.githubUrl ||
+					(this.currentUser &&
+						this.currentUser.oAuthProviders &&
+						this.currentUser.oAuthProviders.some(p => p.provider === "github"))
+				) {
 					this.githubRepos = await this.fetchGithubRepos()
 				}
 			},
@@ -825,7 +868,9 @@
 				let githubUsername = ""
 				let token = null
 				if (this.currentUser && this.currentUser.oAuthProviders) {
-					const githubProvider = this.currentUser.oAuthProviders.find(p => p.provider === "github")
+					const githubProvider = this.currentUser.oAuthProviders.find(
+						p => p.provider === "github"
+					)
 					if (githubProvider) {
 						// Fetch username/email from GitHub API using backend or stored token
 						// (Assume backend can proxy this securely if needed)
@@ -843,7 +888,9 @@
 			},
 			async importGithubRepo(repo) {
 				const readmeUrl = `https://api.github.com/repos/${repo.full_name}/readme`
-				const readmeRes = await fetch(readmeUrl, { headers: { Accept: "application/vnd.github.v3.raw" } })
+				const readmeRes = await fetch(readmeUrl, {
+					headers: { Accept: "application/vnd.github.v3.raw" },
+				})
 				const readmeMd = await readmeRes.text()
 				console.log("Readme content:", readmeMd)
 				// Convert Markdown to HTML immediately for backend compatibility
@@ -876,11 +923,9 @@
 				description: [
 					v => !!v || this.$t("validationRequired"),
 					v =>
-						(v && v.length >= 10) ||
-						this.$t("validationDescriptionMinLength"),
+						(v && v.length >= 10) || this.$t("validationDescriptionMinLength"),
 					v =>
-						(v && v.length <= 500) ||
-						this.$t("validationDescriptionMaxLength"),
+						(v && v.length <= 500) || this.$t("validationDescriptionMaxLength"),
 				],
 				type: [v => !!v || this.$t("validationRequired")],
 				githubUrl: [

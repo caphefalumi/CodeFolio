@@ -22,7 +22,9 @@
 			<div v-if="tab === 0">
 				<v-row>
 					<v-col cols="12">
-						<v-btn color="primary" class="mb-4" @click="openUserDialog()">{{ $t("addUser") }}</v-btn>
+						<v-btn color="primary" class="mb-4" @click="openUserDialog()">{{
+							$t("addUser")
+						}}</v-btn>
 						<v-text-field
 							v-model="userSearch"
 							:label="$t('searchUsers')"
@@ -42,21 +44,58 @@
 							role="table"
 						>
 							<template #item.actions="{ item }">
-								<v-btn icon @click="editUser(item)" :aria-label="$t('editUser')"><v-icon>mdi-pencil</v-icon></v-btn>
-								<v-btn icon @click="deleteUser(item)" :aria-label="$t('deleteUser')"><v-icon>mdi-delete</v-icon></v-btn>
+								<v-btn icon @click="editUser(item)" :aria-label="$t('editUser')"
+									><v-icon>mdi-pencil</v-icon></v-btn
+								>
+								<v-btn
+									icon
+									@click="deleteUser(item)"
+									:aria-label="$t('deleteUser')"
+									><v-icon>mdi-delete</v-icon></v-btn
+								>
 							</template>
 						</v-data-table>
 					</v-col>
 				</v-row>
 				<v-dialog v-model="userDialog" max-width="500px">
 					<v-card>
-						<v-card-title>{{ editingUser ? $t("editUser") : $t("addUser") }}</v-card-title>
+						<v-card-title>{{
+							editingUser ? $t("editUser") : $t("addUser")
+						}}</v-card-title>
 						<v-card-text>
-							<v-text-field v-model="userForm.email" :label="$t('email')" required maxlength="255"></v-text-field>
-							<v-text-field v-model="userForm.username" :label="$t('username')" required maxlength="50"></v-text-field>
-							<v-text-field v-model="userForm.firstName" :label="$t('firstName')" required maxlength="50"></v-text-field>
-							<v-text-field v-model="userForm.lastName" :label="$t('lastName')" required maxlength="50"></v-text-field>
-							<v-text-field v-model="userForm.password" :label="$t('password')" :type="showPassword ? 'text' : 'password'" :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append="showPassword = !showPassword" :required="!editingUser" maxlength="128"></v-text-field>
+							<v-text-field
+								v-model="userForm.email"
+								:label="$t('email')"
+								required
+								maxlength="255"
+							></v-text-field>
+							<v-text-field
+								v-model="userForm.username"
+								:label="$t('username')"
+								required
+								maxlength="50"
+							></v-text-field>
+							<v-text-field
+								v-model="userForm.firstName"
+								:label="$t('firstName')"
+								required
+								maxlength="50"
+							></v-text-field>
+							<v-text-field
+								v-model="userForm.lastName"
+								:label="$t('lastName')"
+								required
+								maxlength="50"
+							></v-text-field>
+							<v-text-field
+								v-model="userForm.password"
+								:label="$t('password')"
+								:type="showPassword ? 'text' : 'password'"
+								:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+								@click:append="showPassword = !showPassword"
+								:required="!editingUser"
+								maxlength="128"
+							></v-text-field>
 						</v-card-text>
 						<v-card-actions>
 							<v-btn color="primary" @click="saveUser">{{ $t("save") }}</v-btn>
@@ -70,7 +109,9 @@
 			<div v-else-if="tab === 1">
 				<v-row>
 					<v-col cols="12">
-						<v-btn color="primary" class="mb-4" @click="openPostDialog()">{{ $t("addPost") }}</v-btn>
+						<v-btn color="primary" class="mb-4" @click="openPostDialog()">{{
+							$t("addPost")
+						}}</v-btn>
 						<v-text-field
 							v-model="postSearch"
 							:label="$t('searchPosts')"
@@ -90,21 +131,53 @@
 							role="table"
 						>
 							<template #item.actions="{ item }">
-								<v-btn icon @click="editPost(item)" :aria-label="$t('editPost')"><v-icon>mdi-pencil</v-icon></v-btn>
-								<v-btn icon @click="deletePost(item)" :aria-label="$t('deletePost')"><v-icon>mdi-delete</v-icon></v-btn>
+								<v-btn icon @click="editPost(item)" :aria-label="$t('editPost')"
+									><v-icon>mdi-pencil</v-icon></v-btn
+								>
+								<v-btn
+									icon
+									@click="deletePost(item)"
+									:aria-label="$t('deletePost')"
+									><v-icon>mdi-delete</v-icon></v-btn
+								>
 							</template>
 						</v-data-table>
 					</v-col>
 				</v-row>
 				<v-dialog v-model="postDialog" max-width="600px">
 					<v-card>
-						<v-card-title>{{ editingPost ? $t("editPost") : $t("addPost") }}</v-card-title>
+						<v-card-title>{{
+							editingPost ? $t("editPost") : $t("addPost")
+						}}</v-card-title>
 						<v-card-text>
-							<v-text-field v-model="postForm.title" :label="$t('title')" required maxlength="100" counter></v-text-field>
-							<v-textarea v-model="postForm.description" :label="$t('description')" maxlength="500" counter></v-textarea>
-							<v-text-field v-model="postForm.githubUrl" :label="$t('githubUrl')" maxlength="255"></v-text-field>
-							<v-text-field v-model="postForm.type" :label="$t('type')" maxlength="50"></v-text-field>
-							<v-text-field v-model="postForm.tags" :label="$t('tagsCommaSeparated')" maxlength="200"></v-text-field>
+							<v-text-field
+								v-model="postForm.title"
+								:label="$t('title')"
+								required
+								maxlength="100"
+								counter
+							></v-text-field>
+							<v-textarea
+								v-model="postForm.description"
+								:label="$t('description')"
+								maxlength="500"
+								counter
+							></v-textarea>
+							<v-text-field
+								v-model="postForm.githubUrl"
+								:label="$t('githubUrl')"
+								maxlength="255"
+							></v-text-field>
+							<v-text-field
+								v-model="postForm.type"
+								:label="$t('type')"
+								maxlength="50"
+							></v-text-field>
+							<v-text-field
+								v-model="postForm.tags"
+								:label="$t('tagsCommaSeparated')"
+								maxlength="200"
+							></v-text-field>
 						</v-card-text>
 						<v-card-actions>
 							<v-btn color="primary" @click="savePost">{{ $t("save") }}</v-btn>

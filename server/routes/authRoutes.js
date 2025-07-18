@@ -86,10 +86,10 @@ router.post("/token", async (req, res) => {
 			}
 		)
 		const now = new Date()
-		const formatted = now.toLocaleString('en-US', {
-			hour: '2-digit',
-			minute: '2-digit',
-			hour12: true
+		const formatted = now.toLocaleString("en-US", {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: true,
 		})
 
 		console.log(`${formatted} New access token generated successfully`)
@@ -434,10 +434,7 @@ router.post("/forgot-password-email", async (req, res) => {
 	try {
 		const user = await User.findOne({ email })
 		if (!user) {
-			return res.json({
-				message:
-					"If an account with this email exists, a reset code has been sent.",
-			})
+			return
 		}
 
 		// Generate 6-digit code

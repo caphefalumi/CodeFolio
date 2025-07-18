@@ -12,19 +12,19 @@
 				v-if="!skipEmailStep"
 				:class="['step', { complete: currentStep > 1 }]"
 			>
-				{{ $t('sendResetCode') }}
+				{{ $t("sendResetCode") }}
 			</div>
 			<div v-if="!skipEmailStep" class="step-divider"></div>
 			<div
 				:class="['step', { complete: currentStep > (skipEmailStep ? 1 : 2) }]"
 			>
-				{{ $t('verifyResetCode') }}
+				{{ $t("verifyResetCode") }}
 			</div>
 			<div class="step-divider"></div>
 			<div
 				:class="['step', { complete: currentStep > (skipEmailStep ? 2 : 3) }]"
 			>
-				{{ $t('setNewPassword') }}
+				{{ $t("setNewPassword") }}
 			</div>
 		</div>
 
@@ -238,7 +238,7 @@
 								headers: { Authorization: `Bearer ${token}` },
 							}
 						)
-						this.successMessage = res.data.message
+						this.successMessage = this.$t("resetCodeSent")
 						this.currentStep = 1 // Move to verify code step
 					} else {
 						// Use non-authenticated endpoint for login page
@@ -248,7 +248,7 @@
 								email: this.email,
 							}
 						)
-						this.successMessage = res.data.message
+						this.successMessage = this.$t("resetCodeSent")
 						this.currentStep = 2 // Move to verify code step
 					}
 				} catch (err) {
@@ -373,23 +373,23 @@
 </script>
 
 <style scoped>
-.step {
-	padding: 0.5rem 1rem;
-	border-radius: 8px;
-	background: #f5f5f5;
-	margin: 0 0.25rem;
-	font-weight: 500;
-	color: #888;
-}
-.step.complete {
-	background: #ffe082;
-	color: #333;
-}
-.step-divider {
-	width: 32px;
-	height: 2px;
-	background: #ffe082;
-	margin: 0 0.25rem;
-	align-self: center;
-}
+	.step {
+		padding: 0.5rem 1rem;
+		border-radius: 8px;
+		background: #f5f5f5;
+		margin: 0 0.25rem;
+		font-weight: 500;
+		color: #888;
+	}
+	.step.complete {
+		background: #ffe082;
+		color: #333;
+	}
+	.step-divider {
+		width: 32px;
+		height: 2px;
+		background: #ffe082;
+		margin: 0 0.25rem;
+		align-self: center;
+	}
 </style>

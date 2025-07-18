@@ -1,10 +1,6 @@
 <template>
 	<div class="quill-editor-wrapper">
-		<div
-			ref="quillEditor"
-			:style="editorStyle"
-			class="quill-editor"
-		></div>
+		<div ref="quillEditor" :style="editorStyle" class="quill-editor"></div>
 	</div>
 </template>
 

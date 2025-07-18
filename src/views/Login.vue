@@ -214,9 +214,9 @@
 						if (this.googleLoading) {
 							this.googleLoading = false
 						}
-						window.removeEventListener('focus', onFocus)
+						window.removeEventListener("focus", onFocus)
 					}
-					window.addEventListener('focus', onFocus)
+					window.addEventListener("focus", onFocus)
 				}
 			},
 			handleGithubLogin() {

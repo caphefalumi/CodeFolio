@@ -19,10 +19,7 @@
 			<language-switcher />
 			<v-btn to="/" text>{{ $t("navHome") }}</v-btn>
 			<v-btn to="/projects" text>{{ $t("navProjects") }}</v-btn>
-			<v-btn
-				v-if="isAdmin"
-				to="/admin"
-				text>{{ $t("navAdmin") }}</v-btn>
+			<v-btn v-if="isAdmin" to="/admin" text>{{ $t("navAdmin") }}</v-btn>
 			<v-btn
 				v-if="isAuthenticated"
 				icon
@@ -127,7 +124,6 @@
 					this.user = await fetchCurrentUser()
 					this.username = this.user.username
 					this.avatar = this.user.avatar
-
 
 					console.log("User profile fetched:", this.avatar, this.username)
 					this.loadUnreadCount()
