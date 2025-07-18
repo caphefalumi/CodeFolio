@@ -24,7 +24,35 @@
 					</v-col>
 				</v-row>
 			</section>
-
+			<!-- Overview Section -->
+			<section class="py-16">
+				<v-container>
+					<h2 class="text-h4 font-weight-bold mb-4">{{ $t("homeWhatIsTitle") }}</h2>
+					<p class="text-subtitle-1 mb-8">
+						{{ $t("homeWhatIsDescription") }}
+					</p>
+					<v-row>
+						<v-col cols="12" md="4">
+							<v-card class="pa-4">
+								<h3 class="text-h6 font-weight-bold mb-2">{{ $t("homeFrontendTitle") }}</h3>
+								<p>{{ $t("homeFrontendDesc") }}</p>
+							</v-card>
+						</v-col>
+						<v-col cols="12" md="4">
+							<v-card class="pa-4">
+								<h3 class="text-h6 font-weight-bold mb-2">{{ $t("homeBackendTitle") }}</h3>
+								<p>{{ $t("homeBackendDesc") }}</p>
+							</v-card>
+						</v-col>
+						<v-col cols="12" md="4">
+							<v-card class="pa-4">
+								<h3 class="text-h6 font-weight-bold mb-2">{{ $t("homeSecurityTitle") }}</h3>
+								<p>{{ $t("homeSecurityDesc") }}</p>
+							</v-card>
+						</v-col>
+					</v-row>
+				</v-container>
+			</section>
 			<!-- Featured Projects Section with RecycleScroller -->
 			<section>
 				<v-row class="mt-8">

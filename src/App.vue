@@ -217,7 +217,7 @@
 				const savedTheme = localStorage.getItem("theme")
 				if (!savedTheme) {
 					this.isDark = false
-					this.$vuetify.theme.global.name = "light"
+					this.$vuetify.theme.change("light")
 					localStorage.setItem("theme", "light")
 					return
 				}

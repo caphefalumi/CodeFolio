@@ -12,6 +12,9 @@ export default defineConfig({
 	},
 	server: {
 		port: 3000,
+		hmr: {
+			overlay: false,
+		},
 	},
 	build: {
 		chunkSizeWarningLimit: 1600,
