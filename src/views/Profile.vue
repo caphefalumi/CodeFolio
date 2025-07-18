@@ -233,6 +233,14 @@
 							counter
 							aria-label="Bio - Write a brief description about yourself"
 						></v-textarea>
+						<v-text-field
+							v-model="editForm.githubUrl"
+							:label="$t('githubUrl')"
+							prepend-icon="mdi-github"
+							type="url"
+							maxlength="255"
+							aria-label="Enter your GitHub profile URL"
+						></v-text-field>
 					</app-form>
 				</v-container>
 			</app-dialog>
@@ -317,6 +325,26 @@
 						required
 						aria-label="Select the type of project you are adding"
 					></v-select>
+
+					<v-row class="mb-2">
+						<v-col cols="12">
+							<v-btn color="secondary" variant="outlined" @click="showGithubRepoDialog = true" v-if="editForm.githubUrl || (currentUser && currentUser.oAuthProviders && currentUser.oAuthProviders.some(p => p.provider === 'github'))">
+								Import from GitHub
+							</v-btn>
+						</v-col>
+					</v-row>
+					<app-dialog v-model="showGithubRepoDialog" :title="'Select a GitHub Repository'" max-width="600">
+						<v-list>
+							<v-list-item v-for="repo in githubRepos" :key="repo.id" @click="importGithubRepo(repo)" style="cursor:pointer">
+								<v-list-item-title>{{ repo.name }}</v-list-item-title>
+								<v-list-item-subtitle>{{ repo.description }}</v-list-item-subtitle>
+							</v-list-item>
+						</v-list>
+						<template #actions>
+							<v-spacer></v-spacer>
+							<app-button color="primary" @click="showGithubRepoDialog = false">Close</app-button>
+						</template>
+					</app-dialog>
 				</app-form>
 
 				<template #actions>
@@ -360,21 +388,17 @@
 </template>
 
 <script>
-	import {
-		fetchProfile,
-		fetchProjects,
-		fetchCurrentUser,
-		getAccessToken,
-	} from "@/composables/user.js"
+	import { marked } from "marked"
+	import { getAccessToken, fetchProfile, fetchProjects, fetchCurrentUser } from "@/composables/user.js"
 	import { useApi } from "@/composables/common.js"
 	import axios from "axios"
+	import QuillEditor from "@/components/QuillEditor.vue"
 	// Import reusable components
 	import AppDialog from "@/components/AppDialog.vue"
 	import AppButton from "@/components/AppButton.vue"
 	import AppForm from "@/components/AppForm.vue"
 	import AppAlert from "@/components/AppAlert.vue"
 	import ProjectCard from "@/components/ProjectCard.vue"
-	import QuillEditor from "@/components/QuillEditor.vue"
 	import ForgotPasswordDialog from "@/components/ForgotPasswordDialog.vue"
 	import FollowButton from "@/components/FollowButton.vue"
 	import FollowersDialog from "@/components/FollowersDialog.vue"
@@ -414,6 +438,7 @@
 					avatar: null,
 					avatarPreview: null,
 					username: "",
+					githubUrl: "",
 				},
 				successMessage: "",
 				projectForm: {
@@ -434,6 +459,8 @@
 				projectErrorMessage: "",
 				contentError: "",
 				projectValidationRules: {},
+				showGithubRepoDialog: false,
+				githubRepos: [],
 			}
 		},
 		setup() {
@@ -522,6 +549,8 @@
 					this.editForm.avatar = null
 					this.editForm.avatarPreview = profile.avatar
 					this.editForm.username = profile.username || ""
+					this.editForm.githubUrl = profile.githubUrl || ""
+					console.log(this.editForm.githubUrl, "editForm.githubUrl")
 
 					// 4. Fetch user's projects
 					this.userProjects = await fetchProjects(username)
@@ -592,6 +621,7 @@
 						bio: this.editForm.bio,
 						avatar: avatarUri,
 						username: this.editForm.username,
+						githubUrl: this.editForm.githubUrl,
 					}
 					await this.updateUser(payload, this.accessToken)
 					this.successMessage = this.$t("profileUpdated")
@@ -623,13 +653,22 @@
 				this.loading = true
 				try {
 					let imageUri = this.projectForm.coverImage
-
 					if (imageUri && typeof imageUri === "object") {
 						imageUri = await this.uploadImage(
 							imageUri,
 							`${import.meta.env.VITE_SERVER_URL}/api/upload/image/blog`,
 							this.accessToken
 						)
+					}
+
+					let content = this.projectForm.content
+					let importedFromGithub = false
+					// If importing from GitHub, content is already Markdown
+					if (this.projectForm.githubUrl && this.projectForm.content && /<[^>]+>/.test(this.projectForm.content)) {
+						// If content is HTML (from Quill), store as Markdown
+						importedFromGithub = false
+					} else if (this.projectForm.githubUrl && this.projectForm.content && !/<[^>]+>/.test(this.projectForm.content)) {
+						importedFromGithub = true
 					}
 
 					const payload = {
@@ -640,6 +679,7 @@
 						tags: this.projectForm.tags,
 						githubUrl: this.projectForm.githubUrl,
 						type: this.projectForm.type,
+						importedFromGithub,
 					}
 
 					let result
@@ -655,7 +695,7 @@
 						}
 					} else {
 						result = await this.createPost(payload, this.accessToken)
-						this.userProjects.push(result)
+						this.userProjects.unshift(result) // Add new project to the top
 					}
 
 					this.showNewProject = false
@@ -678,9 +718,12 @@
 				this.showNewProject = true
 			},
 
-			openNewProjectDialog() {
+			async openNewProjectDialog() {
 				this.resetProjectForm()
 				this.showNewProject = true
+				if (this.editForm.githubUrl || (this.currentUser && this.currentUser.oAuthProviders && this.currentUser.oAuthProviders.some(p => p.provider === 'github'))) {
+					this.githubRepos = await this.fetchGithubRepos()
+				}
 			},
 
 			closeProjectDialog() {
@@ -776,20 +819,54 @@
 					return false
 				}
 			},
+
+			async fetchGithubRepos() {
+				// 1. Try to get OAuth token and username
+				let githubUsername = ""
+				let token = null
+				if (this.currentUser && this.currentUser.oAuthProviders) {
+					const githubProvider = this.currentUser.oAuthProviders.find(p => p.provider === "github")
+					if (githubProvider) {
+						// Fetch username/email from GitHub API using backend or stored token
+						// (Assume backend can proxy this securely if needed)
+						// For now, fallback to githubUrl
+					}
+				}
+				if (!githubUsername && this.editForm.githubUrl) {
+					const match = this.editForm.githubUrl.match(/github.com\/(\w+)/)
+					if (match) githubUsername = match[1]
+				}
+				if (!githubUsername) return []
+				const url = `https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`
+				const res = await fetch(url)
+				return await res.json()
+			},
+			async importGithubRepo(repo) {
+				const readmeUrl = `https://api.github.com/repos/${repo.full_name}/readme`
+				const readmeRes = await fetch(readmeUrl, { headers: { Accept: "application/vnd.github.v3.raw" } })
+				const readmeMd = await readmeRes.text()
+				console.log("Readme content:", readmeMd)
+				// Convert Markdown to HTML immediately for backend compatibility
+				this.projectForm.title = repo.name
+				this.projectForm.description = repo.description || ""
+				this.projectForm.content = marked.parse(readmeMd)
+				this.projectForm.githubUrl = repo.html_url
+				this.showGithubRepoDialog = false // Close the dialog after import
+			},
 		},
 
 		mounted() {
 			this.projectTypes = [
-				this.$t("Web Development"),
-				this.$t("Mobile App"),
-				this.$t("API Development"),
-				this.$t("Game"),
-				this.$t("Design"),
-				this.$t("Data Science"),
-				this.$t("Machine Learning"),
-				this.$t("DevOps"),
-				this.$t("Other"),
-			] // Initialize validation rules
+				"Web Development",
+				"Mobile App",
+				"API Development",
+				"Game",
+				"Design",
+				"Data Science",
+				"Machine Learning",
+				"DevOps",
+				"Other",
+			]
 			this.projectValidationRules = {
 				title: [
 					v => !!v || this.$t("validationRequired"),

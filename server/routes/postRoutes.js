@@ -6,6 +6,7 @@ import Post from "../models/Post.js"
 import User from "../models/User.js"
 import { extractMentions, notifyMentionedUsers } from "../utils/mentions.js"
 import { isAuthorizedUser } from "../utils/adminCheck.js"
+import { NodeHtmlMarkdown } from "node-html-markdown"
 
 const router = express.Router()
 const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
@@ -13,7 +14,14 @@ const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 // 🔹 Create a post
 router.post("/", authenticateToken, async (req, res) => {
 	try {
-		const post = new Post({ ...req.body, author: req.user.id })
+		let content = req.body.content
+		// Always store as HTML: if not imported from GitHub and content is NOT already HTML, convert Markdown to HTML
+		if (!req.body.importedFromGithub && content && !/<[^>]+>/.test(content)) {
+			// Convert Markdown to HTML using marked
+			const { marked } = await import("marked")
+			content = marked.parse(content)
+		}
+		const post = new Post({ ...req.body, content, author: req.user.id })
 		await post.save()
 
 		// Get current user for notifications
@@ -137,7 +145,13 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 				.json({ message: "Not authorized to update this post" })
 		}
 
-		Object.assign(post, req.body)
+		let content = req.body.content
+		// Always store as HTML: if not imported from GitHub and content is NOT already HTML, convert Markdown to HTML
+		if (!req.body.importedFromGithub && content && !/<[^>]+>/.test(content)) {
+			const { marked } = await import("marked")
+			content = marked.parse(content)
+		}
+		Object.assign(post, { ...req.body, content })
 		await post.save()
 
 		res.json({ message: "Post updated successfully", post })
@@ -383,7 +397,7 @@ router.post("/:id/downvote", authenticateToken, async (req, res) => {
 })
 
 // 🔹 Edit a comment
-router.put("/:id/comments/:commentId", authenticateToken, async (req, res) => {
+router.patch("/:id/comments/:commentId", authenticateToken, async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
 		if (!post) return res.status(404).json({ message: "Post not found" })
@@ -434,7 +448,7 @@ router.put("/:id/comments/:commentId", authenticateToken, async (req, res) => {
 })
 
 // 🔹 Edit a reply
-router.put(
+router.patch(
 	"/:id/comments/:commentId/replies/:replyId",
 	authenticateToken,
 	async (req, res) => {

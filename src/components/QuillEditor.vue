@@ -2,7 +2,6 @@
 	<div class="quill-editor-wrapper">
 		<div
 			ref="quillEditor"
-			:id="editorId"
 			:style="editorStyle"
 			class="quill-editor"
 		></div>
@@ -60,9 +59,6 @@
 			}
 		},
 		computed: {
-			editorId() {
-				return `quill-editor-${this._uid || Math.random().toString(36).substr(2, 9)}`
-			},
 			editorStyle() {
 				return {
 					minHeight: this.minHeight,

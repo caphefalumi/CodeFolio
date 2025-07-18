@@ -423,7 +423,7 @@
 						? `${import.meta.env.VITE_SERVER_URL}/api/posts/${this.postId}/comments/${this.parentCommentId}/replies/${this.comment._id}`
 						: `${import.meta.env.VITE_SERVER_URL}/api/posts/${this.postId}/comments/${this.comment._id}`
 
-					await axios.put(
+					await axios.patch(
 						endpoint,
 						{ content: this.editContent },
 						{ headers: { Authorization: `Bearer ${token}` } }

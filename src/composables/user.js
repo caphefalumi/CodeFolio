@@ -27,6 +27,7 @@ export async function fetchProfile(username) {
 		const res = await axios.get(
 			`${import.meta.env.VITE_SERVER_URL}/api/users/${username}`
 		)
+		console.log(`Fetched profile for user "${username}":`, res.data)
 		return res.data
 	} catch (error) {
 		console.error(`Error fetching profile for user "${username}":`, error)

@@ -19,55 +19,70 @@
 							@submit="handleRegister"
 						>
 							<v-row>
-								<v-col cols="6"
-									><v-text-field
+								<v-col cols="6">
+									<v-text-field
 										v-model="form.firstName"
 										:label="$t('firstName')"
-										type="text"
+										id="register-first-name"
+										:type="text"
 										required
 										:rules="[rules.required, rules.name]"
 										autocomplete="given-name"
 										maxlength="50"
-									></v-text-field
-								></v-col>
-								<v-col cols="6"
-									><v-text-field
+										aria-required="true"
+										aria-labelledby="register-first-name-label"
+									></v-text-field>
+								</v-col>
+								<v-col cols="6">
+									<v-text-field
 										v-model="form.lastName"
 										:label="$t('lastName')"
-										type="text"
+										id="register-last-name"
+										:type="text"
 										required
 										:rules="[rules.required, rules.name]"
 										autocomplete="family-name"
 										maxlength="50"
-									></v-text-field
-								></v-col>
+										aria-required="true"
+										aria-labelledby="register-last-name-label"
+									></v-text-field>
+								</v-col>
 							</v-row>
 							<v-text-field
 								v-model="form.email"
 								:label="$t('email')"
+								id="register-email"
 								type="email"
 								required
 								:rules="[rules.required, rules.email]"
 								autocomplete="email"
 								maxlength="255"
+								aria-required="true"
+								aria-labelledby="register-email-label"
 							></v-text-field>
 							<v-text-field
 								v-model="form.username"
 								:label="$t('username')"
+								id="register-username"
 								type="text"
 								required
 								:rules="[rules.required, rules.username]"
 								autocomplete="username"
 								maxlength="50"
+								aria-required="true"
+								aria-labelledby="register-username-label"
 							></v-text-field>
 							<v-text-field
 								v-model="form.password"
 								:label="$t('password')"
+								id="register-password"
 								type="password"
 								required
 								:rules="[rules.required, rules.password]"
 								autocomplete="new-password"
 								maxlength="128"
+								aria-required="true"
+								aria-labelledby="register-password-label"
 							></v-text-field>
 						</app-form>
 						<div class="mt-4 text-center">

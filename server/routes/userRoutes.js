@@ -103,6 +103,7 @@ router.get("/:username", async (req, res) => {
 			followersCount: user.followersCount,
 			followingCount: user.followingCount,
 			createdAt: user.createdAt,
+			githubUrl: user.githubUrl,
 		}
 		res.status(200).json(userData)
 	} catch (error) {

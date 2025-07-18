@@ -340,6 +340,7 @@ router.get("/login/github/callback", async (req, res) => {
 				password: crypto.randomBytes(128).toString("hex"),
 				avatar: avatar,
 				oAuthProviders: [{ provider: "github", providerId: userProfile.id }],
+				githubUrl: userProfile.html_url || `https://github.com/${username}`,
 			})
 		} else {
 			const exists = user.oAuthProviders.some(
@@ -350,6 +351,10 @@ router.get("/login/github/callback", async (req, res) => {
 					provider: "github",
 					providerId: String(userProfile.id),
 				})
+			}
+			// Always update githubUrl if missing or changed
+			if (!user.githubUrl || user.githubUrl !== userProfile.html_url) {
+				user.githubUrl = userProfile.html_url
 			}
 		}
 		const accessToken = jwt.sign(

@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"app": "concurrently \"bun run server\" \"bun run dev\" ",
+		"app": "concurrently \"bun run server\" \"vite\" ",
 		"dev": "vite --host",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -23,6 +23,8 @@
 		"core-js": "^3.44.0",
 		"dotenv": "^17.2.0",
 		"lodash-es": "^4.17.21",
+		"markdown-it": "^14.1.0",
+		"marked": "^16.1.0",
 		"quill": "^2.0.3",
 		"vue": "^3.5.17",
 		"vue-i18n": "^11.1.10",

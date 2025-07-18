@@ -38,10 +38,12 @@
 							item-key="_id"
 							class="elevation-1"
 							:items-per-page="10"
+							aria-label="User list"
+							role="table"
 						>
 							<template #item.actions="{ item }">
-								<v-btn icon @click="editUser(item)"><v-icon>mdi-pencil</v-icon></v-btn>
-								<v-btn icon @click="deleteUser(item)"><v-icon>mdi-delete</v-icon></v-btn>
+								<v-btn icon @click="editUser(item)" :aria-label="$t('editUser')"><v-icon>mdi-pencil</v-icon></v-btn>
+								<v-btn icon @click="deleteUser(item)" :aria-label="$t('deleteUser')"><v-icon>mdi-delete</v-icon></v-btn>
 							</template>
 						</v-data-table>
 					</v-col>
@@ -84,10 +86,12 @@
 							item-key="_id"
 							class="elevation-1"
 							:items-per-page="10"
+							aria-label="Post list"
+							role="table"
 						>
 							<template #item.actions="{ item }">
-								<v-btn icon @click="editPost(item)"><v-icon>mdi-pencil</v-icon></v-btn>
-								<v-btn icon @click="deletePost(item)"><v-icon>mdi-delete</v-icon></v-btn>
+								<v-btn icon @click="editPost(item)" :aria-label="$t('editPost')"><v-icon>mdi-pencil</v-icon></v-btn>
+								<v-btn icon @click="deletePost(item)" :aria-label="$t('deletePost')"><v-icon>mdi-delete</v-icon></v-btn>
 							</template>
 						</v-data-table>
 					</v-col>

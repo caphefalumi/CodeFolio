@@ -12,8 +12,15 @@
 						<v-card>
 							<v-img
 								:src="project.image"
-								height="400"
-								cover
+								height="auto"
+								max-height="400"
+								style="
+									object-fit: contain;
+									width: 100%;
+									max-width: 100%;
+									max-height: 400px;
+									background: #f5f5f5;
+								"
 								:alt="`${project.title} project cover image`"
 							></v-img>
 							<v-card-title class="text-h3 pa-0">
@@ -106,11 +113,11 @@
 				<v-col cols="12" v-if="project.content">
 					<section aria-labelledby="project-content-heading">
 						<v-card>
-							<v-card-title
-								><h2 id="project-content-heading">
+							<v-card-title>
+								<h2 id="project-content-heading">
 									{{ $t("projectContent") }}
-								</h2></v-card-title
-							>
+								</h2>
+							</v-card-title>
 							<v-card-text>
 								<div class="project-content" v-html="project.content"></div>
 							</v-card-text>
@@ -610,83 +617,87 @@
 		},
 	}
 </script>
-
 <style scoped>
-	.fade-banner {
-		opacity: 1;
-		transition: opacity 1s;
-	}
-	.fade-banner[style*="display: none"] {
-		opacity: 0;
-	}
-	.auth-banner-fixed {
-		position: fixed;
-		top: 80px;
-		left: 50%;
-		transform: translateX(-50%);
-		min-width: 320px;
-		max-width: 90vw;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-		pointer-events: none;
-	}
+.fade-banner {
+	opacity: 1;
+	transition: opacity 1s;
+}
+.fade-banner[style*="display: none"] {
+	opacity: 0;
+}
+.auth-banner-fixed {
+	position: fixed;
+	top: 80px;
+	left: 50%;
+	transform: translateX(-50%);
+	min-width: 320px;
+	max-width: 90vw;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	pointer-events: none;
+}
 
-	.project-content {
-		line-height: 1.6;
-		font-family: inherit;
-	}
+.project-content {
+	line-height: 1.6;
+	font-family: inherit;
+}
 
-	.project-content h1,
-	.project-content h2,
-	.project-content h3 {
-		margin-top: 1.5em;
-		margin-bottom: 0.5em;
-		font-weight: 600;
-	}
+.project-content h1,
+.project-content h2,
+.project-content h3 {
+	margin-top: 1.5em;
+	margin-bottom: 0.5em;
+	font-weight: 600;
+}
 
-	.project-content p {
-		margin-bottom: 1em;
-	}
+.project-content p {
+	margin-bottom: 1em;
+}
 
-	.project-content ul,
-	.project-content ol {
-		margin-bottom: 1em;
-		padding-left: 1.5em;
-	}
+.project-content ul,
+.project-content ol {
+	margin-bottom: 1em;
+	padding-left: 1.5em;
+}
 
-	.project-content blockquote {
-		border-left: 4px solid #e0e0e0;
-		padding-left: 1em;
-		margin: 1em 0;
-		font-style: italic;
-		color: #666;
-	}
+.project-content blockquote {
+	border-left: 4px solid #e0e0e0;
+	padding-left: 1em;
+	margin: 1em 0;
+	font-style: italic;
+	color: #666;
+}
 
-	.project-content pre {
-		background-color: #f5f5f5;
-		padding: 1em;
-		border-radius: 4px;
-		overflow-x: auto;
-		margin: 1em 0;
-	}
+.project-content pre {
+	background-color: #f5f5f5;
+	padding: 1em;
+	border-radius: 4px;
+	overflow-x: auto;
+	margin: 1em 0;
+}
 
-	.project-content code {
-		background-color: #f5f5f5;
-		padding: 0.2em 0.4em;
-		border-radius: 3px;
-		font-family: "Courier New", monospace;
-	}
+.project-content code {
+	background-color: #f5f5f5;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-family: "Courier New", monospace;
+}
 
-	.project-content img {
-		max-width: 100%;
-		height: auto;
-		margin: 1em 0;
-	}
+:deep(.project-content img) {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 1.5em auto;
+  object-fit: contain;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
 
-	.project-title-responsive {
-		padding-left: 2%;
-		word-break: break-word;
-		white-space: normal;
-		overflow-wrap: break-word;
-		max-width: 100%;
-	}
+
+.project-title-responsive {
+	padding-left: 2%;
+	word-break: break-word;
+	white-space: normal;
+	overflow-wrap: break-word;
+	max-width: 100%;
+}
 </style>

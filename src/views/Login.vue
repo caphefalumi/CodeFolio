@@ -208,6 +208,15 @@
 							this.googleLoading = false
 						}
 					}, 10000) // 10 second timeout
+
+					// Listen for window focus to detect if popup was closed
+					const onFocus = () => {
+						if (this.googleLoading) {
+							this.googleLoading = false
+						}
+						window.removeEventListener('focus', onFocus)
+					}
+					window.addEventListener('focus', onFocus)
 				}
 			},
 			handleGithubLogin() {
