@@ -120,11 +120,11 @@
 	"getStarted": "Get Started",
 	"featuredProjects": "Featured Projects",
 	"homeWhatIsTitle": "What is CodeFolio?",
-	"homeWhatIsDescription": "CodeFolio is a full-stack portfolio and social platform for developers and creators. Built using the MEVN stack (MongoDB, Express, Vue 3, Node.js), it allows users to showcase projects, receive feedback, and interact with a like-minded community. It includes multi-modal authentication, real-time features, rich project pages, a nested comment system, and strong security.",
+	"homeWhatIsDescription": "CodeFolio is a full-stack portfolio and social platform for developers and creators. Built using the MEVN stack (MongoDB, Express, Vue 3, Bun), it allows users to showcase projects, receive feedback, and interact with a like-minded community. It includes multi-modal authentication, real-time features, rich project pages, a nested comment system, and strong security.",
 	"homeFrontendTitle": "Frontend",
 	"homeFrontendDesc": "Vue 3, Composition API, Vuetify, Vite, SPA Routing",
 	"homeBackendTitle": "Backend",
-	"homeBackendDesc": "Node.js, Express, MongoDB, Mongoose, RESTful API",
+	"homeBackendDesc": "Bun, Express, MongoDB, Mongoose, RESTful API",
 	"homeSecurityTitle": "Security",
 	"homeSecurityDesc": "OAuth, JWT RS256, Encrypted keys, Secure cookies",
 

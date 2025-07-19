@@ -6,6 +6,12 @@
 	"author": "",
 	"main": "server.js",
 	"type": "module",
+	"scripts": {
+		"server": " bun --watch --no-clear-screen server.js",
+		"server:prod": "bun server.js",
+		"seed": "bun seedDatabase.js",
+		"seed:clear": "bun seedDatabase.js --clear"
+	},
 	"dependencies": {
 		"axios": "^1.10.0",
 		"bcrypt": "^6.0.0",
@@ -30,11 +36,5 @@
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^9.9.0"
-	},
-	"scripts": {
-		"server": "nodemon server.js",
-		"server:prod": "node server.js",
-		"seed": "node seedDatabase.js",
-		"seed:clear": "node seedDatabase.js --clear"
 	}
 }

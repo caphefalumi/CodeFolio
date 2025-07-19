@@ -217,11 +217,11 @@
 	"reply": "Trả lời",
 
 	"homeWhatIsTitle": "CodeFolio là gì?",
-	"homeWhatIsDescription": "CodeFolio là nền tảng portfolio và mạng xã hội toàn diện cho lập trình viên và nhà sáng tạo. Được xây dựng với MEVN stack (MongoDB, Express, Vue 3, Node.js), nền tảng cho phép người dùng trưng bày dự án, nhận phản hồi và kết nối với cộng đồng cùng chí hướng. Hệ thống hỗ trợ xác thực đa phương thức, tính năng thời gian thực, trang dự án phong phú, hệ thống bình luận lồng nhau và bảo mật mạnh mẽ.",
+	"homeWhatIsDescription": "CodeFolio là nền tảng portfolio và mạng xã hội toàn diện cho lập trình viên và nhà sáng tạo. Được xây dựng với MEVN stack (MongoDB, Express, Vue 3, Bun), nền tảng cho phép người dùng trưng bày dự án, nhận phản hồi và kết nối với cộng đồng cùng chí hướng. Hệ thống hỗ trợ xác thực đa phương thức, tính năng thời gian thực, trang dự án phong phú, hệ thống bình luận lồng nhau và bảo mật mạnh mẽ.",
 	"homeFrontendTitle": "Giao diện người dùng",
 	"homeFrontendDesc": "Vue 3, Composition API, Vuetify, Vite, SPA Routing",
 	"homeBackendTitle": "Backend",
-	"homeBackendDesc": "Node.js, Express, MongoDB, Mongoose, RESTful API",
+	"homeBackendDesc": "Bun, Express, MongoDB, Mongoose, RESTful API",
 	"homeSecurityTitle": "Bảo mật",
 	"homeSecurityDesc": "OAuth, JWT RS256, Khóa mã hóa, Cookie bảo mật"
 }

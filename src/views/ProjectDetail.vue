@@ -660,6 +660,7 @@
 	}
 
 	.project-content blockquote {
+		padding: 6px 6px;
 		border-left: 4px solid #e0e0e0;
 		padding-left: 1em;
 		margin: 1em 0;

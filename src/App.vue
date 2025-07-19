@@ -7,47 +7,76 @@
 				</router-link>
 			</v-app-bar-title>
 			<v-spacer></v-spacer>
-			<v-btn
-				icon
-				@click="toggleTheme"
-				:aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-			>
-				<v-icon>{{
-					isDark ? "mdi-weather-night" : "mdi-weather-sunny"
-				}}</v-icon>
-			</v-btn>
-			<language-switcher />
-			<v-btn to="/" text>{{ $t("navHome") }}</v-btn>
-			<v-btn to="/projects" text>{{ $t("navProjects") }}</v-btn>
-			<v-btn v-if="isAdmin" to="/admin" text>{{ $t("navAdmin") }}</v-btn>
-			<v-btn
-				v-if="isAuthenticated"
-				icon
-				@click="toggleNotifications"
-				:aria-label="`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`"
-				id="notification-trigger"
-			>
-				<v-badge
-					:content="unreadCount"
-					:value="unreadCount > 0"
-					color="error"
-					overlap
-				>
-					<v-icon>mdi-bell{{ unreadCount > 0 ? "" : "-outline" }}</v-icon>
-				</v-badge>
-			</v-btn>
+			<v-tooltip text="Switch theme" location="bottom">
+				<template #activator="{ props }">
+					<v-btn
+						icon
+						@click="toggleTheme"
+						:aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
+						v-bind="props"
+					>
+						<v-icon>{{
+							isDark ? "mdi-weather-night" : "mdi-weather-sunny"
+						}}</v-icon>
+					</v-btn>
+				</template>
+			</v-tooltip>
+			<v-tooltip text="Change language" location="bottom">
+				<template #activator="{ props }">
+					<language-switcher v-bind="props" />
+				</template>
+			</v-tooltip>
+			<v-tooltip text="Home" location="bottom">
+				<template #activator="{ props }">
+					<v-btn to="/" text v-bind="props">{{ $t("navHome") }}</v-btn>
+				</template>
+			</v-tooltip>
+			<v-tooltip text="Projects" location="bottom">
+				<template #activator="{ props }">
+					<v-btn to="/projects" text v-bind="props">{{ $t("navProjects") }}</v-btn>
+				</template>
+			</v-tooltip>
+			<v-tooltip v-if="isAdmin" text="Admin" location="bottom">
+				<template #activator="{ props }">
+					<v-btn to="/admin" text v-bind="props">{{ $t("navAdmin") }}</v-btn>
+				</template>
+			</v-tooltip>
+			<v-tooltip v-if="isAuthenticated" text="Notifications" location="bottom">
+				<template #activator="{ props }">
+					<v-btn
+						icon
+						@click="toggleNotifications"
+						:aria-label="`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`"
+						id="notification-trigger"
+						v-bind="props"
+					>
+						<v-badge
+							:content="unreadCount"
+							:value="unreadCount > 0"
+							color="error"
+							overlap
+						>
+							<v-icon>mdi-bell{{ unreadCount > 0 ? "" : "-outline" }}</v-icon>
+						</v-badge>
+					</v-btn>
+				</template>
+			</v-tooltip>
 			<v-menu v-if="isAuthenticated" offset-y>
 				<template #activator="{ props }">
-					<v-btn icon v-bind="props" :aria-label="`User menu for ${username}`">
-						<v-avatar size="32" v-if="avatar">
-							<v-img
-								:src="avatar"
-								:alt="`${username} profile picture`"
-								cover
-							></v-img>
-						</v-avatar>
-						<v-avatar v-else size="32" class="bg-grey lighten-2"></v-avatar>
-					</v-btn>
+					<v-tooltip text="User menu" location="bottom">
+						<template #activator="{ props: tooltipProps }">
+							<v-btn icon v-bind="{...props, ...tooltipProps}" :aria-label="`User menu for ${username}`">
+								<v-avatar size="32" v-if="avatar">
+									<v-img
+										:src="avatar"
+										:alt="`${username} profile picture`"
+										cover
+									></v-img>
+								</v-avatar>
+								<v-avatar v-else size="32" class="bg-grey lighten-2"></v-avatar>
+							</v-btn>
+						</template>
+					</v-tooltip>
 				</template>
 				<v-list role="menu">
 					<v-list-item :to="`/${username}`" role="menuitem">
@@ -58,7 +87,11 @@
 					</v-list-item>
 				</v-list>
 			</v-menu>
-			<v-btn v-else to="/login" text>{{ $t("navLogin") }}</v-btn>
+			<v-tooltip v-else text="Login" location="bottom">
+				<template #activator="{ props }">
+					<v-btn to="/login" text v-bind="props">{{ $t("navLogin") }}</v-btn>
+				</template>
+			</v-tooltip>
 		</v-app-bar>
 
 		<!-- Notification Dropdown Positioned Outside App Bar -->
@@ -189,11 +222,11 @@
 			},
 
 			startTokenRefreshTimer() {
-				this.stopTokenRefreshTimer() // clear any existing interval
+				this.stopTokenRefreshTimer()
 				this.tokenRefreshInterval = setInterval(() => {
 					console.log("Auto refreshing token...")
-					this.getNewToken(true) // silent refresh
-				}, 840000) //14 minuetes
+					this.getNewToken(true)
+				}, 800000)
 			},
 
 			stopTokenRefreshTimer() {
