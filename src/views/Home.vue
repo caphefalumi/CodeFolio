@@ -21,6 +21,9 @@
 							to="/login"
 							>{{ $t("getStarted") }}</v-btn
 						>
+						<v-btn color="secondary" size="large" @click="startTour" class="ml-2">
+							Start Guided Tour
+						</v-btn>
 					</v-col>
 				</v-row>
 			</section>
@@ -105,6 +108,7 @@
 	import axios from "axios"
 	import { RecycleScroller } from "vue-virtual-scroller"
 	import { isLoggedIn } from "@/composables/user"
+	import { startAppTour } from '@/tour.js'
 	import "vue-virtual-scroller/dist/vue-virtual-scroller.css"
 
 	export default {
@@ -126,6 +130,11 @@
 				.catch(error => {
 					console.error("Error fetching featured projects:", error)
 				})
+		},
+		methods: {
+			startTour() {
+				startAppTour(this.$router)
+			},
 		},
 	}
 </script>

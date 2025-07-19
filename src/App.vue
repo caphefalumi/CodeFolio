@@ -157,8 +157,6 @@
 					this.user = await fetchCurrentUser()
 					this.username = this.user.username
 					this.avatar = this.user.avatar
-
-					console.log("User profile fetched:", this.avatar, this.username)
 					this.loadUnreadCount()
 				} catch (error) {
 					console.error("Error fetching user profile:", error)
@@ -166,7 +164,6 @@
 			},
 
 			fetchToken() {
-				console.log("Checking for access token in sessionStorage...")
 				const token = sessionStorage.getItem("accessToken")
 				if (token) {
 					axios
@@ -182,14 +179,11 @@
 								this.isAuthenticated = true
 								this.fetchProfile()
 								this.startTokenRefreshTimer()
-								console.log("Token is valid:", token)
 							} else {
-								console.warn("Token is invalid, fetching new token...")
 								this.getNewToken()
 							}
 						})
 						.catch(error => {
-							console.error("Error validating token:", error)
 							this.getNewToken()
 						})
 					return

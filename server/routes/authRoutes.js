@@ -51,11 +51,15 @@ router.post("/token", async (req, res) => {
 			return res.sendStatus(403)
 		}
 
-		const user = await User.findOne({ refreshToken })
+		const user = await User.findOne({ "refreshTokens.token": refreshToken })
 		if (!user) {
-			console.log("No user found with this refresh token")
 			return res.sendStatus(403)
 		}
+		const tokenIndex = user.refreshTokens.findIndex(rt => rt.token === refreshToken)
+		if (tokenIndex === -1) {
+			return res.sendStatus(403)
+		}
+
 
 		console.log("User found:", user.username)
 
@@ -67,7 +71,8 @@ router.post("/token", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		user.refreshToken = newRefreshToken
+		user.refreshTokens[tokenIndex].token = newRefreshToken
+		user.refreshTokens[tokenIndex].createdAt = Date.now()
 		await user.save()
 
 		res.cookie("refreshToken", newRefreshToken, {
@@ -180,7 +185,10 @@ router.post("/login/jwt", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		user.refreshToken = refreshToken
+		user.refreshTokens.push({
+			token: refreshToken,
+			device: req.headers["user-agent"] || "Unknown Device",
+		})
 		await user.save()
 
 		res.cookie("refreshToken", refreshToken, {
@@ -253,7 +261,7 @@ router.post("/login/google", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		user.refreshToken = refreshToken
+		user.refreshTokens.push({ token: refreshToken, device: req.headers["user-agent"] || "Unknown Device" })
 		await user.save()
 
 		res.cookie("refreshToken", refreshToken, {
@@ -373,7 +381,7 @@ router.get("/login/github/callback", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		user.refreshToken = refreshToken
+		user.refreshTokens.push({ token: refreshToken, device: req.headers["user-agent"] || "Unknown Device" })
 		await user.save()
 
 		res.cookie("refreshToken", refreshToken, {
@@ -406,10 +414,12 @@ router.post("/logout", async (req, res) => {
 		return res.sendStatus(204)
 	}
 	try {
-		const user = await User.findOne({ refreshToken })
+		const user = await User.findOne({ "refreshTokens.token": refreshToken })
 		if (!user) return res.sendStatus(204)
 
-		user.refreshToken = null
+		user.refreshTokens = user.refreshTokens.filter(
+			rt => rt.token !== refreshToken
+		)
 		await user.save()
 
 		res.clearCookie("refreshToken", {

@@ -96,6 +96,17 @@
 								:initial-following="userProfile.isFollowing"
 								@follow-changed="handleFollowChanged"
 							/>
+							<v-btn
+								v-if="isOwner"
+								color="success"
+								variant="outlined"
+								class="ml-2"
+								@click="exportProfileAsPDF"
+								aria-label="Export your profile as PDF"
+							>
+								<v-icon left aria-hidden="true">mdi-file-pdf-box</v-icon>
+								Export as PDF
+							</v-btn>
 						</div>
 					</v-col>
 				</v-row>
@@ -410,6 +421,34 @@
 			/>
 		</v-container>
 	</v-theme-provider>
+
+	<!-- Hidden printable CV template for PDF export -->
+	<div id="profile-cv-pdf" ref="cvPdf" style="display: none; color: #000; background: #fff; font-family: sans-serif;">
+		<div style="text-align: center; margin-bottom: 24px;">
+			<img
+			:src="userProfile.avatar"
+			alt="Avatar"
+			style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;"
+			/>
+			<h2 style="margin: 16px 0 4px 0; color: #000;">
+			{{ userProfile.firstName }} {{ userProfile.lastName }}
+			</h2>
+			<div style="color: #666; font-size: 14px; margin-bottom: 8px;">
+			@{{ userProfile.username }}
+			</div>
+			<div style="font-size: 15px; margin-bottom: 12px; color: #000;">
+			{{ userProfile.bio }}
+			</div>
+			<div v-if="userProfile.email" style="font-size: 13px; margin-bottom: 8px; color: #000;">
+			📧 {{ userProfile.email }}
+			</div>
+			<div v-if="userProfile.githubUrl" style="font-size: 13px; margin-bottom: 8px; color: #000;">
+			🐙 GitHub: {{ userProfile.githubUrl }}
+			</div>
+		</div>
+	</div>
+
+
 </template>
 
 <script>
@@ -423,6 +462,7 @@
 	import { useApi } from "@/composables/common.js"
 	import axios from "axios"
 	import QuillEditor from "@/components/QuillEditor.vue"
+	import html2pdf from "html2pdf.js"
 	// Import reusable components
 	import AppDialog from "@/components/AppDialog.vue"
 	import AppButton from "@/components/AppButton.vue"
@@ -580,7 +620,6 @@
 					this.editForm.avatarPreview = profile.avatar
 					this.editForm.username = profile.username || ""
 					this.editForm.githubUrl = profile.githubUrl || ""
-					console.log(this.editForm.githubUrl, "editForm.githubUrl")
 
 					// 4. Fetch user's projects
 					this.userProjects = await fetchProjects(username)
@@ -831,6 +870,28 @@
 				this.userProfile.isFollowing = isFollowing
 			},
 
+			exportProfileAsPDF() {
+				// Use the hidden CV div for PDF export
+				const cvDiv = this.$refs.cvPdf
+				if (!cvDiv) return
+				const prevDisplay = cvDiv.style.display
+				cvDiv.style.display = 'block'
+				const opt = {
+					margin: 0.5,
+					filename: `${this.userProfile.username || 'profile'}.pdf`,
+					image: { type: 'jpeg', quality: 0.98 },
+					html2canvas: { scale: 2 },
+					jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+				}
+				html2pdf().set(opt).from(cvDiv).save().then(() => {
+					cvDiv.style.display = prevDisplay
+				}).catch(err => {
+					console.error("PDF export failed:", err)
+					this.errorMessage = this.$t("pdfExportFailed")
+					cvDiv.style.display = prevDisplay
+				})
+			},
+
 			// Validation helper methods
 			validateProjectForm() {
 				let isValid = true
@@ -969,4 +1030,15 @@
 	.project-card:hover {
 		box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
 	}
+
+	/* PDF export styles */
+	#profile-cv-pdf, #profile-cv-pdf * {
+		color: #222 !important;
+		background: #fff !important;
+		box-shadow: none !important;
+	}
+	#profile-cv-pdf h2, #profile-cv-pdf h3 {
+		color: #111 !important;
+	}
+	#profile-cv-pdf a { color: #1a0dab !important; }
 </style>
