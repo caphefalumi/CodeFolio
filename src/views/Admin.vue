@@ -12,19 +12,24 @@
 		<!-- Show admin dashboard for authorized users -->
 		<v-container v-else>
 			<h1 class="text-h4 mb-6">{{ $t("adminTitle") }}</h1>
-			<v-tabs v-model="tab" @update:model-value="onTabChange">
-				<v-tab>{{ $t("adminUsers") }}</v-tab>
-				<v-tab>{{ $t("adminPosts") }}</v-tab>
-				<v-tab>{{ $t("adminAnalytics") }}</v-tab>
+			<v-tabs v-model="tab" @update:model-value="onTabChange" id="admin-tabs">
+				<v-tab id="tour-step-admin-tab-users">{{ $t("adminUsers") }}</v-tab>
+				<v-tab id="tour-step-admin-tab-posts">{{ $t("adminPosts") }}</v-tab>
+				<v-tab id="tour-step-admin-tab-analytics">{{ $t("adminAnalytics") }}</v-tab>
 			</v-tabs>
 
 			<!-- Users Tab -->
 			<div v-if="tab === 0">
 				<v-row>
 					<v-col cols="12">
-						<v-btn color="primary" class="mb-4" @click="openUserDialog()">{{
-							$t("addUser")
-						}}</v-btn>
+						<v-btn
+							id="tour-step-admin-nav"
+							color="primary"
+							class="mb-4"
+							@click="openUserDialog()"
+						>
+							{{ $t("addUser") }}
+						</v-btn>
 						<v-text-field
 							v-model="userSearch"
 							:label="$t('searchUsers')"

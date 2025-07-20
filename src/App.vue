@@ -1,7 +1,7 @@
 <template>
 	<v-app>
 		<v-app-bar app color="primary" dark role="banner" id="navigation">
-			<v-app-bar-title>
+			<v-app-bar-title id="tour-step-logo-brand">
 				<router-link to="/" class="text-decoration-none text-white">
 					CodeFolio
 				</router-link>
@@ -14,6 +14,7 @@
 						@click="toggleTheme"
 						:aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
 						v-bind="props"
+						id="tour-step-theme-toggle"
 					>
 						<v-icon>{{
 							isDark ? "mdi-weather-night" : "mdi-weather-sunny"
@@ -21,20 +22,20 @@
 					</v-btn>
 				</template>
 			</v-tooltip>
-			<language-switcher v-bind="props" />
+			<language-switcher id="tour-step-language-switcher" />
 			<v-tooltip text="Home" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/" text v-bind="props">{{ $t("navHome") }}</v-btn>
+					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{ $t("navHome") }}</v-btn>
 				</template>
 			</v-tooltip>
 			<v-tooltip text="Projects" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/projects" text v-bind="props">{{ $t("navProjects") }}</v-btn>
+					<v-btn to="/projects" text v-bind="props" id="tour-step-projects-nav">{{ $t("navProjects") }}</v-btn>
 				</template>
 			</v-tooltip>
 			<v-tooltip v-if="isAdmin" text="Admin" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/admin" text v-bind="props">{{ $t("navAdmin") }}</v-btn>
+					<v-btn to="/admin" id="admin-nav" text v-bind="props">{{ $t("navAdmin") }}</v-btn>
 				</template>
 			</v-tooltip>
 			<v-tooltip v-if="isAuthenticated" text="Notifications" location="bottom">
@@ -85,7 +86,7 @@
 			</v-menu>
 			<v-tooltip v-else text="Login" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/login" text v-bind="props">{{ $t("navLogin") }}</v-btn>
+					<v-btn to="/login" text v-bind="props" id="tour-step-login-button">{{ $t("navLogin") }}</v-btn>
 				</template>
 			</v-tooltip>
 		</v-app-bar>

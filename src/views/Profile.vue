@@ -44,7 +44,7 @@
 								>GitHub</a
 							>
 						</div>
-						<div class="d-flex gap-2 mb-2">
+						<div class="d-flex gap-2 mb-2" id="follow-stats">
 							<v-chip
 								color="primary"
 								class="mr-2"
@@ -80,6 +80,7 @@
 								v-if="isOwner"
 								color="primary"
 								variant="outlined"
+								id="edit-profile-btn"
 								@click="showEditProfile = true"
 								>{{ $t("editProfile") }}</v-btn
 							>
@@ -87,6 +88,7 @@
 								v-if="isOwner"
 								color="warning"
 								variant="outlined"
+								id="reset-password-btn"
 								@click="showResetPassword = true"
 								>{{ $t("profileResetPassword") }}</v-btn
 							>

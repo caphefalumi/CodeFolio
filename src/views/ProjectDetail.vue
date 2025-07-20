@@ -4,7 +4,7 @@
 		<NotFound v-if="showNotFound" />
 
 		<!-- Show main project content if project exists -->
-		<v-container v-else>
+		<v-container v-else id="tour-step-project-detail-welcome">
 			<v-row v-auto-animate>
 				<!-- Project Header -->
 				<v-col cols="12">
@@ -23,7 +23,7 @@
 								"
 								:alt="`${project.title} project cover image`"
 							></v-img>
-							<v-card-title class="text-h3 pa-0">
+							<v-card-title class="text-h3 pa-0" id="tour-step-project-header">
 								<div class="project-title-responsive font-weight-bold">
 									{{ project.title }}
 								</div>
@@ -58,7 +58,7 @@
 									>
 								</div>
 							</v-card-text>
-							<v-card-actions class="justify-center align-center">
+							<v-card-actions class="justify-center align-center" id="tour-step-project-voting">
 								<v-btn
 									icon
 									@click="upvoteProject"
@@ -101,6 +101,7 @@
 									prepend-icon="mdi-github"
 									rel="noopener noreferrer"
 									aria-label="View project on GitHub (opens in new tab)"
+									id="tour-step-github-link"
 								>
 									{{ $t("viewOnGitHub") }}
 								</v-btn>
@@ -119,7 +120,11 @@
 								</h2>
 							</v-card-title>
 							<v-card-text>
-								<div class="project-content" v-html="project.content"></div>
+								<div
+									class="project-content"
+									v-html="project.content"
+									id="tour-step-project-content"
+								></div>
 							</v-card-text>
 						</v-card>
 					</section>
@@ -127,7 +132,7 @@
 
 				<!-- GitHub Stats -->
 				<v-col cols="12" md="6" v-if="project.githubUrl">
-					<section aria-labelledby="github-stats-heading">
+					<section aria-labelledby="github-stats-heading" id="tour-step-github-stats">
 						<v-card>
 							<v-card-title
 								><h2 id="github-stats-heading">
@@ -161,7 +166,7 @@
 				</v-col>
 				<!-- Project Details -->
 				<v-col cols="12" md="6">
-					<section aria-labelledby="project-details-heading">
+					<section aria-labelledby="project-details-heading" id="tour-step-project-details">
 						<v-card>
 							<v-card-title
 								><h2 id="project-details-heading">
@@ -205,7 +210,7 @@
 					</section>
 				</v-col>
 				<!-- Comments Section -->
-				<v-col cols="12">
+				<v-col cols="12" id="tour-step-comments-section">
 					<section aria-labelledby="comments-heading">
 						<v-card>
 							<v-card-title>

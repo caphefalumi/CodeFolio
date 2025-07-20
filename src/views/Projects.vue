@@ -1,10 +1,10 @@
 <template>
 	<div>
-		<v-container>
+		<v-container id="tour-step-projects-page-welcome">
 			<!-- Search and Filter Section -->
 			<section>
-				<v-row class="mb-6">
-					<v-col cols="12" md="6">
+				<v-row class="mb-12">
+					<v-col cols="12" md="5">
 						<v-text-field
 							v-model="search"
 							:label="$t('searchPlaceholder')"
@@ -12,6 +12,7 @@
 							variant="outlined"
 							hide-details
 							maxlength="100"
+							id="tour-step-projects-search"
 						></v-text-field>
 					</v-col>
 					<v-col cols="12" md="3">
@@ -20,20 +21,27 @@
 							:items="projectTypes"
 							item-title="title"
 							item-value="value"
+							id="project-type-filter"
 							:label="$t('projectType')"
 							variant="outlined"
 							hide-details
+							@focus="onTypeFilterFocus"
+							@blur="onTypeFilterBlur"
 						></v-select>
 					</v-col>
-					<v-col cols="12" md="3">
+					<v-col cols="12" md="4">
 						<v-select
 							v-model="sortBy"
 							:items="sortOptions"
 							item-title="title"
 							item-value="value"
+							id="project-sort"
+							:prepend-inner-icon="sortBy === 'newest' ? 'mdi-sort-descending' : sortBy === 'viewed' ? 'mdi-eye' : 'mdi-star'"
 							:label="$t('sortBy')"
 							variant="outlined"
 							hide-details
+							@focus="onSortFocus"
+							@blur="onSortBlur"
 						></v-select>
 					</v-col>
 				</v-row>
@@ -47,7 +55,7 @@
 						cols="12"
 						md="4"
 					>
-						<article>
+						<article id="tour-step-project-card">
 							<project-card
 								:project="project"
 								:show-edit-button="false"
@@ -240,6 +248,22 @@
 				this.$router.push(
 					`/${project.author?.username || "unknown"}/${project._id}`
 				)
+			},
+			onTypeFilterFocus() {
+				this.$nextTick(() => {
+					const filterEl = document.getElementById("tour-step-project-type-filter")
+					if (filterEl) {
+						filterEl.scrollIntoView({ behavior: "smooth", block: "center" })
+					}
+				})
+			},
+			onSortFocus() {
+				this.$nextTick(() => {
+					const sortEl = document.getElementById("tour-step-project-sort")
+					if (sortEl) {
+						sortEl.scrollIntoView({ behavior: "smooth", block: "center" })
+					}
+				})
 			},
 		},
 		async mounted() {

@@ -4,6 +4,7 @@
 			color="success"
 			variant="outlined"
 			class="ml-2"
+			id="export-pdf-btn"
 			@click="exportProfileAsPDF"
 			:aria-label="$t('exportProfileAsPDF')"
 		>
