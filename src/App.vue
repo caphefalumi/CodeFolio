@@ -21,11 +21,7 @@
 					</v-btn>
 				</template>
 			</v-tooltip>
-			<v-tooltip text="Change language" location="bottom">
-				<template #activator="{ props }">
-					<language-switcher v-bind="props" />
-				</template>
-			</v-tooltip>
+			<language-switcher v-bind="props" />
 			<v-tooltip text="Home" location="bottom">
 				<template #activator="{ props }">
 					<v-btn to="/" text v-bind="props">{{ $t("navHome") }}</v-btn>

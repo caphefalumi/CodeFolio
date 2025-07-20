@@ -1,15 +1,19 @@
 <template>
 	<v-menu offset-y>
-		<template #activator="{ props }">
-			<v-btn
-				v-bind="props"
-				variant="text"
-				icon
-				:aria-label="$t('selectLanguage')"
-			>
-				<v-icon>mdi-translate</v-icon>
-			</v-btn>
-		</template>
+			<template #activator="{ props }">
+				<v-tooltip text="Select language" location="bottom">
+					<template #activator="{ props: tooltipProps }">
+						<v-btn
+							v-bind="{ ...props, ...tooltipProps }"
+							variant="text"
+							icon
+							:aria-label="$t('selectLanguage')"
+						>
+							<v-icon>mdi-translate</v-icon>
+						</v-btn>
+					</template>
+				</v-tooltip>
+			</template>
 
 		<v-list min-width="150">
 			<v-list-item
