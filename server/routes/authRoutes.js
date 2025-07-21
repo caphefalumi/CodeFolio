@@ -55,11 +55,12 @@ router.post("/refreshToken", async (req, res) => {
 		if (!user) {
 			return res.sendStatus(403)
 		}
-		const tokenIndex = user.refreshTokens.findIndex(rt => rt.token === refreshToken)
+		const tokenIndex = user.refreshTokens.findIndex(
+			rt => rt.token === refreshToken
+		)
 		if (tokenIndex === -1) {
 			return res.sendStatus(403)
 		}
-
 
 		console.log("User found:", user.username)
 
@@ -261,7 +262,10 @@ router.post("/login/google", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		user.refreshTokens.push({ token: refreshToken, device: req.headers["user-agent"] || "Unknown Device" })
+		user.refreshTokens.push({
+			token: refreshToken,
+			device: req.headers["user-agent"] || "Unknown Device",
+		})
 		await user.save()
 
 		res.cookie("refreshToken", refreshToken, {
@@ -381,7 +385,10 @@ router.get("/login/github/callback", async (req, res) => {
 				algorithm: "RS256",
 			}
 		)
-		user.refreshTokens.push({ token: refreshToken, device: req.headers["user-agent"] || "Unknown Device" })
+		user.refreshTokens.push({
+			token: refreshToken,
+			device: req.headers["user-agent"] || "Unknown Device",
+		})
 		await user.save()
 
 		res.cookie("refreshToken", refreshToken, {

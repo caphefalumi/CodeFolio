@@ -417,10 +417,6 @@
 			/>
 		</v-container>
 	</v-theme-provider>
-
-
-
-
 </template>
 
 <script>
@@ -844,8 +840,6 @@
 				this.userProfile.isFollowing = isFollowing
 			},
 
-
-
 			// Validation helper methods
 			validateProjectForm() {
 				let isValid = true
@@ -986,16 +980,19 @@
 	}
 
 	/* PDF export styles */
-	#profile-cv-pdf, #profile-cv-pdf * {
+	#profile-cv-pdf,
+	#profile-cv-pdf * {
 		color: #222 !important;
 		background: #fff !important;
 		box-shadow: none !important;
 	}
-	#profile-cv-pdf h1, #profile-cv-pdf h2, #profile-cv-pdf h3 {
+	#profile-cv-pdf h1,
+	#profile-cv-pdf h2,
+	#profile-cv-pdf h3 {
 		color: #111 !important;
 	}
-	#profile-cv-pdf a { 
-		color: #1a0dab !important; 
+	#profile-cv-pdf a {
+		color: #1a0dab !important;
 		text-decoration: underline !important;
 	}
 	#profile-cv-pdf img {

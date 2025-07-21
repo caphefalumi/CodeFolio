@@ -23,16 +23,21 @@ function authenticateAccessToken(req, res, next) {
 		})
 	}
 	try {
-		jwt.verify(accessToken, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
-			if (err) {
-				console.error("Access token verification error:", err.message)
-				return res.status(403).json({
-					message: "Not authorized",
-				})
+		jwt.verify(
+			accessToken,
+			publicKey,
+			{ algorithms: ["RS256"] },
+			(err, decoded) => {
+				if (err) {
+					console.error("Access token verification error:", err.message)
+					return res.status(403).json({
+						message: "Not authorized",
+					})
+				}
+				req.user = decoded
+				next()
 			}
-			req.user = decoded
-			next()
-		})
+		)
 	} catch (error) {
 		console.error("Authentication middleware error:", error)
 		return res.status(500).json({

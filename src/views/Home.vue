@@ -18,16 +18,12 @@
 							v-if="!continueTour"
 							variant="outlined"
 							size="large"
-							@click="startTour"							
+							@click="startTour"
 							>{{ $t("getStarted") }}</v-btn
 						>
-						<v-btn
-							v-else
-							variant="outlined"
-							size="large"
-							@click="startTour"							
-							>{{ $t("tourContinue") }}</v-btn
-						>
+						<v-btn v-else variant="outlined" size="large" @click="startTour">{{
+							$t("tourContinue")
+						}}</v-btn>
 					</v-col>
 				</v-row>
 			</section>
@@ -103,8 +99,8 @@
 <script>
 	import axios from "axios"
 	import { RecycleScroller } from "vue-virtual-scroller"
-	import { startAppTour } from '@/tour.js'
-	import { useI18n } from 'vue-i18n'
+	import { startAppTour } from "@/tour.js"
+	import { useI18n } from "vue-i18n"
 	import "vue-virtual-scroller/dist/vue-virtual-scroller.css"
 
 	export default {
@@ -122,12 +118,11 @@
 					if (!state) return false
 					try {
 						const parsed = JSON.parse(state)
-						return typeof parsed.step === 'number' && parsed.step > 0
+						return typeof parsed.step === "number" && parsed.step > 0
 					} catch {
 						return false
 					}
-				})()
-
+				})(),
 			}
 		},
 		mounted() {

@@ -132,7 +132,10 @@
 
 				<!-- GitHub Stats -->
 				<v-col cols="12" md="6" v-if="project.githubUrl">
-					<section aria-labelledby="github-stats-heading" id="tour-step-github-stats">
+					<section
+						aria-labelledby="github-stats-heading"
+						id="tour-step-github-stats"
+					>
 						<v-card>
 							<v-card-title
 								><h2 id="github-stats-heading">
@@ -166,7 +169,10 @@
 				</v-col>
 				<!-- Project Details -->
 				<v-col cols="12" md="6">
-					<section aria-labelledby="project-details-heading" id="tour-step-project-details">
+					<section
+						aria-labelledby="project-details-heading"
+						id="tour-step-project-details"
+					>
 						<v-card>
 							<v-card-title
 								><h2 id="project-details-heading">

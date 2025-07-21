@@ -12,7 +12,9 @@
 					<v-btn
 						icon
 						@click="toggleTheme"
-						:aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
+						:aria-label="
+							isDark ? 'Switch to light theme' : 'Switch to dark theme'
+						"
 						v-bind="props"
 						id="tour-step-theme-toggle"
 					>
@@ -22,20 +24,30 @@
 					</v-btn>
 				</template>
 			</v-tooltip>
-			<language-switcher/>
+			<language-switcher />
 			<v-tooltip text="Home" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{ $t("navHome") }}</v-btn>
+					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{
+						$t("navHome")
+					}}</v-btn>
 				</template>
 			</v-tooltip>
 			<v-tooltip text="Projects" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/projects" text v-bind="props" id="tour-step-projects-nav">{{ $t("navProjects") }}</v-btn>
+					<v-btn
+						to="/projects"
+						text
+						v-bind="props"
+						id="tour-step-projects-nav"
+						>{{ $t("navProjects") }}</v-btn
+					>
 				</template>
 			</v-tooltip>
 			<v-tooltip v-if="isAdmin" text="Admin" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/admin" id="admin-nav" text v-bind="props">{{ $t("navAdmin") }}</v-btn>
+					<v-btn to="/admin" id="admin-nav" text v-bind="props">{{
+						$t("navAdmin")
+					}}</v-btn>
 				</template>
 			</v-tooltip>
 			<v-tooltip v-if="isAuthenticated" text="Notifications" location="bottom">
@@ -62,7 +74,12 @@
 				<template #activator="{ props }">
 					<v-tooltip text="User menu" location="bottom">
 						<template #activator="{ props: tooltipProps }">
-							<v-btn icon v-bind="{...props, ...tooltipProps}" id="tour-step-user-menu" :aria-label="`${username}`">
+							<v-btn
+								icon
+								v-bind="{ ...props, ...tooltipProps }"
+								id="tour-step-user-menu"
+								:aria-label="`${username}`"
+							>
 								<v-avatar size="32" v-if="avatar">
 									<v-img
 										:src="avatar"
@@ -86,7 +103,9 @@
 			</v-menu>
 			<v-tooltip v-else text="Login" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/login" text v-bind="props" id="tour-step-login-button">{{ $t("navLogin") }}</v-btn>
+					<v-btn to="/login" text v-bind="props" id="tour-step-login-button">{{
+						$t("navLogin")
+					}}</v-btn>
 				</template>
 			</v-tooltip>
 		</v-app-bar>

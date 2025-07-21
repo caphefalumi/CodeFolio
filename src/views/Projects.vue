@@ -36,7 +36,13 @@
 							item-title="title"
 							item-value="value"
 							id="project-sort"
-							:prepend-inner-icon="sortBy === 'newest' ? 'mdi-sort-descending' : sortBy === 'viewed' ? 'mdi-eye' : 'mdi-star'"
+							:prepend-inner-icon="
+								sortBy === 'newest'
+									? 'mdi-sort-descending'
+									: sortBy === 'viewed'
+										? 'mdi-eye'
+										: 'mdi-star'
+							"
 							:label="$t('sortBy')"
 							variant="outlined"
 							hide-details
@@ -251,7 +257,9 @@
 			},
 			onTypeFilterFocus() {
 				this.$nextTick(() => {
-					const filterEl = document.getElementById("tour-step-project-type-filter")
+					const filterEl = document.getElementById(
+						"tour-step-project-type-filter"
+					)
 					if (filterEl) {
 						filterEl.scrollIntoView({ behavior: "smooth", block: "center" })
 					}

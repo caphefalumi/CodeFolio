@@ -10,7 +10,7 @@ export default defineConfig({
 			"@": fileURLToPath(new URL("./src", import.meta.url)),
 		},
 	},
-	
+
 	server: {
 		port: 3000,
 		hmr: {
@@ -18,9 +18,9 @@ export default defineConfig({
 		},
 	},
 	preview: {
-   		port: 3000,
-  	},
+		port: 3000,
+	},
 	build: {
 		chunkSizeWarningLimit: 1600,
-	}
+	},
 })

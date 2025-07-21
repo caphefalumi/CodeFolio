@@ -95,7 +95,6 @@ const userSchema = new mongoose.Schema({
 		default: [],
 	},
 
-
 	resetCode: {
 		type: String,
 	},
