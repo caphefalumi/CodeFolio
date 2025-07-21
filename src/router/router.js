@@ -28,11 +28,6 @@ const routes = [
 		meta: { requiresGuest: true },
 	},
 	{
-		path: "/404",
-		name: "NotFound",
-		component: () => import("@/views/NotFound.vue"),
-	},
-	{
 		path: "/:username",
 		name: "Profile",
 		component: () => import("@/views/Profile.vue"),

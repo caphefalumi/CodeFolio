@@ -12,6 +12,10 @@
 			{{ project.title }}
 		</v-card-title>
 
+		<v-card-subtitle v-if="project.author && project.author.username" class="text-caption grey--text text--darken-1">
+			{{$t('author')}}: <strong>{{ project.author.username }}</strong>
+		</v-card-subtitle>
+
 		<v-card-text>
 			<div class="text-body-2 mb-2">{{ project.description }}</div>
 			<div class="mb-2" role="list" aria-label="Project tags">
