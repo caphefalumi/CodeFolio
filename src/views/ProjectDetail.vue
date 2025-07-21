@@ -59,11 +59,13 @@
 								</div>
 							</v-card-text>
 							<v-card-actions class="justify-center align-center">
+								
 								<v-btn
 									icon
 									@click="upvoteProject"
 									:disabled="project.upvoting"
 									class="mr-2"
+									id="tour-step-project-voting"
 									:aria-label="$t('upvote')"
 								>
 									<v-icon
@@ -79,6 +81,7 @@
 								>
 									{{ project.upvotes - project.downvotes }}
 								</div>
+
 								<v-btn
 									icon
 									@click="downvoteProject"

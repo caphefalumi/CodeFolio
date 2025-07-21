@@ -9,6 +9,7 @@
 		"build": "vite build",
 		"build:local": "vite build && vite preview",
 		"preview": "vite preview",
+		"prettier": "prettier --write \"src/**/*.{js,ts,vue,json,md}\"",
 		"server": "cd server && bun run server",
 		"deploy": "concurrently \"vercel --prod\" \"cd server && vercel --prod\" \"bun run docker\"",
 		"deploy:all": "bun run deploy && bun run tauri:build",

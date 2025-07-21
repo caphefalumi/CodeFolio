@@ -48,7 +48,6 @@ app.use("/api/posts", postRoutes)
 app.use("/api/auth", authRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use("/api/notifications", notificationRoutes)
-
 app.listen(process.env.SERVER_PORT, () => {
 	console.log(`Server is running on port ${process.env.SERVER_PORT}`)
 })

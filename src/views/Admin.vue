@@ -13,9 +13,9 @@
 		<v-container v-else>
 			<h1 class="text-h4 mb-6">{{ $t("adminTitle") }}</h1>
 			<v-tabs v-model="tab" @update:model-value="onTabChange" id="admin-tabs">
-				<v-tab id="tour-step-admin-tab-users">{{ $t("adminUsers") }}</v-tab>
-				<v-tab id="tour-step-admin-tab-posts">{{ $t("adminPosts") }}</v-tab>
-				<v-tab id="tour-step-admin-tab-analytics">{{
+				<v-tab id="admin-tab-users">{{ $t("adminUsers") }}</v-tab>
+				<v-tab id="admin-tab-posts">{{ $t("adminPosts") }}</v-tab>
+				<v-tab id="admin-tab-analytics">{{
 					$t("adminAnalytics")
 				}}</v-tab>
 			</v-tabs>

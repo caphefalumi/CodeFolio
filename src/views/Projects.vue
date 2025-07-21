@@ -186,7 +186,7 @@
 				if (this.search && this.search.trim()) {
 					const searchTerm = this.search.trim()
 					// If search starts with #, filter by tag
-					if (searchTerm.startsWith("#") || searchTerm.startsWith("@")) {
+					if (searchTerm.startsWith("#")) {
 						const tagQuery = searchTerm.slice(1).toLowerCase()
 						filtered = filtered.filter(
 							project =>

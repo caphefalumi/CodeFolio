@@ -7,7 +7,7 @@
 	"main": "server.js",
 	"type": "module",
 	"scripts": {
-		"server": " bun --watch --no-clear-screen server.js",
+		"server": " bun --hot --no-clear-screen server.js",
 		"server:prod": "bun server.js",
 		"seed": "bun seedDatabase.js",
 		"seed:clear": "bun seedDatabase.js --clear"

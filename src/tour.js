@@ -180,6 +180,15 @@ export function startAppTour(router, i18n) {
 		),
 	})
 	tour.addStep({
+		id: "search-hashtag-mention",
+		text: i18n.t("tourSearchHashtagMention"),
+		attachTo: { element: "#tour-step-projects-search", on: "bottom" },
+		buttons: withBackButton(
+			[{ text: i18n.t("tourNext"), action: tour.next }],
+			tour
+		),
+	})
+	tour.addStep({
 		id: "project-type-filter",
 		text: i18n.t("tourProjectTypeFilter"),
 		attachTo: { element: "#project-type-filter", on: "bottom" },
@@ -291,6 +300,15 @@ export function startAppTour(router, i18n) {
 	tour.addStep({
 		id: "comments-section",
 		text: i18n.t("tourComments"),
+		attachTo: { element: "#tour-step-comments-section", on: "bottom" },
+		buttons: withBackButton(
+			[{ text: i18n.t("tourNext"), action: tour.next }],
+			tour
+		),
+	})
+	tour.addStep({
+		id: "comments-mention",
+		text: i18n.t("tourCommentsMention"),
 		attachTo: { element: "#tour-step-comments-section", on: "bottom" },
 		buttons: withBackButton(
 			[{ text: i18n.t("tourNext"), action: tour.next }],
@@ -464,7 +482,6 @@ export function startAppTour(router, i18n) {
 	tour.addStep({
 		id: "tour-complete",
 		text: i18n.t("tourCompleteMessage"),
-		attachTo: { element: "body", on: "center" },
 		buttons: [
 			{
 				text: i18n.t("tourComplete"),

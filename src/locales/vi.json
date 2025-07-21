@@ -61,7 +61,7 @@
 	"projectContent": "Nội dung dự án",
 	"coverImage": "Ảnh bìa dự án",
 	"tags": "Thẻ",
-	"githubUrl": "URL kho GitHub",
+	"githubUrl": "Link GitHub",
 	"projectType": "Loại dự án",
 	"saveProject": "Lưu dự án",
 	"addNewProject": "Thêm dự án mới",
@@ -211,7 +211,7 @@
 	"tourViewProject": "Xem dự án",
 	"tourProjectDetailWelcome": "Trang Chi tiết Dự án - Tại đây bạn có thể khám phá dự án một cách chi tiết và tương tác với cộng đồng.",
 	"tourProjectHeader": "Chi tiết dự án bao gồm tiêu đề, mô tả, tác giả và thẻ. Nhấp vào tên tác giả để truy cập hồ sơ của họ!",
-	"tourProjectVoting": "Bình chọn cho dự án! Bình chọn tích cực cho các dự án tuyệt vời và bình chọn tiêu cực nếu cần. Phiếu bầu của bạn giúp cộng đồng khám phá nội dung chất lượng.",
+	"tourProjectVoting": "Bình chọn cho dự án! Upvote cho các dự án tuyệt vời và downvote nếu cần. Phiếu bầu của bạn giúp cộng đồng khám phá nội dung chất lượng.",
 	"tourGithubLink": "Xem dự án trên GitHub để xem mã nguồn, đóng góp hoặc sao lưu repository.",
 	"tourProjectContent": "Nội dung dự án chi tiết với định dạng phong phú. Tìm hiểu về chi tiết triển khai, tính năng và hiểu biết kỹ thuật.",
 	"tourGithubStats": "Xem thống kê GitHub bao gồm sao, fork và issues. Xem dự án phổ biến như thế nào trong cộng đồng mã nguồn mở.",
@@ -275,5 +275,7 @@
 	"homeBackendTitle": "Backend",
 	"homeBackendDesc": "Bun, Express, MongoDB, Mongoose, RESTful API",
 	"homeSecurityTitle": "Bảo mật",
-	"homeSecurityDesc": "OAuth, JWT RS256, Khóa mã hóa, Cookie bảo mật"
+	"homeSecurityDesc": "OAuth, JWT RS256, Khóa mã hóa, Cookie bảo mật",
+	"tourSearchHashtagMention": "Mẹo: Dùng # để tìm theo thẻ (ví dụ #vue) hoặc @ để tìm theo tên người dùng (ví dụ @lumi).",
+	"tourCommentsMention": "Mẹo: Gõ @ trong ô bình luận để nhắc đến ai đó (ví dụ @lumi)."
 }
