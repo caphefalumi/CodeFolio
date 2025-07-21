@@ -9,6 +9,7 @@ import postRoutes from "./routes/postRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
 import uploadRoutes from "./routes/uploadRoutes.js"
 import notificationRoutes from "./routes/notificationRoutes.js"
+import "./utils/refreshTokenCleanup.js"
 
 const app = express()
 // app.use((req, res, next) => {

@@ -3,7 +3,7 @@ import authenticateToken from "../middleware/authenticateToken.js"
 import "dotenv/config"
 import User from "../models/User.js"
 import { isAuthorizedUser, isAdmin } from "../utils/adminCheck.js"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import getRandomCat from "random-cat-img"
 const router = express.Router()
 

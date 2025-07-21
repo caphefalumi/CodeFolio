@@ -1,7 +1,7 @@
 import express from "express"
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import User from "../models/User.js"
 import axios from "axios"
 import getRandomCat from "random-cat-img"
@@ -38,7 +38,7 @@ router.post("/validate", async (req, res) => {
 	}
 })
 
-router.post("/token", async (req, res) => {
+router.post("/refreshToken", async (req, res) => {
 	const refreshToken = req.cookies.refreshToken
 
 	if (!refreshToken) {
@@ -47,10 +47,10 @@ router.post("/token", async (req, res) => {
 	}
 	jwt.verify(refreshToken, publicKey, { algorithms: ["RS256"] }, async err => {
 		if (err) {
-			console.log("JWT verification error:", err.message)
+			console.log("JWT verification error in routes:", err.message)
 			return res.sendStatus(403)
 		}
-
+		console.log(refreshToken)
 		const user = await User.findOne({ "refreshTokens.token": refreshToken })
 		if (!user) {
 			return res.sendStatus(403)

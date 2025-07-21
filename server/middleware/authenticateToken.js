@@ -4,33 +4,32 @@ import "dotenv/config"
 
 const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 
-function authenticateToken(req, res, next) {
-	let token = null
+function authenticateAccessToken(req, res, next) {
+	let accessToken = null
 	const authHeader = req.headers["authorization"]
 
 	if (authHeader && authHeader.startsWith("Bearer ")) {
-		token = authHeader.split(" ")[1]
+		accessToken = authHeader.split(" ")[1]
 	}
 
-	if (!token && req.cookies && req.cookies.accessToken) {
-		token = req.cookies.accessToken
+	if (!accessToken && req.cookies && req.cookies.accessToken) {
+		accessToken = req.cookies.accessToken
 	}
 
-	if (!token) {
+	if (!accessToken) {
 		return res.status(401).json({
 			message:
-				"Access denied. No token provided in Authorization header or cookies.",
+				"Access denied. No access token provided in Authorization header or cookies.",
 		})
 	}
 	try {
-		jwt.verify(token, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
+		jwt.verify(accessToken, publicKey, { algorithms: ["RS256"] }, (err, decoded) => {
 			if (err) {
-				console.error("Token verification error:", err.message)
+				console.error("Access token verification error:", err.message)
 				return res.status(403).json({
 					message: "Not authorized",
 				})
 			}
-
 			req.user = decoded
 			next()
 		})
@@ -42,4 +41,4 @@ function authenticateToken(req, res, next) {
 	}
 }
 
-export default authenticateToken
+export default authenticateAccessToken
