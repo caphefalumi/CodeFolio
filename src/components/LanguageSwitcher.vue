@@ -7,6 +7,7 @@
 							v-bind="{ ...props, ...tooltipProps }"
 							variant="text"
 							icon
+							id="tour-step-language-switcher" 
 							:aria-label="$t('selectLanguage')"
 						>
 							<v-icon>mdi-translate</v-icon>

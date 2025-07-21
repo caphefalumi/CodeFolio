@@ -12,7 +12,7 @@
 		"server": "cd server && bun run server",
 		"deploy": "concurrently \"vercel --prod\" \"cd server && vercel --prod\" \"bun run docker\"",
 		"deploy:all": "bun run deploy && bun run tauri:build",
-		"docker": "docker-compose up --build -d",
+		"docker": "docker-compose build",
 		"tauri": "tauri",
 		"tauri:dev": "tauri dev",
 		"tauri:build": "tauri build"
@@ -30,6 +30,7 @@
 		"lodash-es": "^4.17.21",
 		"markdown-it": "^14.1.0",
 		"marked": "^16.1.0",
+		"node-cron": "^4.2.1",
 		"quill": "^2.0.3",
 		"shepherd.js": "^14.5.0",
 		"vue": "^3.5.17",

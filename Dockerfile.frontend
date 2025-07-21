@@ -1,10 +1,10 @@
 # === Build Stage ===
-FROM oven/bun:1 AS build
+FROM oven/bun:slim
 
 WORKDIR /app
 
 # Copy dependencies files
-COPY bun.lock package.json vite.config.js jsconfig.json ./
+COPY package.json vite.config.js jsconfig.json ./
 COPY index.html ./
 COPY public ./public
 COPY src ./src

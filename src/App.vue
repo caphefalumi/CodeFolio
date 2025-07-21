@@ -22,7 +22,7 @@
 					</v-btn>
 				</template>
 			</v-tooltip>
-			<language-switcher id="tour-step-language-switcher" />
+			<language-switcher/>
 			<v-tooltip text="Home" location="bottom">
 				<template #activator="{ props }">
 					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{ $t("navHome") }}</v-btn>
@@ -62,7 +62,7 @@
 				<template #activator="{ props }">
 					<v-tooltip text="User menu" location="bottom">
 						<template #activator="{ props: tooltipProps }">
-							<v-btn icon v-bind="{...props, ...tooltipProps}" :aria-label="`User menu for ${username}`">
+							<v-btn icon v-bind="{...props, ...tooltipProps}" id="tour-step-user-menu" :aria-label="`${username}`">
 								<v-avatar size="32" v-if="avatar">
 									<v-img
 										:src="avatar"
@@ -160,39 +160,37 @@
 				}
 			},
 
-			fetchToken() {
+			async fetchToken() {
 				const token = sessionStorage.getItem("accessToken")
 				if (token) {
-					axios
-						.post(
+					try {
+						const response = await axios.post(
 							`${import.meta.env.VITE_SERVER_URL}/api/auth/validate`,
 							{},
 							{
 								headers: { Authorization: `Bearer ${token}` },
 							}
 						)
-						.then(response => {
-							if (response.data.valid) {
-								this.isAuthenticated = true
-								this.fetchProfile()
-								this.startTokenRefreshTimer()
-							} else {
-								this.getNewToken()
-							}
-						})
-						.catch(error => {
-							this.getNewToken()
-						})
+						if (response.data.valid) {
+							this.isAuthenticated = true
+							this.fetchProfile()
+							this.startTokenRefreshTimer()
+						} else {
+							await this.getNewToken()
+						}
+					} catch (error) {
+						await this.getNewToken()
+					}
 					return
 				} else {
-					this.getNewToken()
+					await this.getNewToken()
 				}
 			},
 
 			async getNewToken(silent = false) {
 				try {
 					const response = await axios.post(
-						`${import.meta.env.VITE_SERVER_URL}/api/auth/token`,
+						`${import.meta.env.VITE_SERVER_URL}/api/auth/refreshToken`,
 						{},
 						{ withCredentials: true }
 					)

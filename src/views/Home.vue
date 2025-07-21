@@ -15,15 +15,19 @@
 							$t("navProjects")
 						}}</v-btn>
 						<v-btn
-							v-if="!isLoggedIn"
+							v-if="!continueTour"
 							variant="outlined"
 							size="large"
-							to="/login"
+							@click="startTour"							
 							>{{ $t("getStarted") }}</v-btn
 						>
-						<v-btn color="secondary" size="large" @click="startTour" class="ml-2">
-							Start Guided Tour
-						</v-btn>
+						<v-btn
+							v-else
+							variant="outlined"
+							size="large"
+							@click="startTour"							
+							>{{ $t("tourContinue") }}</v-btn
+						>
 					</v-col>
 				</v-row>
 			</section>
@@ -99,7 +103,6 @@
 <script>
 	import axios from "axios"
 	import { RecycleScroller } from "vue-virtual-scroller"
-	import { isLoggedIn } from "@/composables/user"
 	import { startAppTour } from '@/tour.js'
 	import { useI18n } from 'vue-i18n'
 	import "vue-virtual-scroller/dist/vue-virtual-scroller.css"
@@ -114,7 +117,17 @@
 		data() {
 			return {
 				featuredProjects: [],
-				isLoggedIn: isLoggedIn(),
+				continueTour: (() => {
+					const state = localStorage.getItem("tour-state")
+					if (!state) return false
+					try {
+						const parsed = JSON.parse(state)
+						return typeof parsed.step === 'number' && parsed.step > 0
+					} catch {
+						return false
+					}
+				})()
+
 			}
 		},
 		mounted() {
