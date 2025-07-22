@@ -35,6 +35,7 @@
 			:success-message="successMessage"
 			:submit-button-text="$t('sendResetCode')"
 			:submit-button-block="true"
+			:disabled="!isFormValid || loading"
 			@submit="sendResetCode"
 		>
 			<p class="text-body-2 mb-4">
@@ -57,11 +58,13 @@
 				(currentStep === 2 && !skipEmailStep) ||
 				(currentStep === 1 && skipEmailStep)
 			"
+			
 			:loading="loading"
 			:error-message="errorMessage"
 			:success-message="successMessage"
 			:submit-button-text="$t('verifyResetCode')"
 			:submit-button-block="true"
+			:disabled="!isFormValid || loading"
 			@submit="verifyCode"
 		>
 			<p class="text-body-2 mb-4">
@@ -75,6 +78,7 @@
 				v-model="resetCode"
 				:label="$t('sixDigitCode')"
 				required
+				inputmode="number"
 				aria-label="Enter the 6-digit verification code sent to your email"
 				autocomplete="one-time-code"
 				maxlength="6"
@@ -92,6 +96,7 @@
 			:success-message="successMessage"
 			:submit-button-text="$t('setNewPassword')"
 			:submit-button-block="true"
+			:submit-button-disabled="!isFormValid || loading"
 			@submit="resetPassword"
 		>
 			<v-text-field
@@ -165,7 +170,6 @@
 			}
 		},
 		watch: {
-			// Watch for changes in props to reset form
 			modelValue(newVal) {
 				if (newVal) {
 					this.initializeForm()
@@ -191,6 +195,7 @@
 			rules() {
 				return {
 					required: v => !!v || this.$t("validationRequired"),
+					resetCode: v => /^\d{6}$/.test(v) || this.$t("validationResetCodeInvalid"),
 					email: v =>
 						/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) ||
 						this.$t("validationEmailInvalid"),
@@ -205,6 +210,30 @@
 					confirmPassword: v =>
 						v === this.newPassword || this.$t("validationPasswordsNotMatch"),
 				}
+			},
+			isFormValid() {
+				if (this.currentStep === 1 && !this.skipEmailStep) {
+					return this.email && this.rules.email(this.email) === true
+				} else if (
+					(this.currentStep === 2 && !this.skipEmailStep) ||
+					(this.currentStep === 1 && this.skipEmailStep)
+				) {
+					return (
+						this.resetCode &&
+						this.rules.resetCode(this.resetCode) === true
+					)
+				} else if (
+					(this.currentStep === 3 && !this.skipEmailStep) ||
+					(this.currentStep === 2 && this.skipEmailStep)
+				) {
+					return (
+						this.newPassword &&
+						this.rules.password(this.newPassword) === true &&
+						this.confirmPassword &&
+						this.rules.confirmPassword(this.confirmPassword) === true
+					)
+				}
+				return false
 			},
 		},
 		methods: {
@@ -343,7 +372,7 @@
 					// Close dialog after success
 					setTimeout(() => {
 						this.closeDialog()
-					}, 2000)
+					}, 1000)
 				} catch (err) {
 					this.errorMessage = this.getErrorMessage(
 						err,
@@ -356,15 +385,6 @@
 
 			closeDialog() {
 				this.isOpen = false
-				this.resetForm()
-			},
-
-			resetForm() {
-				this.currentStep = 1
-				this.email = this.userEmail || ""
-				this.resetCode = ""
-				this.newPassword = ""
-				this.confirmPassword = ""
 				this.errorMessage = ""
 				this.successMessage = ""
 			},

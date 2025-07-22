@@ -185,7 +185,6 @@
 				this.checkForMention()
 			},
 
-
 			checkForMention() {
 				const textarea = this.$refs.textareaRef.$el.querySelector("textarea")
 				const cursorPos = textarea.selectionStart

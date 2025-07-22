@@ -13,7 +13,7 @@
 		"server": "cd server && bun run server",
 		"deploy": "concurrently \"vercel --prod\" \"cd server && vercel --prod\" \"bun run docker\"",
 		"deploy:all": "bun run deploy && bun run tauri:build",
-		"docker": "docker-compose up -d --build",
+		"docker": "docker-compose up -d --build && docker stop codefolio-frontend-1 codefolio-backend-1",
 		"tauri": "tauri",
 		"tauri:dev": "tauri dev",
 		"tauri:build": "tauri build"

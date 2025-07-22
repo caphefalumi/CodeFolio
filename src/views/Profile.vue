@@ -252,7 +252,7 @@
 				</v-container>
 			</app-dialog>
 
-			<!-- New Project Dialog -->
+			<!-- New/Edit Project Dialog -->
 			<app-dialog
 				v-model="showNewProject"
 				:title="$t('addNewProject')"
@@ -299,7 +299,6 @@
 							{{ contentError }}
 						</div>
 					</div>
-
 					<v-file-input
 						v-model="projectForm.coverImage"
 						:label="$t('coverImage')"
@@ -307,14 +306,6 @@
 						prepend-icon="mdi-image"
 						aria-label="Upload a cover image that represents your project"
 					></v-file-input>
-					<v-combobox
-						v-model="projectForm.tags"
-						:label="$t('tags')"
-						multiple
-						chips
-						small-chips
-						aria-label="Add tags to help categorize your project. You can create new tags by typing and pressing enter."
-					></v-combobox>
 					<v-text-field
 						v-model="projectForm.githubUrl"
 						:label="$t('githubUrl')"
@@ -332,12 +323,20 @@
 						required
 						aria-label="Select the type of project you are adding"
 					></v-select>
-
+					<v-combobox
+						v-model="projectForm.tags"
+						:label="$t('tags')"
+						multiple
+						chips
+						small-chips
+						aria-label="Add tags to help categorize your project. You can create new tags by typing and pressing enter."
+					></v-combobox>
 					<v-row class="mb-2">
 						<v-col cols="12">
 							<v-btn
 								color="secondary"
 								variant="outlined"
+								
 								@click="showGithubRepoDialog = true"
 								v-if="
 									editForm.githubUrl ||
@@ -348,7 +347,7 @@
 										))
 								"
 							>
-								Import from GitHub
+								{{ $t('importFromGithub') }}
 							</v-btn>
 						</v-col>
 					</v-row>
@@ -372,9 +371,9 @@
 						</v-list>
 						<template #actions>
 							<v-spacer></v-spacer>
-							<app-button color="primary" @click="showGithubRepoDialog = false"
-								>Close</app-button
-							>
+							<app-button color="primary" @click="showGithubRepoDialog = false">
+								{{ $t('close') }}
+							</app-button>
 						</template>
 					</app-dialog>
 				</app-form>

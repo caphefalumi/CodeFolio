@@ -1,7 +1,6 @@
 <template>
 	<v-form
 		@submit.prevent="handleSubmit"
-		:aria-labelledby="ariaLabelledBy"
 		class="app-form"
 	>
 		<slot></slot>
@@ -97,10 +96,6 @@
 			showSubmitButton: {
 				type: Boolean,
 				default: true,
-			},
-			ariaLabelledBy: {
-				type: String,
-				default: "",
 			},
 			alertClass: {
 				type: String,

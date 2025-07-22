@@ -16,6 +16,7 @@
 							:submit-button-block="true"
 							submit-button-class="mt-4"
 							aria-labelled-by="register-heading"
+							:disabled="!isFormValid || loading"
 							@submit="handleRegister"
 						>
 							<v-row>
@@ -24,7 +25,7 @@
 										v-model="form.firstName"
 										:label="$t('firstName')"
 										id="register-first-name"
-										:type="text"
+										type="text"
 										required
 										:rules="[rules.required, rules.name]"
 										autocomplete="given-name"
@@ -38,7 +39,7 @@
 										v-model="form.lastName"
 										:label="$t('lastName')"
 										id="register-last-name"
-										:type="text"
+										type="text"
 										required
 										:rules="[rules.required, rules.name]"
 										autocomplete="family-name"
@@ -98,7 +99,7 @@
 
 <script>
 	import axios from "axios"
-	import { GoogleLogin, decodeCredential } from "vue3-google-login"
+	import { GoogleLogin } from "vue3-google-login"
 	import AppForm from "@/components/AppForm.vue"
 	import { useApi } from "@/composables/common.js"
 
@@ -191,12 +192,32 @@
 							password: this.form.password,
 						}
 					)
-					this.$router.push("/")
+					this.$router.push("/login")
 				} catch (error) {
-					this.errorMessage = this.getErrorMessage(
-						error,
-						"Registration failed. Please try again."
-					)
+					if (error.response && error.response.status === 400) {
+						if (
+							error.response.data.message.includes(
+								"Username, email, and password"
+							)
+						) {
+							this.errorMessage = this.$t("validationRequired")
+						} else if (
+							error.response.data.message.includes("Username already exists")
+						) {
+							this.errorMessage = this.$t("usernameExists")
+						} else if (
+							error.response.data.message.includes("Email already exists")
+						) {
+							this.errorMessage = this.$t("emailExists")
+						} else {
+							this.errorMessage = error.response.data.message
+						}
+					} else {
+						this.errorMessage = this.getErrorMessage(
+							error,
+							"Registration failed. Please try again."
+						)
+					}
 				} finally {
 					this.loading = false
 				}

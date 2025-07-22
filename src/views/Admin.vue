@@ -15,9 +15,7 @@
 			<v-tabs v-model="tab" @update:model-value="onTabChange" id="admin-tabs">
 				<v-tab id="admin-tab-users">{{ $t("adminUsers") }}</v-tab>
 				<v-tab id="admin-tab-posts">{{ $t("adminPosts") }}</v-tab>
-				<v-tab id="admin-tab-analytics">{{
-					$t("adminAnalytics")
-				}}</v-tab>
+				<v-tab id="admin-tab-analytics">{{ $t("adminAnalytics") }}</v-tab>
 			</v-tabs>
 
 			<!-- Users Tab -->

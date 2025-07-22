@@ -93,10 +93,15 @@
 		</v-row>
 
 		<!-- Forgot Password Dialog -->
-		<forgot-password-dialog
-			v-model="showForgotPassword"
-			@success="handleForgotPasswordSuccess"
-		/>
+		<keep-alive>
+			<forgot-password-dialog
+				v-show="showForgotPassword"
+				:model-value="showForgotPassword"
+				:user-email="form.email"
+				@update:modelValue="showForgotPassword = $event"
+				@success="handleForgotPasswordSuccess"
+			/>
+		</keep-alive>
 	</v-container>
 </template>
 

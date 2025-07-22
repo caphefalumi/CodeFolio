@@ -51,6 +51,7 @@
 	"saveChanges": "Save Changes",
 	"profileUpdated": "Profile updated successfully!",
 	"usernameExists": "This username is already taken.",
+	"emailExists": "This email is already registered.",
 	"noFollowers": "No followers yet",
 	"noFollowing": "Not following anyone yet",
 	"followersDescription": "When people follow this user, they will appear here.",
@@ -190,6 +191,7 @@
 	"validationDescriptionMinLength": "Description must be at least 10 characters",
 	"validationDescriptionMaxLength": "Description must be less than 500 characters",
 	"validationUrlInvalid": "Please enter a valid URL",
+	"validationResetCodeInvalid": "Invalid reset code. Please enter the 6-digit code sent to your email.",
 
 	"notificationsLoading": "Loading notifications...",
 	"notificationsNewNotifications": "new notification",
@@ -278,5 +280,8 @@
 	"reply": "Reply",
 	"author": "Author",
 	"tourSearchHashtagMention": "Tip: Use {'#'} to search by tag (e.g. {'#'}vue) or {'@'} to search by username (e.g. {'@'}lumi).",
-	"tourCommentsMention": "Tip: Type {'@'} in the comment box to mention someone (e.g. {'@'}lumi)."
+	"tourCommentsMention": "Tip: Type {'@'} in the comment box to mention someone (e.g. {'@'}lumi).",
+	"resetPasswordFailed": "Failed to reset password. Please try again.",
+	"resetPasswordSuccess": "Password reset successful! You can now log in with your new password.",
+	"importFromGithub": "Import from GitHub"
 }

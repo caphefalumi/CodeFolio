@@ -59,7 +59,6 @@
 								</div>
 							</v-card-text>
 							<v-card-actions class="justify-center align-center">
-								
 								<v-btn
 									icon
 									@click="upvoteProject"
