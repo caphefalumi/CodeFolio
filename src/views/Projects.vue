@@ -26,7 +26,6 @@
 							variant="outlined"
 							hide-details
 							@focus="onTypeFilterFocus"
-							@blur="onTypeFilterBlur"
 						></v-select>
 					</v-col>
 					<v-col cols="12" md="4">
@@ -47,7 +46,6 @@
 							variant="outlined"
 							hide-details
 							@focus="onSortFocus"
-							@blur="onSortBlur"
 						></v-select>
 					</v-col>
 				</v-row>

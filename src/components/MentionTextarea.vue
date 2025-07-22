@@ -15,7 +15,6 @@
 			@input="handleInput"
 			@keydown="handleKeydown"
 			@click="handleClick"
-			@blur="handleBlur"
 		></v-textarea>
 
 		<!-- Mention Dropdown -->
@@ -186,11 +185,6 @@
 				this.checkForMention()
 			},
 
-			handleBlur() {
-				setTimeout(() => {
-					this.closeMentions()
-				}, 200)
-			},
 
 			checkForMention() {
 				const textarea = this.$refs.textareaRef.$el.querySelector("textarea")

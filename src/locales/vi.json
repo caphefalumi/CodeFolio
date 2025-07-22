@@ -267,7 +267,7 @@
 	"confirmDelete": "Bạn có chắc chắn muốn xóa bình luận này không?",
 	"edited": "(đã chỉnh sửa)",
 	"reply": "Trả lời",
-
+	"author": "Tác giả",
 	"homeWhatIsTitle": "CodeFolio là gì?",
 	"homeWhatIsDescription": "CodeFolio là nền tảng portfolio và mạng xã hội toàn diện cho lập trình viên và nhà sáng tạo. Được xây dựng với MEVN stack (MongoDB, Express, Vue 3, Bun), nền tảng cho phép người dùng trưng bày dự án, nhận phản hồi và kết nối với cộng đồng cùng chí hướng. Hệ thống hỗ trợ xác thực đa phương thức, tính năng thời gian thực, trang dự án phong phú, hệ thống bình luận lồng nhau và bảo mật mạnh mẽ.",
 	"homeFrontendTitle": "Giao diện người dùng",
@@ -276,6 +276,6 @@
 	"homeBackendDesc": "Bun, Express, MongoDB, Mongoose, RESTful API",
 	"homeSecurityTitle": "Bảo mật",
 	"homeSecurityDesc": "OAuth, JWT RS256, Khóa mã hóa, Cookie bảo mật",
-	"tourSearchHashtagMention": "Mẹo: Dùng # để tìm theo thẻ (ví dụ #vue) hoặc @ để tìm theo tên người dùng (ví dụ @lumi).",
-	"tourCommentsMention": "Mẹo: Gõ @ trong ô bình luận để nhắc đến ai đó (ví dụ @lumi)."
+	"tourSearchHashtagMention": "Mẹo: Dùng # để tìm theo thẻ (ví dụ #vue) hoặc {'@'} để tìm theo tên người dùng (ví dụ {'@'}lumi).",
+	"tourCommentsMention": "Mẹo: Gõ {'@'} trong ô bình luận để nhắc đến ai đó (ví dụ {'@'}lumi)."
 }

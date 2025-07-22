@@ -158,7 +158,6 @@ export function startAppTour(router, i18n) {
 			tour
 		),
 	})
-
 	// --- Projects Page ---
 	tour.addStep({
 		id: "projects-page-welcome",
@@ -314,7 +313,6 @@ export function startAppTour(router, i18n) {
 			tour
 		),
 	})
-
 	// --- Notification & User Menu ---
 	const loginBtn = document.querySelector("#tour-step-login-button")
 	if (loginBtn) {
