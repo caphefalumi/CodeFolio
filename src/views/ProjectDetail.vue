@@ -29,7 +29,7 @@
 								</div>
 							</v-card-title>
 							<v-card-subtitle>
-								<span>By </span>
+								<span>{{ $t('author') }}: </span>
 								<v-btn
 									variant="text"
 									color="primary"
