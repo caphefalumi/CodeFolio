@@ -58,7 +58,6 @@
 				(currentStep === 2 && !skipEmailStep) ||
 				(currentStep === 1 && skipEmailStep)
 			"
-			
 			:loading="loading"
 			:error-message="errorMessage"
 			:success-message="successMessage"
@@ -195,7 +194,8 @@
 			rules() {
 				return {
 					required: v => !!v || this.$t("validationRequired"),
-					resetCode: v => /^\d{6}$/.test(v) || this.$t("validationResetCodeInvalid"),
+					resetCode: v =>
+						/^\d{6}$/.test(v) || this.$t("validationResetCodeInvalid"),
 					email: v =>
 						/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v) ||
 						this.$t("validationEmailInvalid"),
@@ -218,10 +218,7 @@
 					(this.currentStep === 2 && !this.skipEmailStep) ||
 					(this.currentStep === 1 && this.skipEmailStep)
 				) {
-					return (
-						this.resetCode &&
-						this.rules.resetCode(this.resetCode) === true
-					)
+					return this.resetCode && this.rules.resetCode(this.resetCode) === true
 				} else if (
 					(this.currentStep === 3 && !this.skipEmailStep) ||
 					(this.currentStep === 2 && this.skipEmailStep)

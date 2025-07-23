@@ -336,7 +336,6 @@
 							<v-btn
 								color="secondary"
 								variant="outlined"
-								
 								@click="showGithubRepoDialog = true"
 								v-if="
 									editForm.githubUrl ||
@@ -347,7 +346,7 @@
 										))
 								"
 							>
-								{{ $t('importFromGithub') }}
+								{{ $t("importFromGithub") }}
 							</v-btn>
 						</v-col>
 					</v-row>
@@ -372,7 +371,7 @@
 						<template #actions>
 							<v-spacer></v-spacer>
 							<app-button color="primary" @click="showGithubRepoDialog = false">
-								{{ $t('close') }}
+								{{ $t("close") }}
 							</app-button>
 						</template>
 					</app-dialog>

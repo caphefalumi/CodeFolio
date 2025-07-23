@@ -1,8 +1,5 @@
 <template>
-	<v-form
-		@submit.prevent="handleSubmit"
-		class="app-form"
-	>
+	<v-form @submit.prevent="handleSubmit" class="app-form">
 		<slot></slot>
 
 		<app-alert

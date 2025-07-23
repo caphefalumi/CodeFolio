@@ -50,7 +50,12 @@
 							role="table"
 						>
 							<template #item.actions="{ item }">
-								<v-btn icon @click="editUser(item)" :aria-label="$t('editUser')" :disabled="currentUserRole !== 'admin'">
+								<v-btn
+									icon
+									@click="editUser(item)"
+									:aria-label="$t('editUser')"
+									:disabled="currentUserRole !== 'admin'"
+								>
 									<v-icon>mdi-pencil</v-icon>
 								</v-btn>
 								<v-btn
@@ -281,14 +286,13 @@
 			filteredUsers() {
 				if (!this.userSearch) return this.users
 				const q = this.userSearch.toLowerCase()
-				return this.users
-					.filter(u =>
+				return this.users.filter(
+					u =>
 						u.email?.toLowerCase().includes(q) ||
 						u.username?.toLowerCase().includes(q) ||
 						u.firstName?.toLowerCase().includes(q) ||
 						u.lastName?.toLowerCase().includes(q)
-					)
-					
+				)
 			},
 
 			filteredPosts() {
@@ -371,8 +375,8 @@
 					this.currentUserId = this.currentUser._id
 					this.currentUserRole = this.currentUser.role
 
-					const isAdmin = this.currentUser.role === 'admin'
-					const isModerator = this.currentUser.role === 'moderator'
+					const isAdmin = this.currentUser.role === "admin"
+					const isModerator = this.currentUser.role === "moderator"
 
 					if (isAdmin || isModerator) {
 						this.isLoading = false
@@ -407,7 +411,7 @@
 			},
 			openUserDialog() {
 				const currentUser = this.users.find(u => u._id === this.currentUserId)
-				if (!currentUser || currentUser.role !== 'admin') return // Only admin can open
+				if (!currentUser || currentUser.role !== "admin") return // Only admin can open
 				this.editingUser = null
 				this.userForm = {
 					email: "",
@@ -419,13 +423,13 @@
 				this.userDialog = true
 			},
 			editUser(user) {
-				if (!this.currentUser || this.currentUser.role !== 'admin') return
+				if (!this.currentUser || this.currentUser.role !== "admin") return
 				this.editingUser = user
 				this.userForm = { ...user, password: "" }
 				this.userDialog = true
 			},
 			saveUser() {
-				if (!this.currentUser || this.currentUser.role !== 'admin') return
+				if (!this.currentUser || this.currentUser.role !== "admin") return
 				if (this.editingUser) {
 					axios
 						.patch(
@@ -457,7 +461,7 @@
 				}
 			},
 			deleteUser(user) {
-				if (!this.currentUser || this.currentUser.role !== 'admin') return // Only admin can delete
+				if (!this.currentUser || this.currentUser.role !== "admin") return // Only admin can delete
 				if (confirm(this.$t("deleteUser"))) {
 					axios
 						.delete(
@@ -538,10 +542,10 @@
 			},
 			canEditRole() {
 				// Only admin can edit roles
-				return this.currentUser && this.currentUser.role === 'admin'
+				return this.currentUser && this.currentUser.role === "admin"
 			},
 			isRoleChangeDisabled() {
-				return !(this.currentUser && this.currentUser.role === 'admin')
+				return !(this.currentUser && this.currentUser.role === "admin")
 			},
 			async changeUserRole(user) {
 				try {
@@ -552,7 +556,7 @@
 					)
 					this.fetchUsers()
 				} catch (error) {
-					console.error('Error changing user role:', error)
+					console.error("Error changing user role:", error)
 				}
 			},
 		},

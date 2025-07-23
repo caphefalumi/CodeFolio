@@ -2,7 +2,6 @@
 import Shepherd from "shepherd.js"
 import "shepherd.js/dist/css/shepherd.css"
 
-// TODO: Add function to continue the tour
 export function startAppTour(router, i18n) {
 	const savedTourState = localStorage.getItem("tour-state")
 	let shouldResume = false

@@ -14,11 +14,15 @@
 					<v-btn
 						icon
 						@click="toggleTheme"
-						:aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
+						:aria-label="
+							isDark ? 'Switch to light theme' : 'Switch to dark theme'
+						"
 						v-bind="props"
 						id="tour-step-theme-toggle"
 					>
-						<v-icon>{{ isDark ? "mdi-weather-night" : "mdi-weather-sunny" }}</v-icon>
+						<v-icon>{{
+							isDark ? "mdi-weather-night" : "mdi-weather-sunny"
+						}}</v-icon>
 					</v-btn>
 				</template>
 			</v-tooltip>
@@ -27,20 +31,34 @@
 
 			<v-tooltip text="Home" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{ $t("navHome") }}</v-btn>
+					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{
+						$t("navHome")
+					}}</v-btn>
 				</template>
 			</v-tooltip>
 
 			<v-tooltip text="Projects" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/projects" text v-bind="props" id="tour-step-projects-nav">{{ $t("navProjects") }}</v-btn>
+					<v-btn
+						to="/projects"
+						text
+						v-bind="props"
+						id="tour-step-projects-nav"
+						>{{ $t("navProjects") }}</v-btn
+					>
 				</template>
 			</v-tooltip>
 
 			<!-- Admin Button only visible on md and up -->
-			<v-tooltip v-if="isAdmin && !$vuetify.display.smAndDown" text="Admin" location="bottom">
+			<v-tooltip
+				v-if="isAdmin && !$vuetify.display.smAndDown"
+				text="Admin"
+				location="bottom"
+			>
 				<template #activator="{ props }">
-					<v-btn to="/admin" id="admin-nav" text v-bind="props">{{ $t("navAdmin") }}</v-btn>
+					<v-btn to="/admin" id="admin-nav" text v-bind="props">{{
+						$t("navAdmin")
+					}}</v-btn>
 				</template>
 			</v-tooltip>
 
@@ -53,7 +71,12 @@
 						id="notification-trigger"
 						v-bind="props"
 					>
-						<v-badge :content="unreadCount" :value="unreadCount > 0" color="error" overlap>
+						<v-badge
+							:content="unreadCount"
+							:value="unreadCount > 0"
+							color="error"
+							overlap
+						>
 							<v-icon>mdi-bell{{ unreadCount > 0 ? "" : "-outline" }}</v-icon>
 						</v-badge>
 					</v-btn>
@@ -72,7 +95,11 @@
 								:aria-label="`${username}`"
 							>
 								<v-avatar size="32" v-if="avatar">
-									<v-img :src="avatar" :alt="`${username} profile picture`" cover></v-img>
+									<v-img
+										:src="avatar"
+										:alt="`${username} profile picture`"
+										cover
+									></v-img>
 								</v-avatar>
 								<v-avatar v-else size="32" class="bg-grey lighten-2"></v-avatar>
 							</v-btn>
@@ -86,7 +113,12 @@
 					</v-list-item>
 
 					<!-- Admin menu item on small screens -->
-					<v-list-item v-if="isAdmin && $vuetify.display.smAndDown" to="/admin" role="menuitem" id="admin-nav-small">
+					<v-list-item
+						v-if="isAdmin && $vuetify.display.smAndDown"
+						to="/admin"
+						role="menuitem"
+						id="admin-nav-small"
+					>
 						<v-list-item-title>{{ $t("navAdmin") }}</v-list-item-title>
 					</v-list-item>
 
@@ -99,7 +131,9 @@
 			<!-- Login button if not authenticated -->
 			<v-tooltip v-else text="Login" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/login" text v-bind="props" id="tour-step-login-button">{{ $t("navLogin") }}</v-btn>
+					<v-btn to="/login" text v-bind="props" id="tour-step-login-button">{{
+						$t("navLogin")
+					}}</v-btn>
 				</template>
 			</v-tooltip>
 		</v-app-bar>
@@ -127,7 +161,6 @@
 		</v-footer>
 	</v-app>
 </template>
-
 
 <script>
 	import axios from "axios"
@@ -160,7 +193,10 @@
 		},
 		computed: {
 			isAdmin() {
-				return this.user && (this.user.role === "admin" || this.user.role === "moderator")
+				return (
+					this.user &&
+					(this.user.role === "admin" || this.user.role === "moderator")
+				)
 			},
 		},
 		methods: {
