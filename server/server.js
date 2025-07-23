@@ -21,7 +21,7 @@ const app = express()
 const corsOptions = {
 	origin: [
 		"http://localhost:3000",
-		"https://localhost:3000",
+		"http://localhost:5000",
 		"https://codefolio-phi.vercel.app",
 		"https://bechuotbedangyeu.vercel.app",
 		"http://tauri.localhost",

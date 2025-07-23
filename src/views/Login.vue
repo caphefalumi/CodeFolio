@@ -93,15 +93,13 @@
 		</v-row>
 
 		<!-- Forgot Password Dialog -->
-		<keep-alive>
-			<forgot-password-dialog
-				v-show="showForgotPassword"
-				:model-value="showForgotPassword"
-				:user-email="form.email"
-				@update:modelValue="showForgotPassword = $event"
-				@success="handleForgotPasswordSuccess"
-			/>
-		</keep-alive>
+		<forgot-password-dialog
+			v-if="showForgotPassword"
+			:model-value="showForgotPassword"
+			:user-email="form.email"
+			@update:modelValue="showForgotPassword = $event"
+			@success="handleForgotPasswordSuccess"
+		/>
 	</v-container>
 </template>
 
@@ -249,9 +247,11 @@
 			receiveGithubToken(event) {
 				const { accessToken, error: githubError } = event.data || {}
 				if (accessToken) {
+					console.log("GitHub access token received:", accessToken)
 					sessionStorage.setItem("accessToken", accessToken)
 					window.location.href = "/"
 				} else if (githubError) {
+					console.error("GitHub login error:", githubError)
 					this.errorMessage = githubError
 					window.location.reload()
 				} // Always reset loading state when we receive a message

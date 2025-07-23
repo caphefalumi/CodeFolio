@@ -27,6 +27,7 @@
 							color="primary"
 							class="mb-4"
 							@click="openUserDialog()"
+							:disabled="currentUserRole !== 'admin'"
 						>
 							{{ $t("addUser") }}
 						</v-btn>
@@ -49,15 +50,17 @@
 							role="table"
 						>
 							<template #item.actions="{ item }">
-								<v-btn icon @click="editUser(item)" :aria-label="$t('editUser')"
-									><v-icon>mdi-pencil</v-icon></v-btn
-								>
+								<v-btn icon @click="editUser(item)" :aria-label="$t('editUser')" :disabled="currentUserRole !== 'admin'">
+									<v-icon>mdi-pencil</v-icon>
+								</v-btn>
 								<v-btn
 									icon
 									@click="deleteUser(item)"
 									:aria-label="$t('deleteUser')"
-									><v-icon>mdi-delete</v-icon></v-btn
+									:disabled="currentUserRole !== 'admin'"
 								>
+									<v-icon>mdi-delete</v-icon>
+								</v-btn>
 							</template>
 						</v-data-table>
 					</v-col>
@@ -101,6 +104,15 @@
 								:required="!editingUser"
 								maxlength="128"
 							></v-text-field>
+							<v-select
+								v-model="userForm.role"
+								:label="$t('role')"
+								:items="['user', 'moderator', 'admin']"
+								:disabled="!canEditRole()"
+								:rules="[value => value !== '' || $t('roleRequired')]"
+								hide-details
+								class="mt-4"
+							></v-select>
 						</v-card-text>
 						<v-card-actions>
 							<v-btn color="primary" @click="saveUser">{{ $t("save") }}</v-btn>
@@ -225,6 +237,7 @@
 				postDialog: false,
 				editingUser: null,
 				editingPost: null,
+				currentUser: null,
 				userForm: {
 					email: "",
 					username: "",
@@ -242,6 +255,8 @@
 				showPassword: false,
 				userSearch: "",
 				postSearch: "",
+				currentUserId: null, // Track current user ID
+				currentUserRole: null, // Track current user role
 			}
 		},
 		computed: {
@@ -251,6 +266,7 @@
 					{ text: this.$t("username"), value: "username" },
 					{ text: this.$t("firstName"), value: "firstName" },
 					{ text: this.$t("lastName"), value: "lastName" },
+					{ text: this.$t("role"), value: "role" },
 					{ text: this.$t("actions"), value: "actions", sortable: false },
 				]
 			},
@@ -265,14 +281,16 @@
 			filteredUsers() {
 				if (!this.userSearch) return this.users
 				const q = this.userSearch.toLowerCase()
-				return this.users.filter(
-					u =>
+				return this.users
+					.filter(u =>
 						u.email?.toLowerCase().includes(q) ||
 						u.username?.toLowerCase().includes(q) ||
 						u.firstName?.toLowerCase().includes(q) ||
 						u.lastName?.toLowerCase().includes(q)
-				)
+					)
+					
 			},
+
 			filteredPosts() {
 				if (!this.postSearch) return this.posts
 				const q = this.postSearch.toLowerCase()
@@ -342,20 +360,23 @@
 				}
 
 				try {
-					const currentUser = await fetchCurrentUser()
+					this.currentUser = await fetchCurrentUser()
 
-					if (!currentUser) {
+					if (!this.currentUser) {
 						this.showNotFound = true
 						this.isLoading = false
 						return
 					}
 
-					const isAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL
+					this.currentUserId = this.currentUser._id
+					this.currentUserRole = this.currentUser.role
 
-					if (isAdmin) {
+					const isAdmin = this.currentUser.role === 'admin'
+					const isModerator = this.currentUser.role === 'moderator'
+
+					if (isAdmin || isModerator) {
 						this.isLoading = false
-						// Load admin data
-						this.fetchUsers()
+						if (isAdmin) this.fetchUsers()
 						this.fetchPosts()
 						this.initializeTabFromUrl()
 					} else {
@@ -385,6 +406,8 @@
 					.catch(() => {})
 			},
 			openUserDialog() {
+				const currentUser = this.users.find(u => u._id === this.currentUserId)
+				if (!currentUser || currentUser.role !== 'admin') return // Only admin can open
 				this.editingUser = null
 				this.userForm = {
 					email: "",
@@ -396,11 +419,13 @@
 				this.userDialog = true
 			},
 			editUser(user) {
+				if (!this.currentUser || this.currentUser.role !== 'admin') return
 				this.editingUser = user
 				this.userForm = { ...user, password: "" }
 				this.userDialog = true
 			},
 			saveUser() {
+				if (!this.currentUser || this.currentUser.role !== 'admin') return
 				if (this.editingUser) {
 					axios
 						.patch(
@@ -432,6 +457,7 @@
 				}
 			},
 			deleteUser(user) {
+				if (!this.currentUser || this.currentUser.role !== 'admin') return // Only admin can delete
 				if (confirm(this.$t("deleteUser"))) {
 					axios
 						.delete(
@@ -509,6 +535,25 @@
 			},
 			closePostDialog() {
 				this.postDialog = false
+			},
+			canEditRole() {
+				// Only admin can edit roles
+				return this.currentUser && this.currentUser.role === 'admin'
+			},
+			isRoleChangeDisabled() {
+				return !(this.currentUser && this.currentUser.role === 'admin')
+			},
+			async changeUserRole(user) {
+				try {
+					await axios.patch(
+						`${import.meta.env.VITE_SERVER_URL}/api/users/${user._id}`,
+						{ role: user.role },
+						{ headers: this.authHeaders }
+					)
+					this.fetchUsers()
+				} catch (error) {
+					console.error('Error changing user role:', error)
+				}
 			},
 		},
 	}

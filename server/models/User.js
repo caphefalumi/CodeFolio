@@ -101,6 +101,11 @@ const userSchema = new mongoose.Schema({
 	resetCodeExpires: {
 		type: Date,
 	},
+	role: {
+		type: String,
+		enum: ["admin", "moderator", "user"],
+		default: "user",
+	},
 })
 
 userSchema.statics.findByUsername = function (username) {

@@ -408,6 +408,7 @@ router.get("/login/github/callback", async (req, res) => {
 			</script>
 		`)
 	} catch (err) {
+		console.error("GitHub login error:", err)
 		res.status(500).json({
 			message: "GitHub login failed",
 			error: err.message || err,

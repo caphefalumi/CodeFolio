@@ -6,50 +6,44 @@
 					CodeFolio
 				</router-link>
 			</v-app-bar-title>
+
 			<v-spacer></v-spacer>
+
 			<v-tooltip text="Switch theme" location="bottom">
 				<template #activator="{ props }">
 					<v-btn
 						icon
 						@click="toggleTheme"
-						:aria-label="
-							isDark ? 'Switch to light theme' : 'Switch to dark theme'
-						"
+						:aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
 						v-bind="props"
 						id="tour-step-theme-toggle"
 					>
-						<v-icon>{{
-							isDark ? "mdi-weather-night" : "mdi-weather-sunny"
-						}}</v-icon>
+						<v-icon>{{ isDark ? "mdi-weather-night" : "mdi-weather-sunny" }}</v-icon>
 					</v-btn>
 				</template>
 			</v-tooltip>
+
 			<language-switcher />
+
 			<v-tooltip text="Home" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{
-						$t("navHome")
-					}}</v-btn>
+					<v-btn to="/" text v-bind="props" id="tour-step-home-nav">{{ $t("navHome") }}</v-btn>
 				</template>
 			</v-tooltip>
+
 			<v-tooltip text="Projects" location="bottom">
 				<template #activator="{ props }">
-					<v-btn
-						to="/projects"
-						text
-						v-bind="props"
-						id="tour-step-projects-nav"
-						>{{ $t("navProjects") }}</v-btn
-					>
+					<v-btn to="/projects" text v-bind="props" id="tour-step-projects-nav">{{ $t("navProjects") }}</v-btn>
 				</template>
 			</v-tooltip>
-			<v-tooltip v-if="isAdmin" text="Admin" location="bottom">
+
+			<!-- Admin Button only visible on md and up -->
+			<v-tooltip v-if="isAdmin && !$vuetify.display.smAndDown" text="Admin" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/admin" id="admin-nav" text v-bind="props">{{
-						$t("navAdmin")
-					}}</v-btn>
+					<v-btn to="/admin" id="admin-nav" text v-bind="props">{{ $t("navAdmin") }}</v-btn>
 				</template>
 			</v-tooltip>
+
 			<v-tooltip v-if="isAuthenticated" text="Notifications" location="bottom">
 				<template #activator="{ props }">
 					<v-btn
@@ -59,17 +53,14 @@
 						id="notification-trigger"
 						v-bind="props"
 					>
-						<v-badge
-							:content="unreadCount"
-							:value="unreadCount > 0"
-							color="error"
-							overlap
-						>
+						<v-badge :content="unreadCount" :value="unreadCount > 0" color="error" overlap>
 							<v-icon>mdi-bell{{ unreadCount > 0 ? "" : "-outline" }}</v-icon>
 						</v-badge>
 					</v-btn>
 				</template>
 			</v-tooltip>
+
+			<!-- User Menu -->
 			<v-menu v-if="isAuthenticated" offset-y>
 				<template #activator="{ props }">
 					<v-tooltip text="User menu" location="bottom">
@@ -81,36 +72,39 @@
 								:aria-label="`${username}`"
 							>
 								<v-avatar size="32" v-if="avatar">
-									<v-img
-										:src="avatar"
-										:alt="`${username} profile picture`"
-										cover
-									></v-img>
+									<v-img :src="avatar" :alt="`${username} profile picture`" cover></v-img>
 								</v-avatar>
 								<v-avatar v-else size="32" class="bg-grey lighten-2"></v-avatar>
 							</v-btn>
 						</template>
 					</v-tooltip>
 				</template>
+
 				<v-list role="menu">
 					<v-list-item :to="`/${username}`" role="menuitem">
 						<v-list-item-title>{{ $t("navProfile") }}</v-list-item-title>
 					</v-list-item>
+
+					<!-- Admin menu item on small screens -->
+					<v-list-item v-if="isAdmin && $vuetify.display.smAndDown" to="/admin" role="menuitem" id="admin-nav-small">
+						<v-list-item-title>{{ $t("navAdmin") }}</v-list-item-title>
+					</v-list-item>
+
 					<v-list-item @click="logout" role="menuitem">
 						<v-list-item-title>{{ $t("navLogout") }}</v-list-item-title>
 					</v-list-item>
 				</v-list>
 			</v-menu>
+
+			<!-- Login button if not authenticated -->
 			<v-tooltip v-else text="Login" location="bottom">
 				<template #activator="{ props }">
-					<v-btn to="/login" text v-bind="props" id="tour-step-login-button">{{
-						$t("navLogin")
-					}}</v-btn>
+					<v-btn to="/login" text v-bind="props" id="tour-step-login-button">{{ $t("navLogin") }}</v-btn>
 				</template>
 			</v-tooltip>
 		</v-app-bar>
 
-		<!-- Notification Dropdown Positioned Outside App Bar -->
+		<!-- Notification Dropdown -->
 		<notification-dropdown
 			v-if="isAuthenticated"
 			:show="showNotifications"
@@ -123,6 +117,7 @@
 				<router-view></router-view>
 			</v-container>
 		</v-main>
+
 		<v-footer app color="primary" dark role="contentinfo">
 			<v-row justify="center" no-gutters>
 				<v-col class="text-center" cols="12">
@@ -132,6 +127,7 @@
 		</v-footer>
 	</v-app>
 </template>
+
 
 <script>
 	import axios from "axios"
@@ -164,7 +160,7 @@
 		},
 		computed: {
 			isAdmin() {
-				return this.user && this.user.email === import.meta.env.VITE_ADMIN_EMAIL
+				return this.user && (this.user.role === "admin" || this.user.role === "moderator")
 			},
 		},
 		methods: {

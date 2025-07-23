@@ -382,8 +382,8 @@
 
 				const typeCounts = {}
 
-				if (this.topProjects && this.topProjects.length > 0) {
-					this.topProjects.forEach(project => {
+				if (this.allProjects && this.allProjects.length > 0) {
+					this.allProjects.forEach(project => {
 						const type = project.type || "Other"
 						typeCounts[type] = (typeCounts[type] || 0) + 1
 					})
