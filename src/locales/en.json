@@ -37,8 +37,10 @@
 	"register": "Register",
 	"alreadyHaveAccount": "Already have an account?",
 	"login": "Login",
+	"registerSuccess": "Register successful! Redirecting to login...",
 
 	"newPassword": "New Password",
+	"confirmPassword": "Confirm Password",
 
 	"editProfile": "Edit Profile",
 	"profileResetPassword": "Reset Password",

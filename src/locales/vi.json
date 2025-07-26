@@ -14,6 +14,7 @@
 	"loginTitle": "Đăng nhập vào CodeFolio",
 	"email": "Email",
 	"password": "Mật khẩu",
+	"confirmPassword": "Xác nhận mật khẩu",
 	"forgotPassword": "Quên mật khẩu?",
 	"forgotPasswordTitle": "Đặt lại mật khẩu",
 	"forgotPasswordSubtitle": "Nhập địa chỉ email và chúng tôi sẽ gửi cho bạn mã đặt lại",
@@ -37,6 +38,7 @@
 	"register": "Đăng ký",
 	"alreadyHaveAccount": "Đã có tài khoản?",
 	"login": "Đăng nhập",
+	"registerSuccess": "Đăng ký thành công! Đang chuyển hướng đến đăng nhập...",
 
 	"newPassword": "Mật khẩu mới",
 

@@ -85,7 +85,28 @@
 								aria-required="true"
 								aria-labelledby="register-password-label"
 							></v-text-field>
+							<v-text-field
+								v-model="form.confirmPassword"
+								:label="$t('confirmPassword')"
+								id="register-confirm-password"
+								type="password"
+								required
+								:rules="[rules.required, rules.confirmPassword]"
+								autocomplete="new-password"
+								maxlength="128"
+								aria-required="true"
+								aria-labelledby="register-confirm-password-label"
+							></v-text-field>
 						</app-form>
+						<v-snackbar
+							v-model="showSuccess"
+							color="success"
+							top
+							rounded="pill"
+							timeout="4000"
+						>
+							{{ $t("registerSuccess") }}
+						</v-snackbar>
 						<div class="mt-4 text-center">
 							{{ $t("alreadyHaveAccount") }}
 							<router-link to="/login">{{ $t("login") }}</router-link>
@@ -125,20 +146,13 @@
 					confirmPassword: "",
 				},
 				errorMessage: "",
+				showSuccess: false,
 			}
 		},
 		computed: {
 			rules() {
 				return {
 					required: v => !!v || this.$t("validationRequired"),
-					name: v => {
-						if (!v) return this.$t("validationRequired")
-						if (v.length < 2) return this.$t("validationNameMinLength")
-						if (v.length > 50) return this.$t("validationNameMaxLength")
-						if (!/^[a-zA-Z\s'-]+$/.test(v))
-							return this.$t("validationNameInvalid")
-						return true
-					},
 					email: v => /.+@.+\..+/.test(v) || this.$t("validationEmailInvalid"),
 					username: v => {
 						if (!v) return this.$t("validationRequired")
@@ -162,11 +176,6 @@
 			},
 			isFormValid() {
 				return (
-					this.form.firstName &&
-					this.rules.name(this.form.firstName) === true &&
-					this.form.lastName &&
-					this.rules.name(this.form.lastName) === true &&
-					this.form.email &&
 					this.rules.email(this.form.email) === true &&
 					this.form.username &&
 					this.rules.username(this.form.username) === true &&
@@ -192,7 +201,10 @@
 							password: this.form.password,
 						}
 					)
-					this.$router.push("/login")
+					this.showSuccess = true
+					setTimeout(() => {
+						this.$router.push("/login")
+					}, 2500)
 				} catch (error) {
 					if (error.response && error.response.status === 400) {
 						if (
