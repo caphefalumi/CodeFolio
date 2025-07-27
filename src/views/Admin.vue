@@ -100,15 +100,6 @@
 								required
 								maxlength="50"
 							></v-text-field>
-							<v-text-field
-								v-model="userForm.password"
-								:label="$t('password')"
-								:type="showPassword ? 'text' : 'password'"
-								:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-								@click:append="showPassword = !showPassword"
-								:required="!editingUser"
-								maxlength="128"
-							></v-text-field>
 							<v-select
 								v-model="userForm.role"
 								:label="$t('role')"

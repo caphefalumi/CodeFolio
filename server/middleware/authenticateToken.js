@@ -22,28 +22,21 @@ function authenticateAccessToken(req, res, next) {
 				"Access denied. No access token provided in Authorization header or cookies.",
 		})
 	}
-	try {
-		jwt.verify(
-			accessToken,
-			publicKey,
-			{ algorithms: ["RS256"] },
-			(err, decoded) => {
-				if (err) {
-					console.error("Access token verification error:", err.message)
-					return res.status(403).json({
-						message: "Not authorized",
-					})
-				}
-				req.user = decoded
-				next()
+	jwt.verify(
+		accessToken,
+		publicKey,
+		{ algorithms: ["RS256"] },
+		(err, decoded) => {
+			if (err) {
+				console.error("Access token verification error:", err.message)
+				return res.status(403).json({
+					message: "Not authorized",
+				})
 			}
-		)
-	} catch (error) {
-		console.error("Authentication middleware error:", error)
-		return res.status(500).json({
-			message: "Authentication server error",
-		})
-	}
+			req.user = decoded
+			next()
+		}
+	)
 }
 
 export default authenticateAccessToken

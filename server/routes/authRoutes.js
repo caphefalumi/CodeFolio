@@ -50,7 +50,6 @@ router.post("/refreshToken", async (req, res) => {
 			console.log("JWT verification error in routes:", err.message)
 			return res.sendStatus(403)
 		}
-		console.log(refreshToken)
 		const user = await User.findOne({ "refreshTokens.token": refreshToken })
 		if (!user) {
 			return res.sendStatus(403)

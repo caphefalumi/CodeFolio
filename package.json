@@ -25,13 +25,13 @@
 		"concurrently": "^9.2.0",
 		"core-js": "^3.44.0",
 		"dotenv": "^17.2.0",
+		"eslint-plugin-security": "^3.0.1",
 		"html2canvas-pro": "^1.5.11",
 		"html2pdf.js": "^0.9.3",
 		"jspdf": "^3.0.1",
 		"lodash-es": "^4.17.21",
 		"markdown-it": "^14.1.0",
 		"marked": "^16.1.1",
-		"node-cron": "^4.2.1",
 		"quill": "^2.0.3",
 		"shepherd.js": "^14.5.0",
 		"vue": "^3.5.18",
@@ -65,7 +65,8 @@
 		"extends": [
 			"eslint:recommended",
 			"@vue/eslint-config-prettier",
-			"plugin:vue/vue3-essential"
+			"plugin:vue/vue3-essential",
+			"plugin:security/recommended"
 		],
 		"parserOptions": {
 			"ecmaVersion": 2021,

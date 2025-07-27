@@ -6,7 +6,6 @@ import Post from "../models/Post.js"
 import User from "../models/User.js"
 import { extractMentions, notifyMentionedUsers } from "../utils/mentions.js"
 import { isAuthorizedUser } from "../utils/adminCheck.js"
-import { NodeHtmlMarkdown } from "node-html-markdown"
 
 const router = express.Router()
 const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
