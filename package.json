@@ -13,10 +13,7 @@
 		"server": "cd server && bun run server",
 		"deploy": "concurrently \"vercel --prod\" \"cd server && vercel --prod\" \"bun run docker\"",
 		"deploy:all": "concurrently \"bun run deploy\" \"vite build\"",
-		"docker": "docker-compose up -d --build && docker stop codefolio-frontend-1 codefolio-backend-1",
-		"tauri": "tauri",
-		"tauri:dev": "tauri dev",
-		"tauri:build": "tauri build"
+		"docker": "docker-compose up -d --build && docker stop codefolio-frontend-1 codefolio-backend-1'"
 	},
 	"dependencies": {
 		"@formkit/auto-animate": "^0.8.2",

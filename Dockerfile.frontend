@@ -8,13 +8,12 @@ COPY package.json vite.config.js ./
 COPY index.html ./
 COPY public ./public
 COPY src ./src
-COPY .env ./
+COPY .env.local ./
 # Install dependencies and build the app
 RUN bun install && bun run build
 
 
 # Expose the port
 EXPOSE 3000
-RUN bun install serve
 # Serve the built app
-CMD ["bun", "run", "serve", "-s", "dist", "-l", "3000"]
+CMD ["bun", "vite", "preview"]

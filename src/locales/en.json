@@ -285,5 +285,6 @@
 	"tourCommentsMention": "Tip: Type {'@'} in the comment box to mention someone (e.g. {'@'}lumi).",
 	"resetPasswordFailed": "Failed to reset password. Please try again.",
 	"resetPasswordSuccess": "Password reset successful! You can now log in with your new password.",
-	"importFromGithub": "Import from GitHub"
+	"importFromGithub": "Import from GitHub",
+	"role": "Role"
 }

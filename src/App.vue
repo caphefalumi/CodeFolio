@@ -184,12 +184,11 @@
 				tokenRefreshInterval: null,
 				showNotifications: false,
 				unreadCount: 0,
+				isInitialized: false, // Add flag to prevent repeated initialization
 			}
 		},
-		mounted() {
-			this.fetchToken()
-			this.loadThemePreference()
-			this.loadUnreadCount()
+		async mounted() {
+			await this.initializeApp()
 		},
 		computed: {
 			isAdmin() {
@@ -200,6 +199,15 @@
 			},
 		},
 		methods: {
+			// New method to handle app initialization
+			async initializeApp() {
+				if (this.isInitialized) return
+				
+				this.loadThemePreference()
+				await this.fetchToken()
+				this.isInitialized = true
+			},
+
 			async fetchProfile() {
 				try {
 					this.user = await fetchCurrentUser()
@@ -224,7 +232,7 @@
 						)
 						if (response.data.valid) {
 							this.isAuthenticated = true
-							this.fetchProfile()
+							await this.fetchProfile()
 							this.startTokenRefreshTimer()
 						} else {
 							await this.getNewToken()
@@ -249,7 +257,8 @@
 					sessionStorage.setItem("accessToken", newToken)
 					this.isAuthenticated = true
 					if (!silent) {
-						this.fetchToken()
+						await this.fetchProfile()
+						this.startTokenRefreshTimer()
 					}
 				} catch (error) {
 					console.error("Error fetching new token:", error)
@@ -293,6 +302,7 @@
 				this.isDark = savedTheme === "dark"
 				this.$vuetify.theme.change(this.isDark ? "dark" : "light")
 			},
+
 			logout() {
 				axios
 					.post(
@@ -316,6 +326,7 @@
 			toggleNotifications() {
 				this.showNotifications = !this.showNotifications
 			},
+
 			updateUnreadCount(count) {
 				this.unreadCount = count
 			},
@@ -342,12 +353,60 @@
 					this.unreadCount = 0
 				}
 			},
+
+			// Handle route changes more carefully
+			handleRouteChange(to, from) {
+				// Only refresh authentication state if we're moving to/from login/logout routes
+				// or if the user authentication state might have changed
+				const authRoutes = ['/login', '/logout', '/register']
+				const isAuthRoute = authRoutes.includes(to.path) || authRoutes.includes(from.path)
+				
+				if (isAuthRoute && this.isInitialized) {
+					// Only validate token, don't do full fetch
+					this.validateCurrentToken()
+				}
+			},
+
+			// New method to just validate without full refresh
+			async validateCurrentToken() {
+				const token = sessionStorage.getItem("accessToken")
+				if (!token) {
+					this.isAuthenticated = false
+					return
+				}
+
+				try {
+					const response = await axios.post(
+						`${import.meta.env.VITE_SERVER_URL}/api/auth/validate`,
+						{},
+						{
+							headers: { Authorization: `Bearer ${token}` },
+						}
+					)
+					this.isAuthenticated = response.data.valid
+					if (!response.data.valid) {
+						this.user = null
+						this.username = ""
+						this.avatar = ""
+					}
+				} catch (error) {
+					this.isAuthenticated = false
+					this.user = null
+					this.username = ""
+					this.avatar = ""
+				}
+			},
 		},
 
 		watch: {
-			$route() {
-				this.fetchToken()
-			},
+			// Replace the problematic watch with a more controlled one
+			$route: {
+				handler(to, from) {
+					this.handleRouteChange(to, from)
+				},
+				// Don't trigger on initial route
+				immediate: false
+			}
 		},
 	}
 </script>
