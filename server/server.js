@@ -2,6 +2,7 @@ import express from "express"
 import mongoose from "mongoose"
 import cookieParser from "cookie-parser"
 import rateLimit from 'express-rate-limit'
+import ExpressMongoSanitize from "express-mongo-sanitize"
 import cors from "cors"
 import "dotenv/config"
 
@@ -13,12 +14,6 @@ import notificationRoutes from "./routes/notificationRoutes.js"
 import "./utils/refreshTokenCleanup.js"
 
 const app = express()
-
-// app.use((req, res, next) => {
-// 	const origin = req.get("Origin") || req.get("Referer") || "Unknown origin"
-// 	console.log(`Incoming request from: ${origin}`)
-// 	next()
-// })
 
 const corsOptions = {
 	origin: [
@@ -41,8 +36,11 @@ const limiter = rateLimit({
 
 app.use(cors(corsOptions))
 app.use(limiter)
+app.use(ExpressMongoSanitize({
+	allowDots: true,
+	replaceWith: '_'
+}))
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
 
 const db = mongoose.connection
@@ -54,12 +52,15 @@ db.once("open", () =>
 app.use(cookieParser())
 app.use(express.json({ limit: "50mb" }))
 app.use(express.urlencoded({ limit: "50mb", extended: true }))
+
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
 app.use("/api/auth", authRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use("/api/notifications", notificationRoutes)
+
 app.listen(process.env.SERVER_PORT, () => {
 	console.log(`Server is running on port ${process.env.SERVER_PORT}`)
 })
+
 export default app
