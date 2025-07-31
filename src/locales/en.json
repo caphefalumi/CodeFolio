@@ -286,5 +286,6 @@
 	"resetPasswordFailed": "Failed to reset password. Please try again.",
 	"resetPasswordSuccess": "Password reset successful! You can now log in with your new password.",
 	"importFromGithub": "Import from GitHub",
-	"role": "Role"
+	"role": "Role",
+	"tourStartOver": "Start Over"
 }

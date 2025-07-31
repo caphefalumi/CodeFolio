@@ -484,6 +484,17 @@ export function startAppTour(router, i18n) {
 				action: tour.complete,
 				classes: "shepherd-button-primary",
 			},
+			{
+				text: i18n.t("tourStartOver"),
+				action: () => {
+					localStorage.removeItem("tour-state")
+					tour.cancel()
+					setTimeout(() => {
+						tour.start()
+					}, 400)
+				},
+				classes: "shepherd-button-secondary",
+			},
 		],
 	})
 

@@ -2,6 +2,7 @@ import express from "express"
 import mongoose from "mongoose"
 import cookieParser from "cookie-parser"
 import rateLimit from 'express-rate-limit'
+import ExpressMongoSanitize from "express-mongo-sanitize"
 import cors from "cors"
 import "dotenv/config"
 
@@ -46,7 +47,16 @@ db.once("open", () =>
 app.use(cookieParser())
 app.use(express.json({ limit: "50mb" }))
 app.use(express.urlencoded({ limit: "50mb", extended: true }))
+app.use((req, _res, next) => {
+	Object.defineProperty(req, 'query', {
+		...Object.getOwnPropertyDescriptor(req, 'query'),
+		value: req.query,
+		writable: true,
+	})
 
+	next()
+})
+app.use(ExpressMongoSanitize())
 
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)

@@ -133,7 +133,7 @@
 				</v-col>
 
 				<!-- GitHub Stats -->
-				<v-col cols="12" md="6" v-if="project.githubUrl">
+				<v-col cols="12" md="6" v-if="project.githubUrl && githubStatsAvailable">
 					<section
 						aria-labelledby="github-stats-heading"
 						id="tour-step-github-stats"
@@ -369,6 +369,7 @@
 					downvoting: false,
 				},
 				githubStats: { stars: 0, forks: 0, issues: 0 },
+				githubStatsAvailable: false,
 				comments: [],
 				newComment: "",
 				errorMessage: "",
@@ -465,8 +466,10 @@
 						forks: forks_count,
 						issues: open_issues_count,
 					}
+					this.githubStatsAvailable = true
 				} catch (err) {
 					console.error("Error fetching GitHub stats:", err)
+					this.githubStatsAvailable = false
 				}
 			},
 			handleCommentFocus() {

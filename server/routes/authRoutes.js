@@ -581,11 +581,16 @@ router.post("/reset-password", authenticateToken, async (req, res) => {
 router.post("/change-password", async (req, res) => {
 	const { email, currentPassword, newPassword } = req.body
 	const user = await User.findOne({ email })
-	if (!user || !user.password) {
-		return res
-			.status(400)
-			.json({ message: "User not found or no password set" })
+	if (!user) {
+		return res.status(400).json({ message: "User not found" })
 	}
+	// If user has no password, allow them to set one
+	if (!user.password) {
+		user.password = await bcrypt.hash(newPassword, 10)
+		await user.save()
+		return res.json({ message: "Password set successfully" })
+	}
+	// If user has a password, require currentPassword to match
 	const isMatch = await bcrypt.compare(currentPassword, user.password)
 	if (!isMatch) {
 		return res.status(401).json({ message: "Current password is incorrect" })
