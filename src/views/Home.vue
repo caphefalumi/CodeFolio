@@ -129,13 +129,24 @@
 			axios
 				.get(`${import.meta.env.VITE_SERVER_URL}/api/posts/`)
 				.then(response => {
-					this.featuredProjects = response.data
-					console.log("Projects:", this.featuredProjects)
+					const posts = response.data.map(post => ({
+						...post,
+						score: (post.upvotes || 0) + (post.views || 0) + (post.comments?.length || 0)
+					}))
+
+					// Sort descending by score
+					posts.sort((a, b) => b.score - a.score)
+
+					// Optional: take only top 200 if needed
+					this.featuredProjects = posts.slice(0, 200)
+
+					console.log("Sorted Projects:", this.featuredProjects)
 				})
 				.catch(error => {
 					console.error("Error fetching featured projects:", error)
 				})
 		},
+
 		methods: {
 			startTour() {
 				startAppTour(this.$router, this)

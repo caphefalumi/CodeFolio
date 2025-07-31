@@ -3,7 +3,7 @@ import User from "../models/User.js"
 export const isAdmin = async userId => {
 	try {
 		const user = await User.findById(userId)
-		return user && user.email === "dangduytoan13l@gmail.com"
+		return user && user.role === "admin"
 	} catch (error) {
 		console.error("Error checking admin status:", error)
 		return false

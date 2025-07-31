@@ -119,9 +119,6 @@ postSchema.statics.findByAuthor = async function (username) {
 	return this.find({ author: user._id }).populate("author", "username avatar")
 }
 
-postSchema.virtual("getAuthor").get(async function () {
-	return User.findById(this.author).select("username")
-})
 postSchema.virtual("getFullPath").get(function () {
 	if (!this.author || !this.author.username) return null
 	return `${this.author.username}/${this._id}`

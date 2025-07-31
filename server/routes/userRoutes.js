@@ -10,7 +10,20 @@ const router = express.Router()
 router.get("/", async (req, res) => {
 	try {
 		const users = await User.find()
-		res.json(users)
+		// Map users to public userData objects
+		const usersData = users.map(user => ({
+			id: user._id,
+			username: user.username,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			bio: user.bio,
+			avatar: user.avatar,
+			followersCount: user.followersCount,
+			followingCount: user.followingCount,
+			createdAt: user.createdAt,
+			githubUrl: user.githubUrl,
+		}))
+		res.json(usersData)
 	} catch (error) {
 		res.status(500).json({ message: "Error fetching users", error })
 	}
@@ -82,7 +95,10 @@ router.get("/me", authenticateToken, async (req, res) => {
 		if (!user) {
 			return res.status(404).json({ message: "User not found" })
 		}
-		res.json(user)
+		// Remove refreshTokens before sending to frontend
+		const userObj = user.toObject()
+		delete userObj.refreshTokens
+		res.json(userObj)
 	} catch (error) {
 		res.status(500).json({ message: "Error fetching current user", error })
 	}

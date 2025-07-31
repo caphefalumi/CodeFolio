@@ -10,52 +10,6 @@ import { isAuthorizedUser } from "../utils/adminCheck.js"
 const router = express.Router()
 const publicKey = fs.readFileSync(process.cwd() + "/public.key", "utf8")
 
-// 🔹 Create a post
-router.post("/", authenticateToken, async (req, res) => {
-	try {
-		let content = req.body.content
-		// Always store as HTML: if not imported from GitHub and content is NOT already HTML, convert Markdown to HTML
-		if (!req.body.importedFromGithub && content && !/<[^>]+>/.test(content)) {
-			// Convert Markdown to HTML using marked
-			const { marked } = await import("marked")
-			content = marked.parse(content)
-		}
-		const post = new Post({ ...req.body, content, author: req.user.id })
-		await post.save()
-
-		// Get current user for notifications
-		const currentUser = await User.findById(req.user.id)
-
-		// Extract mentions from post content
-		const mentions = extractMentions(req.body.content)
-
-		// Handle mentions if any exist
-		if (mentions.length > 0) {
-			await notifyMentionedUsers(mentions, post._id, null, currentUser)
-		}
-
-		// Notify followers about new post
-		if (currentUser.followers && currentUser.followers.length > 0) {
-			const Notification = (await import("../models/Notification.js")).default
-
-			const followerNotifications = currentUser.followers.map(followerId => ({
-				recipient: followerId,
-				sender: req.user.id,
-				type: "follow",
-				message: `${currentUser.firstName} ${currentUser.lastName} posted a new project: ${post.title}`,
-				relatedPost: post._id,
-			}))
-
-			await Notification.insertMany(followerNotifications)
-		}
-
-		res.status(201).json({ message: "Post created successfully", post })
-	} catch (error) {
-		console.error("Error creating post:", error)
-		res.status(400).json({ message: "Error creating post", error })
-	}
-})
-
 // 🔹 Get all posts
 router.get("/", async (req, res) => {
 	try {
@@ -69,7 +23,6 @@ router.get("/", async (req, res) => {
 		res.status(500).json({ message: "Error fetching posts", error })
 	}
 })
-
 // 🔹 Get all posts for a user
 router.get("/:username", async (req, res) => {
 	try {
@@ -123,6 +76,52 @@ router.get("/:username/:id", async (req, res) => {
 	} catch (err) {
 		console.error("Error fetching post:", err)
 		res.status(500).json({ message: "Error", err })
+	}
+})
+
+// 🔹 Create a post
+router.post("/", authenticateToken, async (req, res) => {
+	try {
+		let content = req.body.content
+		// Always store as HTML: if not imported from GitHub and content is NOT already HTML, convert Markdown to HTML
+		if (!req.body.importedFromGithub && content && !/<[^>]+>/.test(content)) {
+			// Convert Markdown to HTML using marked
+			const { marked } = await import("marked")
+			content = marked.parse(content)
+		}
+		const post = new Post({ ...req.body, content, author: req.user.id })
+		await post.save()
+
+		// Get current user for notifications
+		const currentUser = await User.findById(req.user.id)
+
+		// Extract mentions from post content
+		const mentions = extractMentions(req.body.content)
+
+		// Handle mentions if any exist
+		if (mentions.length > 0) {
+			await notifyMentionedUsers(mentions, post._id, null, currentUser)
+		}
+
+		// Notify followers about new post
+		if (currentUser.followers && currentUser.followers.length > 0) {
+			const Notification = (await import("../models/Notification.js")).default
+
+			const followerNotifications = currentUser.followers.map(followerId => ({
+				recipient: followerId,
+				sender: req.user.id,
+				type: "follow",
+				message: `${currentUser.firstName} ${currentUser.lastName} posted a new project: ${post.title}`,
+				relatedPost: post._id,
+			}))
+
+			await Notification.insertMany(followerNotifications)
+		}
+
+		res.status(201).json({ message: "Post created successfully", post })
+	} catch (error) {
+		console.error("Error creating post:", error)
+		res.status(400).json({ message: "Error creating post", error })
 	}
 })
 
