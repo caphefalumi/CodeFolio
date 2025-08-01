@@ -239,7 +239,7 @@
 					username: "",
 					firstName: "",
 					lastName: "",
-					password: "",
+					role: ""
 				},
 				postForm: {
 					title: "",
@@ -386,7 +386,9 @@
 			},
 			fetchUsers() {
 				axios
-					.get(`${import.meta.env.VITE_SERVER_URL}/api/users`)
+					.get(`${import.meta.env.VITE_SERVER_URL}/api/users`, {
+						headers: this.authHeaders,
+					})
 					.then(res => {
 						this.users = res.data
 					})
@@ -409,14 +411,14 @@
 					username: "",
 					firstName: "",
 					lastName: "",
-					password: "",
+					role: "",
 				}
 				this.userDialog = true
 			},
 			editUser(user) {
 				if (!this.currentUser || this.currentUser.role !== "admin") return
 				this.editingUser = user
-				this.userForm = { ...user, password: "" }
+				this.userForm = user
 				this.userDialog = true
 			},
 			saveUser() {

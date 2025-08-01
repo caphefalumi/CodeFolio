@@ -57,7 +57,15 @@ app.use((req, _res, next) => {
 	next()
 })
 app.use(ExpressMongoSanitize())
+app.use((req, _res, next) => {
+	Object.defineProperty(req, 'query', {
+		...Object.getOwnPropertyDescriptor(req, 'query'),
+		value: req.query,
+		writable: false,
+	})
 
+	next()
+})
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
 app.use("/api/auth", authRoutes)

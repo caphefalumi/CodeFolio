@@ -7,12 +7,19 @@ import bcrypt from "bcryptjs"
 import getRandomCat from "random-cat-img"
 const router = express.Router()
 
-router.get("/", async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
 	try {
 		const users = await User.find()
+		const userIsAdmin = await isAdmin(req.user.id)
+		if (!userIsAdmin) {
+			return res
+				.status(403)
+				.json({ message: "Admin access required to view all users" })
+		}
 		// Map users to public userData objects
 		const usersData = users.map(user => ({
-			id: user._id,
+			email: user.email,
+			_id: user._id,
 			username: user.username,
 			firstName: user.firstName,
 			lastName: user.lastName,
@@ -22,6 +29,7 @@ router.get("/", async (req, res) => {
 			followingCount: user.followingCount,
 			createdAt: user.createdAt,
 			githubUrl: user.githubUrl,
+			role: user.role,
 		}))
 		res.json(usersData)
 	} catch (error) {
