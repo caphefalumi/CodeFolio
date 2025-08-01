@@ -52,7 +52,21 @@
 			</section>
 			<!-- Projects Grid -->
 			<section>
-				<v-row v-if="paginatedProjects.length > 0" v-auto-animate>
+				<!-- Loading State -->
+				<v-row
+					v-if="projects.length === 0 && !errorMessage"
+					align="center"
+					justify="center"
+				>
+					<v-col v-for="n in 6" :key="n" cols="12" sm="6" md="4">
+						<v-skeleton-loader
+							type="image, heading, text, text, text, chip, chip, button"
+							class="rounded-lg pa-4"
+							:loading="loading"
+						/>
+					</v-col>
+				</v-row>
+				<v-row v-else-if="paginatedProjects.length > 0" v-auto-animate>
 					<v-col
 						v-for="project in paginatedProjects"
 						:key="project._id"
@@ -89,17 +103,6 @@
 								{{ $t("clearFilters") }}
 							</v-btn>
 						</v-card>
-					</v-col>
-				</v-row>
-
-				<!-- Loading State -->
-				<v-row v-else>
-					<v-col cols="12" class="text-center">
-						<v-progress-circular
-							indeterminate
-							color="primary"
-						></v-progress-circular>
-						<p class="mt-4">{{ $t("loadingProjects") }}</p>
 					</v-col>
 				</v-row>
 			</section>

@@ -65,7 +65,16 @@
 						</h2>
 					</v-col>
 					<v-col cols="12">
+						<!-- Loading animation -->
+						<v-skeleton-loader
+							v-if="loading"
+							type="card, card, card, card"
+							class="mb-4"
+							:loading="loading"
+						/>
+						<!-- Projects list -->
 						<RecycleScroller
+							v-else
 							:items="featuredProjects"
 							:item-size="200"
 							key-field="_id"
@@ -113,6 +122,7 @@
 		data() {
 			return {
 				featuredProjects: [],
+				loading: true,
 				continueTour: (() => {
 					const state = localStorage.getItem("tour-state")
 					if (!state) return false
@@ -131,7 +141,10 @@
 				.then(response => {
 					const posts = response.data.map(post => ({
 						...post,
-						score: (post.upvotes || 0) + (post.views || 0) + (post.comments?.length || 0)
+						score:
+							(post.upvotes || 0) +
+							(post.views || 0) +
+							(post.comments?.length || 0),
 					}))
 
 					// Sort descending by score
@@ -141,9 +154,11 @@
 					this.featuredProjects = posts.slice(0, 200)
 
 					console.log("Sorted Projects:", this.featuredProjects)
+					this.loading = false
 				})
 				.catch(error => {
 					console.error("Error fetching featured projects:", error)
+					this.loading = false
 				})
 		},
 
@@ -157,7 +172,7 @@
 
 <style scoped>
 	.project-item {
-		height: 200px; /* Match the item-size prop */
+		height: 200px;
 		padding: 8px;
 		display: flex;
 		flex-direction: column;

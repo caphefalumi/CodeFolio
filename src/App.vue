@@ -202,7 +202,7 @@
 			// New method to handle app initialization
 			async initializeApp() {
 				if (this.isInitialized) return
-				
+
 				this.loadThemePreference()
 				await this.fetchToken()
 				this.isInitialized = true
@@ -358,9 +358,10 @@
 			handleRouteChange(to, from) {
 				// Only refresh authentication state if we're moving to/from login/logout routes
 				// or if the user authentication state might have changed
-				const authRoutes = ['/login', '/logout', '/register']
-				const isAuthRoute = authRoutes.includes(to.path) || authRoutes.includes(from.path)
-				
+				const authRoutes = ["/login", "/logout", "/register"]
+				const isAuthRoute =
+					authRoutes.includes(to.path) || authRoutes.includes(from.path)
+
 				if (isAuthRoute && this.isInitialized) {
 					// Only validate token, don't do full fetch
 					this.validateCurrentToken()
@@ -405,8 +406,8 @@
 					this.handleRouteChange(to, from)
 				},
 				// Don't trigger on initial route
-				immediate: false
-			}
+				immediate: false,
+			},
 		},
 	}
 </script>

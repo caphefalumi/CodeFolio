@@ -4,8 +4,53 @@
 
 		<v-container v-else class="py-8">
 			<section aria-labelledby="profile-heading">
+				<!-- Loading State -->
+				<v-row v-if="loading" align="center" justify="center">
+					<v-col cols="12" md="6" class="text-center">
+						<v-skeleton-loader
+							class="mx-auto mb-6"
+							type="avatar"
+							:loading="loading"
+							width="200"
+						/>
+
+						<!-- GitHub Icon + Link -->
+						<v-skeleton-loader
+							class="mx-auto mb-4"
+							type="text"
+							:loading="loading"
+							width="100"
+						/>
+
+						<!-- Followers / Following -->
+						<v-row justify="center" class="mb-4">
+							<v-col cols="5">
+								<v-skeleton-loader type="button" :loading="loading" />
+							</v-col>
+							<v-col cols="5">
+								<v-skeleton-loader type="button" :loading="loading" />
+							</v-col>
+						</v-row>
+
+						<!-- Action Buttons -->
+						<v-row justify="center" class="mb-4">
+							<v-col cols="4">
+								<v-skeleton-loader type="button" :loading="loading" />
+							</v-col>
+							<v-col cols="4">
+								<v-skeleton-loader type="button" :loading="loading" />
+							</v-col>
+							<v-col cols="4">
+								<v-skeleton-loader type="button" :loading="loading" />
+							</v-col>
+						</v-row>
+
+						<p class="mt-4 text-center">{{ $t("loading") }}</p>
+					</v-col>
+				</v-row>
+
 				<!-- User Profile Section at Top -->
-				<v-row class="profile-header" align="center" justify="center">
+				<v-row v-else class="profile-header" align="center" justify="center">
 					<v-col cols="12" class="d-flex flex-column align-center">
 						<v-avatar size="120" class="profile-avatar elevation-4 mb-4">
 							<v-img
@@ -557,7 +602,7 @@
 			async fetchProfileAndProjects(username) {
 				// Reset error state
 				this.showNotFound = false
-
+				this.loading = true
 				try {
 					// 1. Get public user profile by username
 					const profile = await fetchProfile(username)
@@ -600,6 +645,8 @@
 						// For other errors, still show NotFound to avoid broken page
 						this.showNotFound = true
 					}
+				} finally {
+					this.loading = false
 				}
 			},
 

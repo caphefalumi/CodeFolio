@@ -5,7 +5,48 @@
 
 		<!-- Show main project content if project exists -->
 		<v-container v-else id="tour-step-project-detail-welcome">
-			<v-row v-auto-animate>
+			<v-row v-if="!project.title" justify="center">
+				<!-- Project Image/Logo -->
+				<v-col cols="12">
+					<v-skeleton-loader
+						type="image, chip, chip, chip, heading, text, text"
+						height="300px"
+						class="rounded-lg mb-4"
+						:loading="loading"
+					/>
+				</v-col>
+
+				<!-- Project Title -->
+				<v-col cols="12">
+					<v-skeleton-loader
+						type="heading, text, text"
+						width="100%"
+						class="mb-2"
+						:loading="loading"
+					/>
+				</v-col>
+
+				<!-- GitHub Stats & Project Details (Side-by-Side on Desktop) -->
+				<v-col cols="12" md="6">
+					<v-skeleton-loader type="card" height="100px" :loading="loading" />
+				</v-col>
+				<v-col cols="12" md="6">
+					<v-skeleton-loader type="card" height="100px" :loading="loading" />
+				</v-col>
+
+				<v-col cols="12" class="mt-16">
+					<v-skeleton-loader
+						type="text"
+						width="40%"
+						class="mb-2"
+						:loading="loading"
+					/>
+					<v-skeleton-loader type="text" class="mb-2" :loading="loading" />
+					<v-skeleton-loader type="button" width="120px" :loading="loading" />
+				</v-col>
+			</v-row>
+
+			<v-row v-else v-auto-animate>
 				<!-- Project Header -->
 				<v-col cols="12">
 					<article>
@@ -29,7 +70,7 @@
 								</div>
 							</v-card-title>
 							<v-card-subtitle>
-								<span>{{ $t('author') }}: </span>
+								<span>{{ $t("author") }}: </span>
 								<v-btn
 									variant="text"
 									color="primary"
@@ -133,7 +174,11 @@
 				</v-col>
 
 				<!-- GitHub Stats -->
-				<v-col cols="12" md="6" v-if="project.githubUrl && githubStatsAvailable">
+				<v-col
+					cols="12"
+					md="6"
+					v-if="project.githubUrl && githubStatsAvailable"
+				>
 					<section
 						aria-labelledby="github-stats-heading"
 						id="tour-step-github-stats"
