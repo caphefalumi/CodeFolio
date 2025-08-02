@@ -158,6 +158,7 @@ router.post("/register", async (req, res) => {
 
 router.post("/login/jwt", async (req, res) => {
 	const { email, password } = req.body
+	console.log(req.body)
 	try {
 		const user = await User.findOne({ email })
 		if (!user || !user.password) {

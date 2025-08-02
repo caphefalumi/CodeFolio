@@ -72,8 +72,7 @@ const postSchema = new mongoose.Schema({
 		default: [],
 	},
 	githubUrl: {
-		type: String,
-		required: true,
+		type: String
 	},
 	type: {
 		type: String,
