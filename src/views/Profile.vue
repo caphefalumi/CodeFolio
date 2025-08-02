@@ -296,145 +296,16 @@
 					</app-form>
 				</v-container>
 			</app-dialog>
-
 			<!-- New/Edit Project Dialog -->
-			<app-dialog
+			<project-dialog
 				v-model="showNewProject"
-				:title="$t('addNewProject')"
-				max-width="800"
+				:project="editingProject"
+				:loading="loading"
+				:github-repos="githubRepos"
+				:show-github-import="showGithubImport"
+				@save="saveProject"
 				@close="closeProjectDialog"
-			>
-				<app-form
-					:loading="loading"
-					:error-message="projectErrorMessage"
-					:submit-button-text="$t('saveProject')"
-					:submit-aria-label="loading ? 'Saving project...' : 'Save project'"
-					aria-labelled-by="new-project-heading"
-					:show-submit-button="false"
-					@submit="saveProject"
-				>
-					<v-text-field
-						v-model="projectForm.title"
-						:label="$t('projectTitle')"
-						:rules="projectValidationRules.title"
-						required
-						maxlength="100"
-						counter
-						aria-label="Enter a descriptive title for your project"
-					></v-text-field>
-					<v-textarea
-						v-model="projectForm.description"
-						:label="$t('projectDescription')"
-						:rules="projectValidationRules.description"
-						required
-						maxlength="500"
-						counter
-						aria-label="Provide a brief description of what your project does"
-					></v-textarea>
-
-					<!-- Quill Editor for Project Content -->
-					<div class="mb-4">
-						<label class="v-label v-field-label"></label>
-						<quill-editor
-							v-model="projectForm.content"
-							placeholder="Write detailed content about your project, including features and implementation details..."
-							min-height="200px"
-						/>
-						<div v-if="contentError" class="text-error text-caption mt-1">
-							{{ contentError }}
-						</div>
-					</div>
-					<v-file-input
-						v-model="projectForm.coverImage"
-						:label="$t('coverImage')"
-						accept="image/*"
-						prepend-icon="mdi-image"
-						aria-label="Upload a cover image that represents your project"
-					></v-file-input>
-					<v-text-field
-						v-model="projectForm.githubUrl"
-						:label="$t('githubUrl')"
-						:rules="projectValidationRules.githubUrl"
-						prepend-icon="mdi-github"
-						type="url"
-						maxlength="255"
-						aria-label="Enter the URL of your GitHub repository for this project"
-					></v-text-field>
-					<v-select
-						v-model="projectForm.type"
-						:items="projectTypes"
-						:label="$t('projectType')"
-						:rules="projectValidationRules.type"
-						required
-						aria-label="Select the type of project you are adding"
-					></v-select>
-					<v-combobox
-						v-model="projectForm.tags"
-						:label="$t('tags')"
-						multiple
-						chips
-						small-chips
-						aria-label="Add tags to help categorize your project. You can create new tags by typing and pressing enter."
-					></v-combobox>
-					<v-row class="mb-2">
-						<v-col cols="12">
-							<v-btn
-								color="secondary"
-								variant="outlined"
-								@click="showGithubRepoDialog = true"
-								v-if="
-									editForm.githubUrl ||
-									(currentUser &&
-										currentUser.oAuthProviders &&
-										currentUser.oAuthProviders.some(
-											p => p.provider === 'github'
-										))
-								"
-							>
-								{{ $t("importFromGithub") }}
-							</v-btn>
-						</v-col>
-					</v-row>
-					<app-dialog
-						v-model="showGithubRepoDialog"
-						:title="'Select a GitHub Repository'"
-						max-width="600"
-					>
-						<v-list>
-							<v-list-item
-								v-for="repo in githubRepos"
-								:key="repo.id"
-								@click="importGithubRepo(repo)"
-								style="cursor: pointer"
-							>
-								<v-list-item-title>{{ repo.name }}</v-list-item-title>
-								<v-list-item-subtitle>{{
-									repo.description
-								}}</v-list-item-subtitle>
-							</v-list-item>
-						</v-list>
-						<template #actions>
-							<v-spacer></v-spacer>
-							<app-button color="primary" @click="showGithubRepoDialog = false">
-								{{ $t("close") }}
-							</app-button>
-						</template>
-					</app-dialog>
-				</app-form>
-
-				<template #actions>
-					<v-spacer></v-spacer>
-					<app-button
-						color="primary"
-						:loading="loading"
-						:disabled="!isProjectFormValid"
-						:aria-label="loading ? 'Saving project...' : 'Save project'"
-						@click="saveProject"
-					>
-						{{ $t("saveProject") }}
-					</app-button>
-				</template>
-			</app-dialog>
+			/>
 			<!-- Password Reset Dialog -->
 			<forgot-password-dialog
 				v-model="showResetPassword"
@@ -472,7 +343,7 @@
 	} from "@/composables/user.js"
 	import { useApi } from "@/composables/common.js"
 	import axios from "axios"
-	import QuillEditor from "@/components/QuillEditor.vue"
+	import ProjectDialog from "@/components/ProjectDialog.vue"
 
 	// Import reusable components
 	import AppDialog from "@/components/AppDialog.vue"
@@ -489,12 +360,12 @@
 	export default {
 		name: "ProfileView",
 		components: {
+			ProjectDialog,
 			AppDialog,
 			AppButton,
 			AppForm,
 			AppAlert,
 			ProjectCard,
-			QuillEditor,
 			ForgotPasswordDialog,
 			FollowButton,
 			FollowersDialog,
@@ -514,6 +385,7 @@
 				showNewProject: false,
 				loading: false,
 				isOwner: false,
+				editingProject: null,
 				editForm: {
 					firstName: "",
 					lastName: "",
@@ -524,25 +396,11 @@
 					githubUrl: "",
 				},
 				successMessage: "",
-				projectForm: {
-					title: "",
-					description: "",
-					content: "",
-					coverImage: null,
-					tags: [],
-					githubUrl: "",
-					type: "",
-				},
 				errorMessage: "",
-				projectTypes: [],
 				showResetPassword: false,
 				usernameError: "",
 				showFollowersDialog: false,
 				followersDialogType: "followers", // 'followers' or 'following'
-				projectErrorMessage: "",
-				contentError: "",
-				projectValidationRules: {},
-				showGithubRepoDialog: false,
 				githubRepos: [],
 			}
 		},
@@ -569,32 +427,12 @@
 			accessToken() {
 				return getAccessToken()
 			},
-			isProjectFormValid() {
-				const titleValid =
-					this.projectForm.title &&
-					this.projectForm.title.length >= 3 &&
-					this.projectForm.title.length <= 100
-
-				const descriptionValid =
-					this.projectForm.description &&
-					this.projectForm.description.length >= 10 &&
-					this.projectForm.description.length <= 500
-
-				const typeValid = !!this.projectForm.type
-
-				const contentValid =
-					this.projectForm.content && this.projectForm.content.trim().length > 0
-
-				const githubUrlValid =
-					!this.projectForm.githubUrl ||
-					this.isValidUrl(this.projectForm.githubUrl)
-
-				return (
-					titleValid &&
-					descriptionValid &&
-					typeValid &&
-					contentValid &&
-					githubUrlValid
+			showGithubImport() {
+				return !!(
+					this.editForm.githubUrl ||
+					(this.currentUser &&
+						this.currentUser.oAuthProviders &&
+						this.currentUser.oAuthProviders.some(p => p.provider === "github"))
 				)
 			},
 		},
@@ -723,20 +561,10 @@
 					this.loading = false
 				}
 			},
-
-			async saveProject() {
-				// Clear previous errors
-				this.projectErrorMessage = ""
-				this.contentError = ""
-
-				// Validate the form
-				if (!this.validateProjectForm()) {
-					return
-				}
-
+			async saveProject(projectData) {
 				this.loading = true
 				try {
-					let imageUri = this.projectForm.coverImage
+					let imageUri = projectData.coverImage
 					if (imageUri && typeof imageUri === "object") {
 						imageUri = await this.uploadImage(
 							imageUri,
@@ -745,39 +573,39 @@
 						)
 					}
 
-					let content = this.projectForm.content
+					let content = projectData.content
 					let importedFromGithub = false
 					// If importing from GitHub, content is already Markdown
 					if (
-						this.projectForm.githubUrl &&
-						this.projectForm.content &&
-						/<[^>]+>/.test(this.projectForm.content)
+						projectData.githubUrl &&
+						projectData.content &&
+						/<[^>]+>/.test(projectData.content)
 					) {
 						// If content is HTML (from Quill), store as Markdown
 						importedFromGithub = false
 					} else if (
-						this.projectForm.githubUrl &&
-						this.projectForm.content &&
-						!/<[^>]+>/.test(this.projectForm.content)
+						projectData.githubUrl &&
+						projectData.content &&
+						!/<[^>]+>/.test(projectData.content)
 					) {
 						importedFromGithub = true
 					}
 
 					const payload = {
-						title: this.projectForm.title,
-						description: this.projectForm.description,
-						content: this.projectForm.content,
+						title: projectData.title,
+						description: projectData.description,
+						content: projectData.content,
 						coverImage: imageUri,
-						tags: this.projectForm.tags,
-						githubUrl: this.projectForm.githubUrl,
-						type: this.projectForm.type,
+						tags: projectData.tags,
+						githubUrl: projectData.githubUrl,
+						type: projectData.type,
 						importedFromGithub,
 					}
 
 					let result
-					if (this.projectForm._id) {
+					if (projectData._id) {
 						result = await this.updatePost(
-							this.projectForm._id,
+							projectData._id,
 							payload,
 							this.accessToken
 						)
@@ -791,12 +619,10 @@
 					}
 
 					this.showNewProject = false
-					this.resetProjectForm()
+					this.editingProject = null
 				} catch (error) {
-					this.projectErrorMessage = this.getErrorMessage(
-						error,
-						"Project save failed"
-					)
+					console.error("Error saving project:", error)
+					// Error will be handled by the ProjectDialog component
 				} finally {
 					this.loading = false
 				}
@@ -806,26 +632,21 @@
 				this.$router.push(`/${this.userProfile.username}/${project.id}`)
 			},
 			editProject(project) {
-				this.projectForm = { ...project }
+				this.editingProject = { ...project }
 				this.showNewProject = true
 			},
 
 			async openNewProjectDialog() {
-				this.resetProjectForm()
+				this.editingProject = null
 				this.showNewProject = true
-				if (
-					this.editForm.githubUrl ||
-					(this.currentUser &&
-						this.currentUser.oAuthProviders &&
-						this.currentUser.oAuthProviders.some(p => p.provider === "github"))
-				) {
+				if (this.showGithubImport) {
 					this.githubRepos = await this.fetchGithubRepos()
 				}
 			},
 
 			closeProjectDialog() {
 				this.showNewProject = false
-				this.resetProjectForm()
+				this.editingProject = null
 			},
 
 			async deleteProject(project) {

@@ -134,7 +134,8 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 		// Check if current user is authorized (is the author or is admin)
 		const isAuthorized = await isAuthorizedUser(
 			req.user.id,
-			post.author.toString()
+			post.author.toString(),
+			false
 		)
 
 		if (!isAuthorized) {
@@ -170,7 +171,8 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 		// Check if current user is authorized (is the author or is admin)
 		const isAuthorized = await isAuthorizedUser(
 			req.user.id,
-			post.author.toString()
+			post.author.toString(),
+			false
 		)
 
 		if (!isAuthorized) {
@@ -410,7 +412,8 @@ router.patch(
 			// Check if current user is authorized (is the comment author or is admin)
 			const isAuthorized = await isAuthorizedUser(
 				req.user.id,
-				comment.user.toString()
+				comment.user.toString(),
+				false
 			)
 
 			if (!isAuthorized) {
@@ -469,7 +472,8 @@ router.patch(
 			// Check if current user is authorized (is the reply author or is admin)
 			const isAuthorized = await isAuthorizedUser(
 				req.user.id,
-				reply.user.toString()
+				reply.user.toString(),
+				false
 			)
 
 			if (!isAuthorized) {
@@ -525,7 +529,8 @@ router.delete(
 			// Check if current user is authorized (is the comment author or is admin)
 			const isAuthorized = await isAuthorizedUser(
 				req.user.id,
-				comment.user.toString()
+				comment.user.toString(),
+				false
 			)
 
 			if (!isAuthorized) {
@@ -578,7 +583,8 @@ router.delete(
 			// Check if current user is authorized (is the reply author or is admin)
 			const isAuthorized = await isAuthorizedUser(
 				req.user.id,
-				reply.user.toString()
+				reply.user.toString(),
+				false
 			)
 
 			if (!isAuthorized) {

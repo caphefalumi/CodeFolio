@@ -4,22 +4,22 @@
 		<NotFound v-if="showNotFound" />
 
 		<!-- Show loading spinner while checking authentication -->
-		<v-container v-else-if="isLoading" class="text-center">
-			<v-progress-circular indeterminate size="64" />
-			<p class="mt-4">{{ $t("loading") || "Loading..." }}</p>
-		</v-container>
 
 		<!-- Show admin dashboard for authorized users -->
 		<v-container v-else>
 			<h1 class="text-h4 mb-6">{{ $t("adminTitle") }}</h1>
 			<v-tabs v-model="tab" @update:model-value="onTabChange" id="admin-tabs">
-				<v-tab id="admin-tab-users">{{ $t("adminUsers") }}</v-tab>
+				<v-tab id="admin-tab-users" v-if="currentUserRole === 'admin'">
+					{{ $t("adminUsers") }}
+				</v-tab>
 				<v-tab id="admin-tab-posts">{{ $t("adminPosts") }}</v-tab>
-				<v-tab id="admin-tab-analytics">{{ $t("adminAnalytics") }}</v-tab>
+				<v-tab id="admin-tab-analytics" v-if="currentUserRole === 'admin'">{{
+					$t("adminAnalytics")
+				}}</v-tab>
 			</v-tabs>
 
 			<!-- Users Tab -->
-			<div v-if="tab === 0">
+			<div v-if="tab === 0 && currentUserRole === 'admin'">
 				<v-row>
 					<v-col cols="12">
 						<v-btn
@@ -40,7 +40,14 @@
 							class="mb-4"
 							maxlength="100"
 						/>
+						<v-skeleton-loader
+							v-if="users.length === 0 && !showNotFound"
+							type="table"
+							:loading="users.length === 0"
+							class="mb-4"
+						/>
 						<v-data-table
+							v-else
 							:headers="userHeaders"
 							:items="filteredUsers"
 							item-key="_id"
@@ -119,7 +126,12 @@
 			</div>
 
 			<!-- Posts Tab -->
-			<div v-else-if="tab === 1">
+			<div
+				v-else-if="
+					(tab === 0 && currentUserRole === 'moderator') ||
+					(tab === 1 && currentUserRole === 'admin')
+				"
+			>
 				<v-row>
 					<v-col cols="12">
 						<v-btn color="primary" class="mb-4" @click="openPostDialog()">{{
@@ -134,7 +146,14 @@
 							class="mb-4"
 							maxlength="100"
 						/>
+						<v-skeleton-loader
+							v-if="posts.length === 0 && !showNotFound"
+							type="table"
+							:loading="posts.length === 0"
+							class="mb-4"
+						/>
 						<v-data-table
+							v-else
 							:headers="postHeaders"
 							:items="filteredPosts"
 							item-key="_id"
@@ -157,51 +176,21 @@
 						</v-data-table>
 					</v-col>
 				</v-row>
-				<v-dialog v-model="postDialog" max-width="600px">
-					<v-card>
-						<v-card-title>{{
-							editingPost ? $t("editPost") : $t("addPost")
-						}}</v-card-title>
-						<v-card-text>
-							<v-text-field
-								v-model="postForm.title"
-								:label="$t('title')"
-								required
-								maxlength="100"
-								counter
-							></v-text-field>
-							<v-textarea
-								v-model="postForm.description"
-								:label="$t('description')"
-								maxlength="500"
-								counter
-							></v-textarea>
-							<v-text-field
-								v-model="postForm.githubUrl"
-								:label="$t('githubUrl')"
-								maxlength="255"
-							></v-text-field>
-							<v-text-field
-								v-model="postForm.type"
-								:label="$t('type')"
-								maxlength="50"
-							></v-text-field>
-							<v-text-field
-								v-model="postForm.tags"
-								:label="$t('tagsCommaSeparated')"
-								maxlength="200"
-							></v-text-field>
-						</v-card-text>
-						<v-card-actions>
-							<v-btn color="primary" @click="savePost">{{ $t("save") }}</v-btn>
-							<v-btn text @click="closePostDialog">{{ $t("cancel") }}</v-btn>
-						</v-card-actions>
-					</v-card>
+				<v-dialog v-model="postDialog" max-width="800px">
+					<ProjectDialog
+						:modelValue="postDialog"
+						:project="editingPost ? editingPost : null"
+						:loading="false"
+						:showGithubImport="false"
+						@update:modelValue="postDialog = $event"
+						@save="handleProjectDialogSave"
+						@close="closePostDialog"
+					/>
 				</v-dialog>
 			</div>
 
 			<!-- Analytics Tab -->
-			<div v-else-if="tab === 2">
+			<div v-else-if="tab === 2 && currentUserRole === 'admin'">
 				<StatisticsView />
 			</div>
 		</v-container>
@@ -213,16 +202,16 @@
 	import { getAccessToken, fetchCurrentUser } from "@/composables/user.js"
 	import NotFound from "@/views/NotFound.vue"
 	import StatisticsView from "@/components/Statistics.vue"
+	import ProjectDialog from "@/components/ProjectDialog.vue"
 	export default {
 		name: "AdminDashboard",
 		components: {
 			NotFound,
 			StatisticsView,
+			ProjectDialog,
 		},
 		data() {
 			return {
-				// Authentication state
-				isLoading: true,
 				showNotFound: false,
 
 				// Existing data
@@ -239,7 +228,7 @@
 					username: "",
 					firstName: "",
 					lastName: "",
-					role: ""
+					role: "",
 				},
 				postForm: {
 					title: "",
@@ -316,21 +305,30 @@
 		methods: {
 			initializeTabFromUrl() {
 				const tabParam = this.$route.query.tab
-				const tabMap = {
-					users: 0,
-					posts: 1,
-					analytics: 2,
-				}
+				const isAdmin = this.currentUserRole === "admin"
+				const isModerator = this.currentUserRole === "moderator"
+				const tabMapAdmin = { users: 0, posts: 1, analytics: 2 }
+				const tabMapModerator = { posts: 0 }
 
-				if (tabParam && tabMap.hasOwnProperty(tabParam)) {
-					this.tab = tabMap[tabParam]
-				} else {
-					// Default to users tab and update URL if no tab parameter exists
+				if (isAdmin) {
+					if (tabParam && tabMapAdmin.hasOwnProperty(tabParam)) {
+						this.tab = tabMapAdmin[tabParam]
+					} else {
+						this.tab = 0
+						if (!tabParam) {
+							this.$router.replace({
+								path: this.$route.path,
+								query: { ...this.$route.query, tab: "users" },
+							})
+						}
+					}
+				} else if (isModerator) {
+					// Moderators can only see posts tab
 					this.tab = 0
-					if (!tabParam) {
+					if (tabParam !== "posts") {
 						this.$router.replace({
 							path: this.$route.path,
-							query: { ...this.$route.query, tab: "users" },
+							query: { ...this.$route.query, tab: "posts" },
 						})
 					}
 				}
@@ -350,7 +348,6 @@
 
 				if (!isAuthenticated) {
 					this.showNotFound = true
-					this.isLoading = false
 					return
 				}
 
@@ -359,7 +356,6 @@
 
 					if (!this.currentUser) {
 						this.showNotFound = true
-						this.isLoading = false
 						return
 					}
 
@@ -370,18 +366,15 @@
 					const isModerator = this.currentUser.role === "moderator"
 
 					if (isAdmin || isModerator) {
-						this.isLoading = false
 						if (isAdmin) this.fetchUsers()
 						this.fetchPosts()
 						this.initializeTabFromUrl()
 					} else {
 						this.showNotFound = true
-						this.isLoading = false
 					}
 				} catch (error) {
 					console.error("Error checking admin access:", error)
 					this.showNotFound = true
-					this.isLoading = false
 				}
 			},
 			fetchUsers() {
@@ -486,12 +479,21 @@
 				this.postForm = { ...post }
 				this.postDialog = true
 			},
-			savePost() {
+			handleProjectDialogSave(projectData) {
+				// If editing, update post; else, create new post
 				if (this.editingPost) {
-					axios
+					this.savePostWithData(projectData)
+				} else {
+					this.savePostWithData(projectData)
+				}
+			},
+			savePostWithData(data) {
+				if (this.editingPost) {
+					// PATCH update
+					this.$axios
 						.patch(
 							`${import.meta.env.VITE_SERVER_URL}/api/posts/${this.editingPost._id}`,
-							this.postForm,
+							data,
 							{ headers: this.authHeaders }
 						)
 						.then(() => {
@@ -502,10 +504,11 @@
 							console.error("Error updating post:", error)
 						})
 				} else {
-					axios
+					// POST create
+					this.$axios
 						.post(
 							`${import.meta.env.VITE_SERVER_URL}/api/posts`,
-							this.postForm,
+							data,
 							{ headers: this.authHeaders }
 						)
 						.then(() => {

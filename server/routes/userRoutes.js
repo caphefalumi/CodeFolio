@@ -7,6 +7,25 @@ import bcrypt from "bcryptjs"
 import getRandomCat from "random-cat-img"
 const router = express.Router()
 
+router.get("/list", async (req, res) => {
+	const users = await User.find()
+	// Map users to public userData objects
+	const usersData = users.map(user => ({
+		email: user.email,
+		_id: user._id,
+		username: user.username,
+		firstName: user.firstName,
+		lastName: user.lastName,
+		bio: user.bio,
+		avatar: user.avatar,
+		followersCount: user.followersCount,
+		followingCount: user.followingCount,
+		createdAt: user.createdAt,
+		githubUrl: user.githubUrl,
+	}))
+	res.json(usersData)
+}),
+
 router.get("/", authenticateToken, async (req, res) => {
 	try {
 		const users = await User.find()

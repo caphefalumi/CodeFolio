@@ -302,7 +302,7 @@
 				this.loadingAllUsers = true
 				try {
 					const response = await axios.get(
-						`${import.meta.env.VITE_SERVER_URL}/api/users`
+						`${import.meta.env.VITE_SERVER_URL}/api/users/list`
 					)
 					this.allUsers = response.data || []
 					console.log("Cached users for mentions:", this.allUsers.length)

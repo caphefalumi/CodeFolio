@@ -62,7 +62,6 @@
 						<v-skeleton-loader
 							type="image, heading, text, text, text, chip, chip, button"
 							class="rounded-lg pa-4"
-							:loading="loading"
 						/>
 					</v-col>
 				</v-row>

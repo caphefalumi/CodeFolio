@@ -228,6 +228,7 @@
 <script>
 	import axios from "axios"
 	import Chart from "chart.js/auto"
+	import { getAccessToken } from "@/composables/user.js"
 	import { RecycleScroller } from "vue-virtual-scroller"
 	import "vue-virtual-scroller/dist/vue-virtual-scroller.css"
 
@@ -302,7 +303,11 @@
 				try {
 					const [projects, users] = await Promise.all([
 						axios.get(`${import.meta.env.VITE_SERVER_URL}/api/posts/`),
-						axios.get(`${import.meta.env.VITE_SERVER_URL}/api/users/`),
+						axios.get(`${import.meta.env.VITE_SERVER_URL}/api/users/`, {
+							headers: {
+								Authorization: `Bearer ${getAccessToken()}`,
+							},
+						}),
 					])
 
 					this.allUsers = users.data || []
