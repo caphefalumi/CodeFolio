@@ -4,6 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"setup": "concurrently \"bun install\" \"cd server && bun install\"",
 		"app": "concurrently \"bun run server\" \"vite\" ",
 		"dev": "vite --host",
 		"build": "vite build",

@@ -5,7 +5,8 @@
 		:title="isEditing ? $t('editProject') : $t('addNewProject')"
 		max-width="800"
 		@close="handleClose"
-	>		<app-form
+	>
+		<app-form
 			:loading="loading"
 			:error-message="errorMessage"
 			:submit-button-text="$t('saveProject')"
@@ -13,7 +14,8 @@
 			aria-labelled-by="project-dialog-heading"
 			:show-submit-button="false"
 			@submit="handleSave"
-		>			<v-text-field
+		>
+			<v-text-field
 				v-model="form.title"
 				:label="$t('projectTitle')"
 				:rules="titleRules"
@@ -32,7 +34,8 @@
 				maxlength="500"
 				counter
 				aria-label="Provide a brief description of what your project does"
-			></v-textarea>			<!-- Quill Editor for Project Content -->
+			></v-textarea>
+			<!-- Quill Editor for Project Content -->
 			<div class="mb-4">
 				<quill-editor
 					v-model="form.content"
@@ -49,7 +52,8 @@
 				accept="image/*"
 				prepend-icon="mdi-image"
 				aria-label="Upload a cover image that represents your project"
-			></v-file-input>			<v-text-field
+			></v-file-input>
+			<v-text-field
 				v-model="form.githubUrl"
 				:label="$t('githubUrl')"
 				:rules="githubUrlRules"
@@ -87,7 +91,8 @@
 						{{ $t("importFromGithub") }}
 					</v-btn>
 				</v-col>
-			</v-row>			<app-dialog
+			</v-row>
+			<app-dialog
 				:modelValue="showGithubRepoDialog"
 				@update:modelValue="showGithubRepoDialog = $event"
 				:title="'Select a GitHub Repository'"
@@ -128,14 +133,16 @@
 	</app-dialog>
 </template>
 
-<script>	import { marked } from "marked"
+<script>
+	import { marked } from "marked"
 	import QuillEditor from "@/components/QuillEditor.vue"
 	import AppDialog from "@/components/AppDialog.vue"
 	import AppButton from "@/components/AppButton.vue"
 	import AppForm from "@/components/AppForm.vue"
 
 	export default {
-		name: "ProjectDialog",		components: {
+		name: "ProjectDialog",
+		components: {
 			QuillEditor,
 			AppDialog,
 			AppButton,
@@ -175,7 +182,8 @@
 					githubUrl: "",
 					type: "",
 					_id: null,
-				},				errorMessage: "",
+				},
+				errorMessage: "",
 				contentError: "",
 				showGithubRepoDialog: false,
 				validationErrors: [],
@@ -226,7 +234,8 @@
 					contentValid &&
 					githubUrlValid
 				)
-			},			validationRules() {
+			},
+			validationRules() {
 				return {
 					title: [
 						v => !!v || this.$t("validationRequired"),
@@ -260,7 +269,8 @@
 			githubUrlRules() {
 				return []
 			},
-		},		watch: {
+		},
+		watch: {
 			modelValue(newVal) {
 				if (newVal) {
 					this.initializeForm()
@@ -277,24 +287,25 @@
 					}
 				},
 				immediate: true,
-			},			// Watch form fields for real-time validation
-			'form.title'() {
+			}, // Watch form fields for real-time validation
+			"form.title"() {
 				if (this.modelValue) this.validateTitle()
 			},
-			'form.description'() {
+			"form.description"() {
 				if (this.modelValue) this.validateDescription()
 			},
-			'form.content'() {
+			"form.content"() {
 				if (this.modelValue) this.validateContent()
 			},
-			'form.type'() {
+			"form.type"() {
 				if (this.modelValue) this.validateType()
 			},
-			'form.githubUrl'() {
+			"form.githubUrl"() {
 				if (this.modelValue) this.validateGithubUrl()
 			},
 		},
-		methods: {			initializeForm() {
+		methods: {
+			initializeForm() {
 				if (this.project) {
 					this.form = { ...this.project }
 				} else {
@@ -307,7 +318,7 @@
 				this.descriptionError = ""
 				this.typeError = ""
 				this.githubUrlError = ""
-				
+
 				// Validate immediately after initialization for new projects
 				if (!this.project && this.modelValue) {
 					this.$nextTick(() => {
@@ -330,7 +341,8 @@
 			handleClose() {
 				this.$emit("update:modelValue", false)
 				this.$emit("close")
-			},			handleSave() {
+			},
+			handleSave() {
 				// Clear previous errors
 				this.errorMessage = ""
 				this.contentError = ""
@@ -349,61 +361,71 @@
 				this.validateContent()
 				this.validateType()
 				this.validateGithubUrl()
-				
-				return !this.titleError && !this.descriptionError && !this.contentError && !this.typeError && !this.githubUrlError
+
+				return (
+					!this.titleError &&
+					!this.descriptionError &&
+					!this.contentError &&
+					!this.typeError &&
+					!this.githubUrlError
+				)
 			},
 			validateTitle() {
 				if (!this.modelValue) return
-				
+
 				if (!this.form.title || this.form.title.trim().length === 0) {
-					this.titleError = this.$t('validationRequired')
+					this.titleError = this.$t("validationRequired")
 				} else if (this.form.title.length < 3) {
-					this.titleError = this.$t('validationTitleMinLength')
+					this.titleError = this.$t("validationTitleMinLength")
 				} else if (this.form.title.length > 100) {
-					this.titleError = this.$t('validationTitleMaxLength')
+					this.titleError = this.$t("validationTitleMaxLength")
 				} else {
 					this.titleError = ""
 				}
 			},
 			validateDescription() {
 				if (!this.modelValue) return
-				
-				if (!this.form.description || this.form.description.trim().length === 0) {
-					this.descriptionError = this.$t('validationRequired')
+
+				if (
+					!this.form.description ||
+					this.form.description.trim().length === 0
+				) {
+					this.descriptionError = this.$t("validationRequired")
 				} else if (this.form.description.length < 10) {
-					this.descriptionError = this.$t('validationDescriptionMinLength')
+					this.descriptionError = this.$t("validationDescriptionMinLength")
 				} else if (this.form.description.length > 500) {
-					this.descriptionError = this.$t('validationDescriptionMaxLength')
+					this.descriptionError = this.$t("validationDescriptionMaxLength")
 				} else {
 					this.descriptionError = ""
 				}
 			},
 			validateContent() {
 				if (!this.modelValue) return
-				
+
 				if (!this.form.content || this.form.content.trim().length === 0) {
-					this.contentError = this.$t('validationRequired')
+					this.contentError = this.$t("validationRequired")
 				} else {
 					this.contentError = ""
 				}
 			},
 			validateType() {
 				if (!this.modelValue) return
-				
+
 				if (!this.form.type) {
-					this.typeError = this.$t('validationRequired')
+					this.typeError = this.$t("validationRequired")
 				} else {
 					this.typeError = ""
 				}
 			},
 			validateGithubUrl() {
 				if (!this.modelValue) return
-				
+
 				if (this.form.githubUrl && !this.isValidUrl(this.form.githubUrl)) {
-					this.githubUrlError = this.$t('validationUrlInvalid')
+					this.githubUrlError = this.$t("validationUrlInvalid")
 				} else {
 					this.githubUrlError = ""
-				}			},
+				}
+			},
 			isValidUrl(string) {
 				try {
 					new URL(string)

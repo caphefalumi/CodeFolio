@@ -506,11 +506,9 @@
 				} else {
 					// POST create
 					this.$axios
-						.post(
-							`${import.meta.env.VITE_SERVER_URL}/api/posts`,
-							data,
-							{ headers: this.authHeaders }
-						)
+						.post(`${import.meta.env.VITE_SERVER_URL}/api/posts`, data, {
+							headers: this.authHeaders,
+						})
 						.then(() => {
 							this.fetchPosts()
 							this.closePostDialog()

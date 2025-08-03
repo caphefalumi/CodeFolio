@@ -2,12 +2,12 @@
 
 ## Project setup
 ```
-bun install
+bun run setup
 ```
 
 ### Compiles and hot-reloads for development
 ```
-bun run dev
+bun run app
 ```
 
 ### Compiles and minifies for production
